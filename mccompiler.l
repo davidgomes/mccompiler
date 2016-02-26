@@ -2,18 +2,20 @@ ID  _*([a-z]|[A-Z])+_*([a-z]|[A-Z])*_*
 numero [0-9]+
 INTLIT  {numero}
 RESERVED  "++"|"--"
+CHRLIT  [a-z]|[A-Z]|"\"{escape}
+escape  "n"|"t"|"\"|"'"|"''"|[0-7]{3}
 %%
-"char" {printf("CHAR\n");}
-"else" {printf("ELSE\n");}
-"for" {printf("FOR\n");}
-"if" {printf("IF\n");}
-"int" {printf("INT\n");}
-"return" {printf("RETURN\n");}
-"void" {printf("VOID\n");}
+char {printf("CHAR\n");}
+else {printf("ELSE\n");}
+for {printf("FOR\n");}
+if {printf("IF\n");}
+int {printf("INT\n");}
+return {printf("RETURN\n");}
+void {printf("VOID\n");}
 {ID}  {printf("ID(%s)\n", yytext);}
 {INTLIT}  {printf("INTLIT(%s)\n", yytext);}
-"&" {printf("AMP\n");}
-"&&" {printf("AND\n");}
+& {printf("AMP\n");}
+&& {printf("AND\n");}
 "=" {printf("ASSIGN\n");}
 "*" {printf("AST\n");}
 "," {printf("COMMA\n");}
