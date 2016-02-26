@@ -4,3 +4,8 @@ buf_
 buf_word
 buf_word_
 _buf_word_
+1
+12
+129034
+12.23
+11,00
