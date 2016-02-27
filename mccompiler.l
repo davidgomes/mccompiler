@@ -1,4 +1,7 @@
+%option yylineno
+
 %X  COMMENT
+
 ID  _*([a-zA-Z])+_*([0-9a-zA-Z])*_*
 numero [0-9]+
 INTLIT  {numero}
@@ -7,17 +10,18 @@ CHRLIT \\(\\|\"|\'|n|t|[0-7]{3})|[a-z]|[A-Z]
 STRLIT  \".+\"
 
 %{
-  int col, line;
+  #define YY_USER_ACTION col+=yyleng;
+  int col = 1, com_col, line;
 %}
 
 %%
-"/*"  {BEGIN COMMENT;}
+"/*"  {BEGIN COMMENT; com_col = col-yyleng;}
 <COMMENT>"*/"  {BEGIN 0;}
 <COMMENT>.  {;}
-<COMMENT><<eof>>  {printf("Line <num linha>, col <num coluna>: unterminated comment\n"); return 0;}
+<COMMENT><<eof>>  {printf("Line %d, col %d: unterminated comment\n", yylineno, com_col); return 0;}
 {CHRLIT} {printf("CHRLIT(%s)\n", yytext);}
 {STRLIT}  {printf("STRLIT(%s)\n", yytext);}
-\".+  {printf("Line <num linha>, col <num coluna>: unterminated string constant\n");}
+\".+  {printf("Line %d, col %d: unterminated string constant\n", yylineno, col-(int)yyleng);}
 char {printf("CHAR\n");}
 else {printf("ELSE\n");}
 for {printf("FOR\n");}
@@ -52,7 +56,8 @@ void {printf("VOID\n");}
 "]" {printf("RSQ\n");}
 ";" {printf("SEMI\n");}
 {RESERVED}  {printf("RESERVED\n");}
-.|\n {;}
+\n {col = 1;}
+. {;}
 %%
 int main()
 {
