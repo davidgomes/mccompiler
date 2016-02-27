@@ -3,8 +3,11 @@ numero [0-9]+
 INTLIT  {numero}
 RESERVED  "++"|"--"
 CHRLIT \\(\\|\"|\'|n|t|[0-7]{3})|[a-z]|[A-Z]
+STRLIT  \".+\"
+COMMENT /*.+*/
 %%
 {CHRLIT} {printf("CHRLIT(%s)\n", yytext);}
+{STRLIT}  {printf("STRLIT(%s)\n", yytext);}
 char {printf("CHAR\n");}
 else {printf("ELSE\n");}
 for {printf("FOR\n");}
@@ -39,7 +42,7 @@ void {printf("VOID\n");}
 "]" {printf("RSQ\n");}
 ";" {printf("SEMI\n");}
 {RESERVED}  {printf("RESERVED\n");}
-. {;}
+.|\n|{COMMENT} {;}
 %%
 int main()
 {
