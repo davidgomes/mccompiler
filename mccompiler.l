@@ -10,7 +10,7 @@ CHRLIT \\(\\|\"|\'|n|t|[0-7]{3})|[a-z]|[A-Z]
 STRLIT  \".+\"
 
 %{
-  #define YY_USER_ACTION col+=yyleng;
+  #define YY_USER_ACTION col+=yyleng; //YY_USER_ACTION -  action which is always executed prior to the matched rule's action
   int col = 1, com_col, line;
 %}
 
