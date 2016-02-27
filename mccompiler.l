@@ -4,7 +4,7 @@ INTLIT  {numero}
 RESERVED  "++"|"--"
 CHRLIT \\(\\|\"|\'|n|t|[0-7]{3})|[a-z]|[A-Z]
 STRLIT  \".+\"
-COMMENT /*.+*/
+COMMENT \/\*.+\*\/
 %%
 {CHRLIT} {printf("CHRLIT(%s)\n", yytext);}
 {STRLIT}  {printf("STRLIT(%s)\n", yytext);}
