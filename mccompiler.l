@@ -1,5 +1,5 @@
 %X  COMMENT
-ID  _*([a-z]|[A-Z])+_*([a-z]|[A-Z])*_*
+ID  _*([a-zA-Z])+_*([0-9a-zA-Z])*_*
 numero [0-9]+
 INTLIT  {numero}
 RESERVED  "++"|"--"
