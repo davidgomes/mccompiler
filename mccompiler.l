@@ -17,6 +17,7 @@ STRLIT  \".+\"
 <COMMENT><<eof>>  {printf("Line <num linha>, col <num coluna>: unterminated comment\n"); return 0;}
 {CHRLIT} {printf("CHRLIT(%s)\n", yytext);}
 {STRLIT}  {printf("STRLIT(%s)\n", yytext);}
+\".+  {printf("Line <num linha>, col <num coluna>: unterminated string constant\n");}
 char {printf("CHAR\n");}
 else {printf("ELSE\n");}
 for {printf("FOR\n");}
