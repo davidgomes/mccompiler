@@ -5,7 +5,7 @@
 ID  _*([a-zA-Z])+_*([0-9a-zA-Z])*_*
 numero [0-9]+
 INTLIT  {numero}
-RESERVED  "++"|"--"
+RESERVED  "++"|"--"|auto|break|case|const|continue|default|do|long|register|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|volatile|while|double|enum|extern|float|goto
 CHRLIT \\(\\|\"|\'|n|t|[0-7]{3})|[a-z]|[A-Z]
 STRLIT  \".+\"
 
@@ -29,6 +29,7 @@ if {printf("IF\n");}
 int {printf("INT\n");}
 return {printf("RETURN\n");}
 void {printf("VOID\n");}
+{RESERVED}  {printf("RESERVED\n");}
 {ID}  {printf("ID(%s)\n", yytext);}
 {INTLIT}  {printf("INTLIT(%s)\n", yytext);}
 & {printf("AMP\n");}
@@ -55,7 +56,6 @@ void {printf("VOID\n");}
 ")" {printf("RPAR\n");}
 "]" {printf("RSQ\n");}
 ";" {printf("SEMI\n");}
-{RESERVED}  {printf("RESERVED\n");}
 \n {col = 1;}
 . {;}
 %%
