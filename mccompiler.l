@@ -2,10 +2,9 @@ ID  _*([a-z]|[A-Z])+_*([a-z]|[A-Z])*_*
 numero [0-9]+
 INTLIT  {numero}
 RESERVED  "++"|"--"
-CHRLIT  [a-z]|[A-Z]|\n|"\t"|"\\"|\'|"\''"
-escape  "n"|"t"|"\"|"'"|"''"|[0-7]{3}
+CHRLIT \\(\\|\"|\'|n|t|[0-7]{3})|[a-z]|[A-Z]
 %%
-{CHRLIT} {printf(" TESTING\n");}
+{CHRLIT} {printf("CHRLIT(%s)\n", yytext);}
 char {printf("CHAR\n");}
 else {printf("ELSE\n");}
 for {printf("FOR\n");}
