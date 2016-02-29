@@ -21,7 +21,7 @@ STRLIT  \".+\"
 <COMMENT><<eof>>  {printf("Line %d, col %d: unterminated comment\n", yylineno, com_col); return 0;}
 {CHRLIT} {printf("CHRLIT(%s)\n", yytext);}
 {STRLIT}  {printf("STRLIT(%s)\n", yytext);}
-\".+  {printf("Line %d, col %d: unterminated string constant\n", yylineno, col-(int)yyleng);}
+\"[\"]+  {printf("Line %d, col %d: unterminated string constant\n", yylineno, col-(int)yyleng);}
 char {printf("CHAR\n");}
 else {printf("ELSE\n");}
 for {printf("FOR\n");}
@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
       yylex();
     }
   }
-  
+
   return 0;
 }
 
