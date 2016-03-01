@@ -29,7 +29,7 @@ if {printf("IF\n");}
 int {printf("INT\n");}
 return {printf("RETURN\n");}
 void {printf("VOID\n");}
-{RESERVED}  {printf("RESERVED\n");}
+{RESERVED}  {printf("RESERVED(%s)\n", yytext);}
 {ID}  {printf("ID(%s)\n", yytext);}
 {INTLIT}  {printf("INTLIT(%s)\n", yytext);}
 & {printf("AMP\n");}
@@ -57,7 +57,6 @@ void {printf("VOID\n");}
 "]" {printf("RSQ\n");}
 ";" {printf("SEMI\n");}
 \n {col = 1;}
-\.|\?|\_  {printf("Line %d, col %d: illegal character (%s)\n", yylineno, col-(int)yyleng, yytext);}
 . {;}
 %%
 int main(int argc, char **argv) {
