@@ -2,7 +2,8 @@
 
 %X  COMMENT
 
-ID  _*([a-zA-Z])+_*([0-9a-zA-Z])*_*
+letra [a-zA-Z]|\_
+ID  {letra}(_*([0-9a-zA-Z])*)+
 numero [0-9]+
 INTLIT  {numero}
 RESERVED  "++"|"--"|auto|break|case|const|continue|default|do|long|register|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|volatile|while|double|enum|extern|float|goto
@@ -30,8 +31,8 @@ int {printf("INT\n");}
 return {printf("RETURN\n");}
 void {printf("VOID\n");}
 {RESERVED}  {printf("RESERVED(%s)\n", yytext);}
-{ID}  {printf("ID(%s)\n", yytext);}
 {INTLIT}  {printf("INTLIT(%s)\n", yytext);}
+{ID}  {printf("ID(%s)\n", yytext);}
 & {printf("AMP\n");}
 && {printf("AND\n");}
 "=" {printf("ASSIGN\n");}
