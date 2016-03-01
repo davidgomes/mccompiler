@@ -57,7 +57,8 @@ void {printf("VOID\n");}
 "]" {printf("RSQ\n");}
 ";" {printf("SEMI\n");}
 \n {col = 1;}
-. {printf("Line %d, col %d: illegal character (%s)\n", yylineno, col-(int)yyleng, yytext);}
+\.|\?|\_  {printf("Line %d, col %d: illegal character (%s)\n", yylineno, col-(int)yyleng, yytext);}
+. {;}
 %%
 int main(int argc, char **argv) {
   if (argc > 1) {
