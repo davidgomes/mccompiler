@@ -10,6 +10,7 @@ RESERVED  "++"|"--"|auto|break|case|const|continue|default|do|long|register|shor
 escape  \\(\\|\"|\'|n|t|[0-7]{3})
 CHRLIT '({escape}|[^'\n])+'
 STRLIT  \"({escape}|[^\"\n])+\"
+whitespace  [\t| ]
 
 %{
   #define YY_USER_ACTION col+=yyleng; //YY_USER_ACTION -  action which is always executed prior to the matched rule's action
@@ -58,8 +59,10 @@ void {printf("VOID\n");}
 ")" {printf("RPAR\n");}
 "]" {printf("RSQ\n");}
 ";" {printf("SEMI\n");}
+{whitespace}  {;}
 \n {col = 1;}
-. {;}
+<<eof>> {return 0;}
+. {printf("Line %d, col %d: illegal character (%s)\n",yylineno, col-(int)yyleng, yytext);}
 %%
 int main(int argc, char **argv) {
   if (argc > 1) {
