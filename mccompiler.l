@@ -7,8 +7,9 @@ ID  {letra}(_*([0-9a-zA-Z])*)+
 numero [0-9]+
 INTLIT  {numero}
 RESERVED  "++"|"--"|auto|break|case|const|continue|default|do|long|register|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|volatile|while|double|enum|extern|float|goto
-CHRLIT \'(\\(\\|\"|\'|n|t|[0-7]{3})|[a-z]|[A-Z])\'
-STRLIT  \".+\"
+escape  \\(\\|\"|\'|n|t|[0-7]{3})
+CHRLIT '({escape}|[^'\n])+'
+STRLIT  \"({escape}|[^\"\n])+\"
 
 %{
   #define YY_USER_ACTION col+=yyleng; //YY_USER_ACTION -  action which is always executed prior to the matched rule's action
@@ -18,11 +19,11 @@ STRLIT  \".+\"
 %%
 "/*"  {BEGIN COMMENT; com_col = col-yyleng;}
 <COMMENT>"*/"  {BEGIN 0;}
+<COMMENT>\n {col = 1;}
 <COMMENT>.  {;}
 <COMMENT><<eof>>  {printf("Line %d, col %d: unterminated comment\n", yylineno, com_col); return 0;}
 {CHRLIT} {printf("CHRLIT(%s)\n", yytext);}
 {STRLIT}  {printf("STRLIT(%s)\n", yytext);}
-\"[\"]+  {printf("Line %d, col %d: unterminated string constant\n", yylineno, col-(int)yyleng);}
 char {printf("CHAR\n");}
 else {printf("ELSE\n");}
 for {printf("FOR\n");}
