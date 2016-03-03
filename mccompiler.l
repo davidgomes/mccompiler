@@ -1,18 +1,20 @@
 %option yylineno
 
 %X  COMMENT
+%X  CHRLIT
 
-whitespace  [\t| ]
+whitespace  [\t ]
 letra [a-zA-Z]|\_
-ID  {letra}(_*[0-9a-zA-Z]+_*)*
+ID  ([a-zA-Z](_*[0-9a-zA-Z]+_*)*)|\_(_*[0-9a-zA-Z]+_*)+
 numero [0-9]+
 INTLIT  {numero}
 RESERVED  "++"|"--"|auto|break|case|const|continue|default|do|long|register|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|volatile|while|double|enum|extern|float|goto
 escape  \\(\\|\"|\'|n|t|[0-7]{3})
 CHRLIT '({escape}|[^'\n])*'
+UN_CHRLIT '[^'\n]*\n
 STRLIT  \"({escape}|[^\"\n])*\"
-UN_STRLIT \"({escape}|[^\"\n])+
-illegal "€"|"´"|"|"|"±"|"§"|"ª"|"º"
+UN_STRLIT \"[^\"\n]*\n
+illegal "€"|"´"|\||"±"|"§"|"ª"|"º"
 
 %{
   #define YY_USER_ACTION col+=yyleng; //YY_USER_ACTION -  action which is always executed prior to the matched rule's action
@@ -26,10 +28,11 @@ illegal "€"|"´"|"|"|"±"|"§"|"ª"|"º"
 <COMMENT>.  {;}
 <COMMENT><<eof>>  {printf("Line %d, col %d: unterminated comment\n", yylineno, com_col); return 0;}
 
-{CHRLIT} {printf("CHRLIT(%s)\n", yytext);}
+{CHRLIT} {printf("CHRLIT(%s)\n", yytext); BEGIN 0;}
+{UN_CHRLIT} {printf("Line %d, col %d: unterminated char constant\n",yylineno, col-(int)yyleng);}
+
 {STRLIT}  {printf("STRLIT(%s)\n", yytext);}
 {UN_STRLIT} {printf("Line %d, col %d: unterminated string constant\n",yylineno, col-(int)yyleng);}
-
 
 char {printf("CHAR\n");}
 else {printf("ELSE\n");}
