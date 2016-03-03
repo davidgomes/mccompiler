@@ -23,7 +23,7 @@ UN_STRLIT \"({escape}|[^\"\n])*
 <COMMENT>"*/"  {BEGIN 0;}
 <COMMENT>\n {col = 1;}
 <COMMENT>.  {;}
-<COMMENT><<eof>>  {printf("Line %d, col %d: unterminated comment\n", yylineno, com_col);}
+<COMMENT><<eof>>  {printf("Line %d, col %d: unterminated comment\n", yylineno, com_col); return 0;}
 
 {CHRLIT} {printf("CHRLIT(%s)\n", yytext);}
 {STRLIT}  {printf("STRLIT(%s)\n", yytext);}
