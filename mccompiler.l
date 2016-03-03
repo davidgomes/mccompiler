@@ -11,7 +11,8 @@ RESERVED  "++"|"--"|auto|break|case|const|continue|default|do|long|register|shor
 escape  \\(\\|\"|\'|n|t|[0-7]{3})
 CHRLIT '({escape}|[^'\n])*'
 STRLIT  \"({escape}|[^\"\n])*\"
-UN_STRLIT \"({escape}|[^\"\n])*
+UN_STRLIT \"({escape}|[^\"\n])+
+illegal "€"|"´"|"|"|"±"|"§"|"ª"|"º"
 
 %{
   #define YY_USER_ACTION col+=yyleng; //YY_USER_ACTION -  action which is always executed prior to the matched rule's action
@@ -70,7 +71,7 @@ void {printf("VOID\n");}
 {whitespace}  {;}
 \n {col = 1;}
 <<eof>> {return 0;}
-. {printf("Line %d, col %d: illegal character (%s)\n",yylineno, col-(int)yyleng, yytext);}
+{illegal}|. {printf("Line %d, col %d: illegal character (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
 %%
 int main(int argc, char **argv) {
