@@ -9,28 +9,33 @@ numero [0-9]+
 INTLIT  {numero}
 RESERVED  "++"|"--"|auto|break|case|const|continue|default|do|long|register|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|volatile|while|double|enum|extern|float|goto
 escape  \\(\\|\"|\'|n|t|[0-7]{3})
-CHRLIT '({escape}|[^'\n])+'
+CHRLIT '({escape}|[^'\n]){1}'
 UN_CHRLIT '[^'\n]*\n
+INV_CHRLIT  '[^'\n]*'
 STRLIT  \"({escape}|[^\"\n])+\"
 UN_STRLIT \"[^\"\n]*\n
+INV_STRLIT  \"[^\"\n]*\"
 
 %{
   #define YY_USER_ACTION col+=yyleng; //YY_USER_ACTION -  action which is always executed prior to the matched rule's action
-  int col = 1, com_col, line;
+  int col = 1, com_col;
 %}
 
 %%
 "/*"  {BEGIN COMMENT; com_col = col-yyleng;}
 <COMMENT>"*/"  {BEGIN 0;}
-<COMMENT>\n {col = 1;}
 <COMMENT>.  {;}
+<COMMENT>\n {col = 1;}
 <COMMENT><<eof>>  {printf("Line %d, col %d: unterminated comment\n", yylineno, com_col); return 0;}
 
 {CHRLIT} {printf("CHRLIT(%s)\n", yytext); BEGIN 0;}
 {UN_CHRLIT} {printf("Line %d, col %d: unterminated char constant\n",yylineno, col-(int)yyleng);}
+{INV_CHRLIT}  {printf("Line %d, col %d: invalid char constant (%s)\n",yylineno, col-(int)yyleng, yytext);}
+
 
 {STRLIT}  {printf("STRLIT(%s)\n", yytext);}
 {UN_STRLIT} {printf("Line %d, col %d: unterminated string constant\n",yylineno, col-(int)yyleng);}
+{INV_STRLIT}  {printf("Line %d, col %d: invalid string constant (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
 char {printf("CHAR\n");}
 else {printf("ELSE\n");}
