@@ -1,0 +1,21 @@
+Line 1, col 1: unterminated char constant
+Line 2, col 1: unterminated char constant
+Line 3, col 1: unterminated char constant
+CHRLIT('\\')
+Line 5, col 1: unterminated char constant
+Line 6, col 1: unterminated char constant
+Line 7, col 1: unterminated char constant
+Line 8, col 1: invalid char constant ('\\\\')
+CHRLIT('a')
+Line 8, col 15: invalid char constant ('')
+CHRLIT('c')
+CHRLIT('o')
+Line 8, col 26: invalid char constant ('')
+Line 9, col 1: unterminated char constant
+Line 10, col 1: unterminated char constant
+Line 11, col 1: unterminated char constant
+Line 12, col 1: invalid char constant ('')
+Line 13, col 1: invalid char constant ('\\\'')
+CHRLIT('\'')
+Line 14, col 5: unterminated char constant
+Line 15, col 1: unterminated char constant
