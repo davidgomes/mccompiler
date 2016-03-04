@@ -1,7 +1,6 @@
 %option yylineno
 
 %X  COMMENT
-%X  CHRLIT
 
 whitespace  [\t ]
 letra [a-zA-Z]|\_
@@ -74,7 +73,7 @@ void {printf("VOID\n");}
 {whitespace}  {;}
 \n {col = 1;}
 <<eof>> {return 0;}
-{illegal}|. {printf("Line %d, col %d: illegal character (%s)\n",yylineno, col-(int)yyleng, yytext);}
+. {printf("Line %d, col %d: illegal character (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
 %%
 int main(int argc, char **argv) {
