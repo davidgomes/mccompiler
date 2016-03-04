@@ -13,7 +13,7 @@ RESERVED  "++"|"--"|auto|break|case|const|continue|default|do|long|register|shor
 escape  \\(\\|\"|\'|n|t|[0-7]{1,3})
 
 CHRLIT '({escape}|[^'\n\\])'
-UN_CHRLIT '[^'\n]*|{escape}\n
+UN_CHRLIT '[^'\n\\]*|{escape}\n
 INV_CHRLIT  '[^'\n]*'
 
 STRLIT  \"({escape}|[^\"\n\\])+\"
