@@ -13,7 +13,6 @@ CHRLIT '({escape}|[^'\n])+'
 UN_CHRLIT '[^'\n]*\n
 STRLIT  \"({escape}|[^\"\n])+\"
 UN_STRLIT \"[^\"\n]*\n
-illegal "€"|"´"|\||"±"|"§"|"ª"|"º"
 
 %{
   #define YY_USER_ACTION col+=yyleng; //YY_USER_ACTION -  action which is always executed prior to the matched rule's action
