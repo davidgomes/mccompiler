@@ -22,18 +22,18 @@ INV_STRLIT  \"([^\"\n\\]*|\\[^'\n]|\\')*\"
 
 %{
   #define YY_USER_ACTION col+=yyleng; //YY_USER_ACTION -  action which is always executed prior to the matched rule's action
-  int col = 1, com_col;
+  int col = 1, comment_start_col, comment_start_line;
   int flag = 0;
 %}
 
 %%
-"/*"  {BEGIN COMMENT; com_col = col-yyleng;}
+"/*"  {BEGIN COMMENT; comment_start_col = col-2; comment_start_line = yylineno;}
+<COMMENT><<eof>>  {printf("Line %d, col %d: unterminated comment\n",comment_start_line, comment_start_col); col=1; return 0;}
 <COMMENT>"*/"  {if(flag == 1){BEGIN ERRORS;} else {BEGIN 0;}}
 <COMMENT>.  {;}
 <COMMENT>\n {col = 1;}
-<COMMENT><<eof>>  {printf("Line %d, col %d: unterminated comment\n", yylineno, com_col); return 0;}
 
-<ERRORS>"/*"  {BEGIN COMMENT; com_col = col-yyleng;}
+<ERRORS>"/*"  {BEGIN COMMENT; comment_start_col = col-2; comment_start_line = yylineno;}
 
 <ERRORS>{CHRLIT} {;}
 <ERRORS>{UN_CHRLIT} {printf("Line %d, col %d: unterminated char constant\n",yylineno, col-(int)yyleng); col = 1;}
@@ -82,8 +82,8 @@ INV_STRLIT  \"([^\"\n\\]*|\\[^'\n]|\\')*\"
 
 <ERRORS>{whitespace}  {;}
 <ERRORS>\n {col = 1;}
+<ERRORS><<eof>> {col=1; return 0;}
 <ERRORS>. {printf("Line %d, col %d: illegal character (%s)\n",yylineno, col-(int)yyleng, yytext);}
-
 
 {CHRLIT} {printf("CHRLIT(%s)\n", yytext);}
 {UN_CHRLIT} {printf("Line %d, col %d: unterminated char constant\n",yylineno, col-(int)yyleng); col = 1;}
@@ -132,7 +132,7 @@ void {printf("VOID\n");}
 
 {whitespace}  {;}
 \n {col = 1;}
-<<eof>> {return 0;}
+<<eof>> {col=1; return 0;}
 . {printf("Line %d, col %d: illegal character (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
 %%
