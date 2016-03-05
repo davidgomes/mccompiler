@@ -1,6 +1,5 @@
-'
 /* simple comment
- * multiple lines*/
+ * multiple lines
 
 int main() {
 	char* a = 'bhfkjashdak';
@@ -12,7 +11,7 @@ int main() {
 	char a = '\'';
 	char a = '\108';
 	char b = ''567';
-	char b = '/**/
+	char b = '/*
 	';
 
 	char* b = "\0192";

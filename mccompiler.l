@@ -16,9 +16,9 @@ CHRLIT '({escape}|[^'\n\\])'
 UN_CHRLIT '([^'\n\\]?|\\[^'\n]|{escape})*\\?
 INV_CHRLIT  '([^'\n\\]*|\\[^'\n]|\\')*'
 
-STRLIT  \"({escape}|[^\"\n\\])+\"
-UN_STRLIT \"[^\"\n]*{escape}*\n
-INV_STRLIT  \"[^\"\n]*\"
+STRLIT  \"({escape}|[^\"\n\\])*\"
+UN_STRLIT \"([^\"\n\\]*|\\[^'\n]|{escape}*)*\\?
+INV_STRLIT  \"([^\"\n\\]*|\\[^'\n]|\\')*\"
 
 %{
   #define YY_USER_ACTION col+=yyleng; //YY_USER_ACTION -  action which is always executed prior to the matched rule's action
