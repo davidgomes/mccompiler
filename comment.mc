@@ -1,8 +1,9 @@
+'
 /* simple comment
  * multiple lines*/
 
 int main() {
-	char* a = 'bhfkjashdak;
+	char* a = 'bhfkjashdak';
 	char a = '
 	\'\0';
 	return 0;
