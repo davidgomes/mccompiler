@@ -168,19 +168,6 @@ SEMI  ";"
 . {printf("Line %d, col %d: illegal character (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
 %%
-int main(int argc, char **argv) {
-  flag = 1;
-  BEGIN ERRORS;
-  if (argc > 1) {
-    if (strcmp(argv[1], "-l") == 0) {
-      flag = 0;
-      BEGIN 0;
-    }
-  }
-  yylex();
-  return 0;
-}
-
 int yywrap()
 {
   return 1;

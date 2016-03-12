@@ -26,9 +26,11 @@ int yyerror (char *s) {
 }
 
 int main(int argc, char **argv) {
-  int flag_t=0, flag_l, flag_1=0;
+  int flag_t = 0;
+  int flag_l = 0;
+  int flag_1 = 0;
 
-  while(argc--) {
+  while (argc--) {
     if (!strcmp(*argv, "-l")) {
       flag_l = 1;
     } else if (!strcmp(*argv, "-1")) {
@@ -40,5 +42,11 @@ int main(int argc, char **argv) {
     argv++;
   }
 
-  yyparse();
+  if (flag_l || flag_1) {
+    yylex();
+  } else if (flag_t) {
+    yyparse();
+  } else {
+    // display only syntactic or lexical errors
+  }
 }
