@@ -1,5 +1,8 @@
 %{
   #define YY_USER_ACTION col+=yyleng; //YY_USER_ACTION -  action which is always executed prior to the matched rule's action
+
+  #define PRINT_TOKEN(x) { printf("%s\n", x); return x; }
+
   #include "y.tab.h"
 
   int col = 1, comment_start_col, comment_start_line;
@@ -127,42 +130,42 @@ SEMI  ";"
 {UN_STRLIT} {printf("Line %d, col %d: unterminated string constant\n",yylineno, col-(int)yyleng); col = 1;}
 {INV_STRLIT}  {printf("Line %d, col %d: invalid string constant (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
-{CHAR}  {printf("CHAR\n");}
-{ELSE} {printf("ELSE\n");}
-{FOR} {printf("FOR\n");}
-{IF} {printf("IF\n");}
-{INT} {printf("INT\n");}
-{RETURN} {printf("RETURN\n");}
-{VOID} {printf("VOID\n");}
+{CHAR}  {printf("CHAR\n"); return CHAR;}
+{ELSE} {printf("ELSE\n"); return ELSE;}
+{FOR} {printf("FOR\n"); return FOR;}
+{IF} {printf("IF\n"); return IF;}
+{INT} {printf("INT\n"); return INT;}
+{RETURN} {printf("RETURN\n"); return RETURN;}
+{VOID} {printf("VOID\n"); return VOID;}
 
 {RESERVED}  {printf("RESERVED(%s)\n", yytext); return RESERVED;}
-{INTLIT}  {printf("INTLIT(%s)\n", yytext);}
-{ID}  {printf("ID(%s)\n", yytext);}
+{INTLIT}  {printf("INTLIT(%s)\n", yytext); return INTLIT;}
+{ID}  {printf("ID(%s)\n", yytext); return ID;}
 
-{AMP} {printf("AMP\n");}
-{AND} {printf("AND\n");}
-{ASSIGN} {printf("ASSIGN\n");}
-{AST} {printf("AST\n");}
-{COMMA} {printf("COMMA\n");}
-{DIV} {printf("DIV\n");}
-{EQ} {printf("EQ\n");}
-{GE} {printf("GE\n");}
-{GT} {printf("GT\n");}
-{LBRACE} {printf("LBRACE\n");}
-{LE} {printf("LE\n");}
-{LPAR} {printf("LPAR\n");}
-{LSQ} {printf("LSQ\n");}
-{LT} {printf("LT\n");}
-{MINUS} {printf("MINUS\n");}
-{MOD} {printf("MOD\n");}
-{NE} {printf("NE\n");}
-{NOT} {printf("NOT\n");}
-{OR} {printf("OR\n");}
-{PLUS} {printf("PLUS\n");}
-{RBRACE} {printf("RBRACE\n");}
-{RPAR} {printf("RPAR\n");}
-{RSQ} {printf("RSQ\n");}
-{SEMI} {printf("SEMI\n");}
+{AMP} {printf("AMP\n"); return AMP;}
+{AND} {printf("AND\n"); return AND;}
+{ASSIGN} {printf("ASSIGN\n"); return ASSIGN;}
+{AST} {printf("AST\n"); return AST;}
+{COMMA} {printf("COMMA\n"); return COMMA;}
+{DIV} {printf("DIV\n"); return DIV;}
+{EQ} {printf("EQ\n"); return EQ;}
+{GE} {printf("GE\n"); return GE;}
+{GT} {printf("GT\n"); return GT;}
+{LBRACE} {printf("LBRACE\n"); return LBRACE;}
+{LE} {printf("LE\n"); return LE;}
+{LPAR} {printf("LPAR\n"); return LPAR;}
+{LSQ} {printf("LSQ\n"); return LSQ;}
+{LT} {printf("LT\n"); return LT;}
+{MINUS} {printf("MINUS\n"); return MINUS;}
+{MOD} {printf("MOD\n"); return MOD;}
+{NE} {printf("NE\n"); return NE;}
+{NOT} {printf("NOT\n"); return NOT;}
+{OR} {printf("OR\n"); return OR;}
+{PLUS} {printf("PLUS\n"); return PLUS;}
+{RBRACE} {printf("RBRACE\n"); return RBRACE;}
+{RPAR} {printf("RPAR\n"); return RPAR;}
+{RSQ} {printf("RSQ\n"); return RSQ;}
+{SEMI} {printf("SEMI\n"); return SEMI;}
 
 {whitespace}  {;}
 \n {col = 1;}

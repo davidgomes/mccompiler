@@ -9,13 +9,12 @@
   extern int yylineno, col, yyleng;
 %}
 
-%token whitespace letra ID numero INTLIT RESERVED escape
-%token CHRLIT UN_CHRLIT INV_CHRLIT STRLIT INV_STRLIT
-
-%type <node> Prog
+%token CHAR ELSE FOR IF INT RETURN VOID RESERVED INTLIT ID
+%token AMP AND ASSIGN AST COMMA DIV EQ GE GT LBRACE LE LPAR LSQ LT MINUS MOD NE
+%token NOT OR PLUS RBRACE RPAR RSQ SEMI
 
 %%
-Start: RESERVED { printf("hey\n"); };
+Start: CHAR { printf("hey\n"); };
 
 %%
 
