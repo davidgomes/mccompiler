@@ -12,12 +12,10 @@
 %token whitespace letra ID numero INTLIT RESERVED escape
 %token CHRLIT UN_CHRLIT INV_CHRLIT STRLIT INV_STRLIT
 
-%{
-
-%}
+%type <node> Prog
 
 %%
-Prog: '.'  {}
+Start: RESERVED { printf("hey\n"); };
 
 %%
 

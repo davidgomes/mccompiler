@@ -1,5 +1,7 @@
 %{
   #define YY_USER_ACTION col+=yyleng; //YY_USER_ACTION -  action which is always executed prior to the matched rule's action
+  #include "y.tab.h"
+
   int col = 1, comment_start_col, comment_start_line;
   int flag = 0;
 %}
@@ -133,7 +135,7 @@ SEMI  ";"
 {RETURN} {printf("RETURN\n");}
 {VOID} {printf("VOID\n");}
 
-{RESERVED}  {printf("RESERVED(%s)\n", yytext);}
+{RESERVED}  {printf("RESERVED(%s)\n", yytext); return RESERVED;}
 {INTLIT}  {printf("INTLIT(%s)\n", yytext);}
 {ID}  {printf("ID(%s)\n", yytext);}
 
