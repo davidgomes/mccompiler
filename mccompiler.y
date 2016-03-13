@@ -14,14 +14,24 @@
 %token NOT OR PLUS RBRACE RPAR RSQ SEMI CHRLIT STRLIT
 
 %%
-Program: State1 State2 State3;
-State1: CHAR { printf("hey\n"); };
-State2: ID { printf("ho\n"); };
-State3: SEMI { printf("semi\n"); };
+Program: Block | Program Block {};
+Block: FunctionDefinition | FunctionDeclaration | Declaration {};
+
+FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody {};
+FunctionBody: LBRACE Declaration Statement RBRACE {};
+Declaration: TypeSpec Declarator CommaDeclarator SEMI {};
+CommaDeclarator: Declarator | COMMA Declarator {};
+Declarator: Asterisk ID | Asterisk ID LSQ INTLIT RSQ {};
+
+FunctionDeclaration: TypeSpec FunctionDeclarator SEMI {};
+TypeSpec: CHAR | INT | VOID {};
+
+FunctionDeclarator: Asterisk ID LPAR ParameterList RPAR {};
+Asterisk: AST | Asterisk AST | /* empty */ {};
 %%
 
 int yyerror (char *s) {
-     printf ("Line %d, col %d: %s: %s\n", yylineno, col - (int)yyleng, s, yytext);
+     printf ("Line %d, col %d: %s: %s\n", yylineno, col - (int) yyleng, s, yytext);
 }
 
 int main(int argc, char **argv) {
