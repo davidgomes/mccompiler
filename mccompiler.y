@@ -11,11 +11,13 @@
 
 %token CHAR ELSE FOR IF INT RETURN VOID RESERVED INTLIT ID
 %token AMP AND ASSIGN AST COMMA DIV EQ GE GT LBRACE LE LPAR LSQ LT MINUS MOD NE
-%token NOT OR PLUS RBRACE RPAR RSQ SEMI
+%token NOT OR PLUS RBRACE RPAR RSQ SEMI CHRLIT STRLIT
 
 %%
-Start: CHAR { printf("hey\n"); };
-
+Program: State1 State2 State3;
+State1: CHAR { printf("hey\n"); };
+State2: ID { printf("ho\n"); };
+State3: SEMI { printf("semi\n"); };
 %%
 
 int yyerror (char *s) {
