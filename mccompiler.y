@@ -20,13 +20,17 @@ Block: FunctionDefinition | FunctionDeclaration | Declaration {};
 FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody {};
 FunctionBody: LBRACE Declaration Statement RBRACE {};
 Declaration: TypeSpec Declarator CommaDeclarator SEMI {};
-CommaDeclarator: Declarator | COMMA Declarator {};
+CommaDeclarator: COMMA Declarator | CommaDeclarator COMMA Declarator | /* empty */ {};
 Declarator: Asterisk ID | Asterisk ID LSQ INTLIT RSQ {};
 
 FunctionDeclaration: TypeSpec FunctionDeclarator SEMI {};
 TypeSpec: CHAR | INT | VOID {};
 
 FunctionDeclarator: Asterisk ID LPAR ParameterList RPAR {};
+ParameterList: ParameterDeclaration {COMMA ParameterDeclaration} {};
+CommaParameterDeclaration: ParameterDeclaration | COMMA {};
+ParameterDeclaration: TypeSpec Asterisk ID | TypeSpec Asterisk {};
+
 Asterisk: AST | Asterisk AST | /* empty */ {};
 %%
 
