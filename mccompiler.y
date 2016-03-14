@@ -27,11 +27,22 @@ FunctionDeclaration: TypeSpec FunctionDeclarator SEMI {};
 TypeSpec: CHAR | INT | VOID {};
 
 FunctionDeclarator: Asterisk ID LPAR ParameterList RPAR {};
-ParameterList: ParameterDeclaration {COMMA ParameterDeclaration} {};
-CommaParameterDeclaration: ParameterDeclaration | COMMA {};
+ParameterList: ParameterDeclaration CommaParameterDeclaration {};
+CommaParameterDeclaration: COMMA ParameterDeclaration
+                         | CommaParameterDeclaration COMMA ParameterDeclaration
+                         | /* empty */ {};
 ParameterDeclaration: TypeSpec Asterisk ID | TypeSpec Asterisk {};
 
 Asterisk: AST | Asterisk AST | /* empty */ {};
+
+Statement: Expression SEMI
+         | LBRACE Statement RBRACE
+         | IF LPAR Expression RPAR Statement
+         | IF LPAR Expression RPAR Statement ELSE Statement
+         | FOR LPAR Expression SEMI Expression SEMI Expression RPAR Statement
+         | RETURN Expression SEMI {};
+
+Expression: /* empty */ {};
 %%
 
 int yyerror (char *s) {
