@@ -13,6 +13,9 @@
 %token AMP AND ASSIGN AST COMMA DIV EQ GE GT LBRACE LE LPAR LSQ LT MINUS MOD NE
 %token NOT OR PLUS RBRACE RPAR RSQ SEMI CHRLIT STRLIT
 
+%left AST
+%nonassoc ELSE
+
 %%
 Program: Block | Program Block {};
 Block: FunctionDefinition | FunctionDeclaration | Declaration {};
@@ -20,20 +23,23 @@ Block: FunctionDefinition | FunctionDeclaration | Declaration {};
 FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody {};
 FunctionBody: LBRACE Declaration Statement RBRACE {};
 Declaration: TypeSpec Declarator CommaDeclarator SEMI {};
-CommaDeclarator: COMMA Declarator | CommaDeclarator COMMA Declarator | /* empty */ {};
-Declarator: Asterisk ID | Asterisk ID LSQ INTLIT RSQ {};
+CommaDeclarator: COMMA Declarator
+               | CommaDeclarator COMMA Declarator
+               | /* empty */ {};
+Declarator: Id | Id LSQ INTLIT RSQ {};
 
 FunctionDeclaration: TypeSpec FunctionDeclarator SEMI {};
-TypeSpec: CHAR | INT | VOID {};
+TypeSpec: CHAR
+        | INT
+        | VOID {};
 
-FunctionDeclarator: Asterisk ID LPAR ParameterList RPAR {};
-ParameterList: ParameterDeclaration CommaParameterDeclaration {};
-CommaParameterDeclaration: COMMA ParameterDeclaration
-                         | CommaParameterDeclaration COMMA ParameterDeclaration
-                         | /* empty */ {};
-ParameterDeclaration: TypeSpec Asterisk ID | TypeSpec Asterisk {};
+FunctionDeclarator: Id LPAR ParameterList RPAR {};
+ParameterList: ParameterDeclaration
+             | ParameterList COMMA ParameterDeclaration {};
+ParameterDeclaration: TypeSpec Id {};
 
 Asterisk: AST | Asterisk AST | /* empty */ {};
+Id: AST Id | ID {};
 
 Statement: Expression SEMI
          | LBRACE Statement RBRACE
@@ -42,7 +48,36 @@ Statement: Expression SEMI
          | FOR LPAR Expression SEMI Expression SEMI Expression RPAR Statement
          | RETURN Expression SEMI {};
 
-Expression: /* empty */ {};
+Expression: Expression ASSIGN Expression
+          | Expression COMMA Expression
+          | Expression AND Expression
+          | Expression OR Expression
+          | Expression EQ Expression
+          | Expression NE Expression
+          | Expression LT Expression
+          | Expression GT Expression
+          | Expression LE Expression
+          | Expression GE Expression
+          | AMP Expression
+          | AST Expression
+          | PLUS Expression
+          | MINUS Expression
+          | NOT Expression
+          | Expression LSQ Expression RSQ
+          | ID Expression RPAR
+          | INTLIT Expression RPAR
+          | CHRLIT Expression RPAR
+          | STRLIT Expression RPAR
+          | LPAR Expression RPAR {};
+
+/*Expr → Expr (ASSIGN | COMMA) Expr
+Expr → Expr (AND | OR) Expr
+Expr → Expr (EQ | NE | LT | GT | LE | GE) Expr
+Expr → Expr (PLUS | MINUS | AST | DIV | MOD) Expr
+Expr → (AMP | AST | PLUS | MINUS | NOT) Expr
+Expr → Expr LSQ Expr RSQ
+Expr → ID LPAR [Expr {COMMA Expr}] RPAR
+Expr → ID | INTLIT | CHRLIT | STRLIT | LPAR Expr RPAR*/
 %%
 
 int yyerror (char *s) {
