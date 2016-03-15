@@ -24,7 +24,7 @@ Block: FunctionDefinition | FunctionDeclaration | Declaration { printf("Block\n"
 FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { printf("FunctionDefinition\n"); };
 FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { printf("FunctionBody\n"); };
 
-FunctionBodyDeclaration: FunctionBodyDeclaration Declarator
+FunctionBodyDeclaration: FunctionBodyDeclaration Declaration
                        | /* empty */ { printf("FunctionBodyDeclaration\n"); };
 
 FunctionBodyStatement: FunctionBodyStatement Statement
@@ -82,17 +82,6 @@ Expression: Expression ASSIGN Expression
           | LPAR Expression RPAR { printf("Expression\n"); };
 
 ExpressionList: Expression | ExpressionList Expression | /* empty */ {};
-
-// Expr → ID LPAR [Expr {COMMA Expr}]
-
-/*Expr → Expr (ASSIGN | COMMA) Expr
-Expr → Expr (AND | OR) Expr
-Expr → Expr (EQ | NE | LT | GT | LE | GE) Expr
-Expr → Expr (PLUS | MINUS | AST | DIV | MOD) Expr
-Expr → (AMP | AST | PLUS | MINUS | NOT) Expr
-Expr → Expr LSQ Expr RSQ
-Expr → ID LPAR [Expr {COMMA Expr}] RPAR
-Expr → ID | INTLIT | CHRLIT | STRLIT | LPAR Expr RPAR*/
 %%
 
 int yyerror (char *s) {
