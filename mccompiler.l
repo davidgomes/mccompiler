@@ -1,12 +1,18 @@
 %{
   #define YY_USER_ACTION col+=yyleng; //YY_USER_ACTION -  action which is always executed prior to the matched rule's action
 
-  #define PRINT_TOKEN(x) { printf("%s\n", x); return x; }
-
   #include "y.tab.h"
+  #include <stdarg.h>
 
   int col = 1, comment_start_col, comment_start_line;
   int flag = 0;
+
+  void myprintf(__const char *__restrict __format, ...) {
+    va_list args;
+    va_start(args, __format);
+    //printf(__format, args);
+    va_end(args);
+  }
 %}
 
 %option yylineno
@@ -122,55 +128,54 @@ SEMI  ";"
 <ERRORS><<eof>> {col=1; return 0;}
 <ERRORS>. {printf("Line %d, col %d: illegal character (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
-{CHRLIT} {printf("CHRLIT(%s)\n", yytext);}
+{CHRLIT} {myprintf("CHRLIT(%s)\n", yytext);}
 {UN_CHRLIT} {printf("Line %d, col %d: unterminated char constant\n",yylineno, col-(int)yyleng); col = 1;}
 {INV_CHRLIT}  {printf("Line %d, col %d: invalid char constant (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
-{STRLIT}  {printf("STRLIT(%s)\n", yytext);}
+{STRLIT}  {myprintf("STRLIT(%s)\n", yytext);}
 {UN_STRLIT} {printf("Line %d, col %d: unterminated string constant\n",yylineno, col-(int)yyleng); col = 1;}
 {INV_STRLIT}  {printf("Line %d, col %d: invalid string constant (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
-{CHAR}  {printf("CHAR\n"); return CHAR;}
-{ELSE} {printf("ELSE\n"); return ELSE;}
-{FOR} {printf("FOR\n"); return FOR;}
-{IF} {printf("IF\n"); return IF;}
-{INT} {printf("INT\n"); return INT;}
-{RETURN} {printf("RETURN\n"); return RETURN;}
-{VOID} {printf("VOID\n"); return VOID;}
+{CHAR}  {myprintf("CHAR\n"); return CHAR;}
+{ELSE} {myprintf("ELSE\n"); return ELSE;}
+{FOR} {myprintf("FOR\n"); return FOR;}
+{IF} {myprintf("IF\n"); return IF;}
+{INT} {myprintf("INT\n"); return INT;}
+{RETURN} {myprintf("RETURN\n"); return RETURN;}
+{VOID} {myprintf("VOID\n"); return VOID;}
 
-{RESERVED}  {printf("RESERVED(%s)\n", yytext); return RESERVED;}
-{INTLIT}  {printf("INTLIT(%s)\n", yytext); return INTLIT;}
-{ID}  {printf("ID(%s)\n", yytext); return ID;}
+{RESERVED}  {myprintf("RESERVED(%s)\n", yytext); return RESERVED;}
+{INTLIT}  {myprintf("INTLIT(%s)\n", yytext); return INTLIT;}
+{ID}  {myprintf("ID(%s)\n", yytext); return ID;}
 
-{AMP} {printf("AMP\n"); return AMP;}
-{AND} {printf("AND\n"); return AND;}
-{ASSIGN} {printf("ASSIGN\n"); return ASSIGN;}
-{AST} {printf("AST\n"); return AST;}
-{COMMA} {printf("COMMA\n"); return COMMA;}
-{DIV} {printf("DIV\n"); return DIV;}
-{EQ} {printf("EQ\n"); return EQ;}
-{GE} {printf("GE\n"); return GE;}
-{GT} {printf("GT\n"); return GT;}
-{LBRACE} {printf("LBRACE\n"); return LBRACE;}
-{LE} {printf("LE\n"); return LE;}
-{LPAR} {printf("LPAR\n"); return LPAR;}
-{LSQ} {printf("LSQ\n"); return LSQ;}
-{LT} {printf("LT\n"); return LT;}
-{MINUS} {printf("MINUS\n"); return MINUS;}
-{MOD} {printf("MOD\n"); return MOD;}
-{NE} {printf("NE\n"); return NE;}
-{NOT} {printf("NOT\n"); return NOT;}
-{OR} {printf("OR\n"); return OR;}
-{PLUS} {printf("PLUS\n"); return PLUS;}
-{RBRACE} {printf("RBRACE\n"); return RBRACE;}
-{RPAR} {printf("RPAR\n"); return RPAR;}
-{RSQ} {printf("RSQ\n"); return RSQ;}
-{SEMI} {printf("SEMI\n"); return SEMI;}
-
+{AMP} {myprintf("AMP\n"); return AMP;}
+{AND} {myprintf("AND\n"); return AND;}
+{ASSIGN} {myprintf("ASSIGN\n"); return ASSIGN;}
+{AST} {myprintf("AST\n"); return AST;}
+{COMMA} {myprintf("COMMA\n"); return COMMA;}
+{DIV} {myprintf("DIV\n"); return DIV;}
+{EQ} {myprintf("EQ\n"); return EQ;}
+{GE} {myprintf("GE\n"); return GE;}
+{GT} {myprintf("GT\n"); return GT;}
+{LBRACE} {myprintf("LBRACE\n"); return LBRACE;}
+{LE} {myprintf("LE\n"); return LE;}
+{LPAR} {myprintf("LPAR\n"); return LPAR;}
+{LSQ} {myprintf("LSQ\n"); return LSQ;}
+{LT} {myprintf("LT\n"); return LT;}
+{MINUS} {myprintf("MINUS\n"); return MINUS;}
+{MOD} {myprintf("MOD\n"); return MOD;}
+{NE} {myprintf("NE\n"); return NE;}
+{NOT} {myprintf("NOT\n"); return NOT;}
+{OR} {myprintf("OR\n"); return OR;}
+{PLUS} {myprintf("PLUS\n"); return PLUS;}
+{RBRACE} {myprintf("RBRACE\n"); return RBRACE;}
+{RPAR} {myprintf("RPAR\n"); return RPAR;}
+{RSQ} {myprintf("RSQ\n"); return RSQ;}
+{SEMI} {myprintf("SEMI\n"); return SEMI;}
 {whitespace}  {;}
 \n {col = 1;}
 <<eof>> {col=1; return 0;}
-. {printf("Line %d, col %d: illegal character (%s)\n",yylineno, col-(int)yyleng, yytext);}
+. {myprintf("Line %d, col %d: illegal character (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
 %%
 int yywrap()
