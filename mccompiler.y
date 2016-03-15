@@ -16,6 +16,7 @@
 %right ASSIGN
 
 %left LPAR
+%left LSQ
 
 %left OR AND
 %left EQ NE
