@@ -24,10 +24,8 @@
 %left PLUS MINUS
 %left AST DIV
 %left AMP NOT
-
-%nonassoc ELSE
-
 %%
+
 Program: Block | Program Block { printf("Program\n"); };
 Block: FunctionDefinition | FunctionDeclaration | Declaration { printf("Block\n"); };
 
