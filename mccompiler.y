@@ -13,8 +13,15 @@
 %token AMP AND ASSIGN AST COMMA DIV EQ GE GT LBRACE LE LPAR LSQ LT MINUS MOD NE
 %token NOT OR PLUS RBRACE RPAR RSQ SEMI CHRLIT STRLIT
 
-%left LE GT LT GE COMMA AND OR EQ NE PLUS MINUS AST MOD DIV AMP
-%right ASSIGN NOT
+%right ASSIGN
+
+%left OR AND
+%left EQ NE
+%left GE GT LE LT
+%left PLUS MINUS
+%left AST DIV
+%left AMP NOT
+
 %nonassoc ELSE
 
 %%
@@ -24,7 +31,7 @@ Block: FunctionDefinition | FunctionDeclaration | Declaration { printf("Block\n"
 FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { printf("FunctionDefinition\n"); };
 FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { printf("FunctionBody\n"); };
 
-FunctionBodyDeclaration: FunctionBodyDeclaration Declarator
+FunctionBodyDeclaration: FunctionBodyDeclaration Declaration
                        | /* empty */ { printf("FunctionBodyDeclaration\n"); };
 
 FunctionBodyStatement: FunctionBodyStatement Statement
@@ -33,7 +40,7 @@ FunctionBodyStatement: FunctionBodyStatement Statement
 Declaration: TypeSpec Declarator CommaDeclarator SEMI { printf("Declaration\n"); }; // int a CommaDeclarator;
 
 CommaDeclarator: COMMA Declarator // int a, b
-               | CommaDeclarator COMMA Declarator // int a, b, c, d ...
+               | CommaDeclarator COMMA Declarator // int a, b, c, d ...*/
                | /* empty */ {};
 
 Declarator: Id | Id LSQ INTLIT RSQ { printf("Declarator\n"); };
@@ -51,15 +58,17 @@ ParameterDeclaration: TypeSpec Id { printf("ParameterDeclaration\n"); };
 //Asterisk: AST | Asterisk AST | /* empty */ { printf("Asterisk\n"); };
 Id: AST Id | ID { printf("Id\n"); };
 
-Statement: Expression SEMI
+Statement: CommaExpression SEMI
          | LBRACE Statement RBRACE
-         | IF LPAR Expression RPAR Statement
-         | IF LPAR Expression RPAR Statement ELSE Statement
-         | FOR LPAR Expression SEMI Expression SEMI Expression RPAR Statement
-         | RETURN Expression SEMI { printf("Statement\n");} ;
+         | IF LPAR CommaExpression RPAR Statement
+         | IF LPAR CommaExpression RPAR Statement ELSE Statement
+         | FOR LPAR CommaExpression SEMI CommaExpression SEMI CommaExpression RPAR Statement
+         | RETURN CommaExpression SEMI { printf("Statement\n");} ;
+
+CommaExpression: CommaExpression COMMA Expression
+               | Expression { printf("CommaExpression\n"); };
 
 Expression: Expression ASSIGN Expression
-          | Expression COMMA Expression
           | Expression AND Expression
           | Expression OR Expression
           | Expression EQ Expression
@@ -81,18 +90,7 @@ Expression: Expression ASSIGN Expression
           | STRLIT
           | LPAR Expression RPAR { printf("Expression\n"); };
 
-ExpressionList: Expression | ExpressionList Expression | /* empty */ {};
-
-// Expr → ID LPAR [Expr {COMMA Expr}]
-
-/*Expr → Expr (ASSIGN | COMMA) Expr
-Expr → Expr (AND | OR) Expr
-Expr → Expr (EQ | NE | LT | GT | LE | GE) Expr
-Expr → Expr (PLUS | MINUS | AST | DIV | MOD) Expr
-Expr → (AMP | AST | PLUS | MINUS | NOT) Expr
-Expr → Expr LSQ Expr RSQ
-Expr → ID LPAR [Expr {COMMA Expr}] RPAR
-Expr → ID | INTLIT | CHRLIT | STRLIT | LPAR Expr RPAR*/
+ExpressionList: CommaExpression | ExpressionList CommaExpression | /* empty */ {};
 %%
 
 int yyerror (char *s) {
