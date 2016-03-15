@@ -21,6 +21,7 @@
 %left PLUS MINUS
 %left AST DIV
 %left AMP NOT
+%left LPAR
 
 %nonassoc ELSE
 
@@ -62,8 +63,10 @@ Statement: CommaExpression SEMI
          | LBRACE Statement RBRACE
          | IF LPAR CommaExpression RPAR Statement
          | IF LPAR CommaExpression RPAR Statement ELSE Statement
-         | FOR LPAR CommaExpression SEMI CommaExpression SEMI CommaExpression RPAR Statement
+         | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement
          | RETURN CommaExpression SEMI { printf("Statement\n");} ;
+
+ForCommaExpression: CommaExpression | /* empty */ {};
 
 CommaExpression: CommaExpression COMMA Expression
                | Expression { printf("CommaExpression\n"); };
