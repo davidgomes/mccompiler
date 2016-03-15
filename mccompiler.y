@@ -15,13 +15,14 @@
 
 %right ASSIGN
 
+%left LPAR
+
 %left OR AND
 %left EQ NE
 %left GE GT LE LT
 %left PLUS MINUS
 %left AST DIV
 %left AMP NOT
-%left LPAR
 
 %nonassoc ELSE
 
@@ -40,8 +41,7 @@ FunctionBodyStatement: FunctionBodyStatement Statement
 
 Declaration: TypeSpec Declarator CommaDeclarator SEMI { printf("Declaration\n"); }; // int a CommaDeclarator;
 
-CommaDeclarator: COMMA Declarator // int a, b
-               | CommaDeclarator COMMA Declarator // int a, b, c, d ...*/
+CommaDeclarator: CommaDeclarator COMMA Declarator // int a, b, c, d ...*/
                | /* empty */ {};
 
 Declarator: Id | Id LSQ INTLIT RSQ { printf("Declarator\n"); };
