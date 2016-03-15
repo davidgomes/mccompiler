@@ -15,7 +15,6 @@
 
 %right ASSIGN
 
-%left LPAR
 %left LSQ
 
 %left OR AND
@@ -58,16 +57,17 @@ ParameterDeclaration: TypeSpec Id { printf("ParameterDeclaration\n"); };
 //Asterisk: AST | Asterisk AST | /* empty */ { printf("Asterisk\n"); };
 Id: AST Id | ID { printf("Id\n"); };
 
-Statement: CommaExpression SEMI
-         | LBRACE Statement RBRACE
-         | IF LPAR CommaExpression RPAR Statement
-         | IF LPAR CommaExpression RPAR Statement ELSE Statement
-         | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement
-         | RETURN CommaExpression SEMI { printf("Statement\n");} ;
+Statement: CommaExpression SEMI { printf("CommaExpression Statement\n"); }
+         | LBRACE Statement RBRACE { printf("Block Statement\n"); }
+         | IF LPAR CommaExpression RPAR Statement { printf("If Statement\n"); }
+         | IF LPAR CommaExpression RPAR Statement ELSE Statement { printf("If Else Statement\n"); }
+         | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { printf("For Statement\n"); }
+         | RETURN CommaExpression SEMI { printf("Return Statement\n");} ;
 
-ForCommaExpression: CommaExpression | /* empty */ {};
+ForCommaExpression: CommaExpression
+                  | /* empty */ {  };
 
-CommaExpression: CommaExpression COMMA Expression
+CommaExpression: CommaExpression COMMA Expression { printf("CommaExpression\n"); }
                | Expression { printf("CommaExpression\n"); };
 
 Expression: Expression ASSIGN Expression
