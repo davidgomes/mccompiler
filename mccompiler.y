@@ -13,8 +13,15 @@
 %token AMP AND ASSIGN AST COMMA DIV EQ GE GT LBRACE LE LPAR LSQ LT MINUS MOD NE
 %token NOT OR PLUS RBRACE RPAR RSQ SEMI CHRLIT STRLIT
 
-%left LE GT LT GE AND OR EQ NE PLUS MINUS AST MOD DIV AMP
-%right ASSIGN NOT
+%right ASSIGN
+
+%left OR AND
+%left EQ NE
+%left GE GT LE LT
+%left PLUS MINUS
+%left AST DIV
+%left AMP NOT
+
 %nonassoc ELSE
 
 %%
@@ -83,7 +90,7 @@ Expression: Expression ASSIGN Expression
           | STRLIT
           | LPAR Expression RPAR { printf("Expression\n"); };
 
-ExpressionList: Expression | ExpressionList Expression | /* empty */ {};
+ExpressionList: CommaExpression | ExpressionList CommaExpression | /* empty */ {};
 %%
 
 int yyerror (char *s) {
