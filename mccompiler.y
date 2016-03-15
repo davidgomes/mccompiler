@@ -13,40 +13,52 @@
 %token AMP AND ASSIGN AST COMMA DIV EQ GE GT LBRACE LE LPAR LSQ LT MINUS MOD NE
 %token NOT OR PLUS RBRACE RPAR RSQ SEMI CHRLIT STRLIT
 
-%left AST
+%left LE GT LT GE COMMA AND OR EQ NE PLUS MINUS AST MOD DIV AMP
+%right ASSIGN NOT
 %nonassoc ELSE
 
 %%
-Program: Block | Program Block {};
-Block: FunctionDefinition | FunctionDeclaration | Declaration {};
+Program: Block | Program Block { printf("Program\n"); };
+Block: FunctionDefinition | FunctionDeclaration | Declaration { printf("Block\n"); };
 
-FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody {};
-FunctionBody: LBRACE Declaration Statement RBRACE {};
-Declaration: TypeSpec Declarator CommaDeclarator SEMI {};
-CommaDeclarator: COMMA Declarator
-               | CommaDeclarator COMMA Declarator
+FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { printf("FunctionDefinition\n"); };
+FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { printf("FunctionBody\n"); };
+
+FunctionBodyDeclaration: Declaration
+                       | FunctionBodyDeclaration Declarator
+                       | /* empty */ { printf("FunctionBodyDeclaration\n"); };
+
+FunctionBodyStatement: Statement
+                     | FunctionBodyStatement Statement
+                     | /* empty */ { printf("FunctionBodyStatement\n"); };
+
+Declaration: TypeSpec Declarator CommaDeclarator SEMI { printf("Declaration\n"); }; // int a CommaDeclarator;
+
+CommaDeclarator: COMMA Declarator // int a, b
+               | CommaDeclarator COMMA Declarator // int a, b, c, d ...
                | /* empty */ {};
-Declarator: Id | Id LSQ INTLIT RSQ {};
 
-FunctionDeclaration: TypeSpec FunctionDeclarator SEMI {};
+Declarator: Id | Id LSQ INTLIT RSQ { printf("Declarator\n"); };
+
+FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { printf("FunctionDeclaration\n"); };
 TypeSpec: CHAR
         | INT
-        | VOID {};
+        | VOID { printf("TypeSpec\n"); };
 
-FunctionDeclarator: Id LPAR ParameterList RPAR {};
+FunctionDeclarator: Id LPAR ParameterList RPAR { printf("FunctionDeclarator\n"); };
 ParameterList: ParameterDeclaration
-             | ParameterList COMMA ParameterDeclaration {};
-ParameterDeclaration: TypeSpec Id {};
+             | ParameterList COMMA ParameterDeclaration { printf("ParameterList\n"); };
+ParameterDeclaration: TypeSpec Id { printf("ParameterDeclaration\n"); };
 
-Asterisk: AST | Asterisk AST | /* empty */ {};
-Id: AST Id | ID {};
+//Asterisk: AST | Asterisk AST | /* empty */ { printf("Asterisk\n"); };
+Id: AST Id | ID { printf("Id\n"); };
 
 Statement: Expression SEMI
          | LBRACE Statement RBRACE
          | IF LPAR Expression RPAR Statement
          | IF LPAR Expression RPAR Statement ELSE Statement
          | FOR LPAR Expression SEMI Expression SEMI Expression RPAR Statement
-         | RETURN Expression SEMI {};
+         | RETURN Expression SEMI { printf("Statement\n");} ;
 
 Expression: Expression ASSIGN Expression
           | Expression COMMA Expression
@@ -64,11 +76,13 @@ Expression: Expression ASSIGN Expression
           | MINUS Expression
           | NOT Expression
           | Expression LSQ Expression RSQ
-          | ID Expression RPAR
-          | INTLIT Expression RPAR
-          | CHRLIT Expression RPAR
-          | STRLIT Expression RPAR
-          | LPAR Expression RPAR {};
+          | Id
+          | INTLIT
+          | CHRLIT
+          | STRLIT
+          | LPAR Expression RPAR { printf("Expression\n"); };
+
+// Expr → ID LPAR [Expr {COMMA Expr}]
 
 /*Expr → Expr (ASSIGN | COMMA) Expr
 Expr → Expr (AND | OR) Expr
