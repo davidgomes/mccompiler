@@ -76,7 +76,7 @@ Expression: Expression ASSIGN Expression
           | MINUS Expression
           | NOT Expression
           | Expression LSQ Expression RSQ
-          | Id
+          | ID
           | INTLIT
           | CHRLIT
           | STRLIT
@@ -95,7 +95,8 @@ Expr → ID | INTLIT | CHRLIT | STRLIT | LPAR Expr RPAR*/
 %%
 
 int yyerror (char *s) {
-     printf ("Line %d, col %d: %s: %s\n", yylineno, col - (int) yyleng, s, yytext);
+  printf ("Line %d, col %d: %s: %s\n", yylineno, col - (int) yyleng, s, yytext);
+  return 0;
 }
 
 int main(int argc, char **argv) {
