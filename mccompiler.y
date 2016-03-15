@@ -13,7 +13,7 @@
 %token AMP AND ASSIGN AST COMMA DIV EQ GE GT LBRACE LE LPAR LSQ LT MINUS MOD NE
 %token NOT OR PLUS RBRACE RPAR RSQ SEMI CHRLIT STRLIT
 
-%left LE GT LT GE COMMA AND OR EQ NE PLUS MINUS AST MOD DIV AMP
+%left LE GT LT GE COMMA AND OR EQ NE PLUS MINUS AST MOD DIV AMP // remove COMMA
 %right ASSIGN NOT
 %nonassoc ELSE
 
@@ -24,12 +24,10 @@ Block: FunctionDefinition | FunctionDeclaration | Declaration { printf("Block\n"
 FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { printf("FunctionDefinition\n"); };
 FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { printf("FunctionBody\n"); };
 
-FunctionBodyDeclaration: Declaration
-                       | FunctionBodyDeclaration Declarator
+FunctionBodyDeclaration: FunctionBodyDeclaration Declarator
                        | /* empty */ { printf("FunctionBodyDeclaration\n"); };
 
-FunctionBodyStatement: Statement
-                     | FunctionBodyStatement Statement
+FunctionBodyStatement: FunctionBodyStatement Statement
                      | /* empty */ { printf("FunctionBodyStatement\n"); };
 
 Declaration: TypeSpec Declarator CommaDeclarator SEMI { printf("Declaration\n"); }; // int a CommaDeclarator;
@@ -70,17 +68,20 @@ Expression: Expression ASSIGN Expression
           | Expression GT Expression
           | Expression LE Expression
           | Expression GE Expression
-          | AMP Expression
-          | AST Expression
-          | PLUS Expression
-          | MINUS Expression
-          | NOT Expression
+          | Expression AMP Expression
+          | Expression AST Expression
+          | Expression PLUS Expression
+          | Expression MINUS Expression
+          | Expression NOT Expression
           | Expression LSQ Expression RSQ
+          | ID LPAR ExpressionList RPAR
           | ID
           | INTLIT
           | CHRLIT
           | STRLIT
           | LPAR Expression RPAR { printf("Expression\n"); };
+
+ExpressionList: Expression | ExpressionList Expression | /* empty */ {};
 
 // Expr → ID LPAR [Expr {COMMA Expr}]
 
