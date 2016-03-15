@@ -1,7 +1,7 @@
 char buf[10];
 
 int main(int argc, char **argv) {
-  int a;
+  int a, b;
   a = 5+5+5;
 
   puts("A resposta e:");
