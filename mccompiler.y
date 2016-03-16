@@ -17,10 +17,13 @@
 %token AMP AND ASSIGN AST COMMA DIV EQ GE GT LBRACE LE LPAR LSQ LT MINUS MOD NE
 %token NOT OR PLUS RBRACE RPAR RSQ SEMI CHRLIT STRLIT
 
+%nonassoc THEN
+%nonassoc ELSE
+
 %right ASSIGN
 
+%left COMMA
 %left LSQ
-
 %left OR AND
 %left EQ NE
 %left GE GT LE LT
@@ -67,11 +70,14 @@ ParameterDeclaration: TypeSpec Id                       { printf("ParameterDecla
 Id: AST Id | ID { printf("Id\n"); };
 
 Statement: CommaExpression SEMI                                                                       { printf("CommaExpression Statement\n"); }
-         | LBRACE Statement RBRACE                                                                    { printf("Block Statement\n"); }
-         | IF LPAR CommaExpression RPAR Statement                                                     { printf("If Statement\n"); }
+         | LBRACE StatementList RBRACE                                                                    { printf("Block Statement\n"); }
+         | IF LPAR CommaExpression RPAR Statement %prec THEN                                          { printf("If Statement\n"); }
          | IF LPAR CommaExpression RPAR Statement ELSE Statement                                      { printf("If Else Statement\n"); }
          | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { printf("For Statement\n"); }
          | RETURN CommaExpression SEMI                                                                { printf("Return Statement\n");} ;
+
+StatementList: StatementList Statement { printf("StatementList\n"); }
+             | /* empty */             { printf("StatementList\n"); };
 
 ForCommaExpression: CommaExpression
                   | /* empty */ {  };
