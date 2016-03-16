@@ -21,7 +21,7 @@
 %left EQ NE
 %left GE GT LE LT
 %left PLUS MINUS
-%left AST DIV
+%left AST DIV MOD
 %left AMP NOT
 %%
 
@@ -45,9 +45,9 @@ CommaDeclarator: CommaDeclarator COMMA Declarator // int a, b, c, d ...*/
 Declarator: Id | Id LSQ INTLIT RSQ { printf("Declarator\n"); };
 
 FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { printf("FunctionDeclaration\n"); };
-TypeSpec: CHAR
-        | INT
-        | VOID { printf("TypeSpec\n"); };
+TypeSpec: CHAR { printf("TypeSpec CHAR\n"); }
+        | INT  { printf("TypeSpec INT\n"); }
+        | VOID { printf("TypeSpec VOID\n"); };
 
 FunctionDeclarator: Id LPAR ParameterList RPAR { printf("FunctionDeclarator\n"); };
 ParameterList: ParameterDeclaration
@@ -83,6 +83,8 @@ Expression: Expression ASSIGN Expression
           | Expression AST Expression
           | Expression PLUS Expression
           | Expression MINUS Expression
+          | Expression DIV Expression
+          | Expression MOD Expression
           | Expression NOT Expression
           | Expression LSQ Expression RSQ
           | ID LPAR ExpressionList RPAR
