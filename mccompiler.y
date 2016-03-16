@@ -107,9 +107,9 @@ Expression: Expression ASSIGN Expression    { printf("Expression\n"); }
           | INTLIT                          { printf("Expression\n"); }
           | CHRLIT                          { printf("Expression\n"); }
           | STRLIT                          { printf("Expression\n"); }
-          | LPAR Expression RPAR            { printf("Expression\n"); }; // not necessary??
+          | LPAR Expression RPAR            { printf("Expression\n"); };
 
-ExpressionList: CommaExpression | ExpressionList CommaExpression | /* empty */ {};
+ExpressionList: CommaExpression | /* empty */ {};
 %%
 
 int yyerror (char *s) {
