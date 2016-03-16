@@ -8,6 +8,7 @@ typedef enum { NODE_PROGRAM } nodetype_t;
 
 struct {
   struct node_t *sibling_right;
+  nodetype_t type;
 
   int n_childs;
   struct node_t **childs;

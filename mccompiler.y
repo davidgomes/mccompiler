@@ -30,6 +30,7 @@
 %%
 
 Program: Block | Program Block { printf("Program\n"); };
+
 Block: FunctionDefinition | FunctionDeclaration | Declaration { printf("Block\n"); };
 
 FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { printf("FunctionDefinition\n"); };

@@ -2,6 +2,8 @@
 
 node_t* node_create(nodetype_t nodetype) {
   node_t* self = (node_t*) malloc(sizeof(node_t));
+  self->type = nodetype;
+  self->sibling_right = NULL;
   return self;
 }
 
