@@ -2,6 +2,10 @@
   #include <stdio.h>
   #include <string.h>
 
+  #include "ast.h"
+
+  node_t *ast;
+
   int yyerror (char *s);
   int yylex();
 
@@ -123,6 +127,7 @@ int main(int argc, char **argv) {
     yylex();
   } else if (flag_t) {
     yyparse();
+    print_ast(ast);
   } else {
     // display only syntactic or lexical errors
   }
