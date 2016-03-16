@@ -68,31 +68,31 @@ ForCommaExpression: CommaExpression
                   | /* empty */ {  };
 
 CommaExpression: CommaExpression COMMA Expression { printf("CommaExpression\n"); }
-               | Expression { printf("CommaExpression\n"); };
+               | Expression                       { printf("CommaExpression\n"); };
 
-Expression: Expression ASSIGN Expression
-          | Expression AND Expression
-          | Expression OR Expression
-          | Expression EQ Expression
-          | Expression NE Expression
-          | Expression LT Expression
-          | Expression GT Expression
-          | Expression LE Expression
-          | Expression GE Expression
-          | Expression AMP Expression
-          | Expression AST Expression
-          | Expression PLUS Expression
-          | Expression MINUS Expression
-          | Expression DIV Expression
-          | Expression MOD Expression
-          | Expression NOT Expression
-          | Expression LSQ Expression RSQ
-          | ID LPAR ExpressionList RPAR
-          | ID
-          | INTLIT
-          | CHRLIT
-          | STRLIT
-          | LPAR Expression RPAR { printf("Expression\n"); };
+Expression: Expression ASSIGN Expression    { printf("Expression\n"); };
+          | Expression AND Expression       { printf("Expression\n"); };
+          | Expression OR Expression        { printf("Expression\n"); };
+          | Expression EQ Expression        { printf("Expression\n"); };
+          | Expression NE Expression        { printf("Expression\n"); };
+          | Expression LT Expression        { printf("Expression\n"); };
+          | Expression GT Expression        { printf("Expression\n"); };
+          | Expression LE Expression        { printf("Expression\n"); };
+          | Expression GE Expression        { printf("Expression\n"); };
+          | Expression AMP Expression       { printf("Expression\n"); };
+          | Expression AST Expression       { printf("Expression\n"); };
+          | Expression PLUS Expression      { printf("Expression\n"); };
+          | Expression MINUS Expression     { printf("Expression\n"); };
+          | Expression DIV Expression       { printf("Expression\n"); };
+          | Expression MOD Expression       { printf("Expression\n"); };
+          | Expression NOT Expression       { printf("Expression\n"); };
+          | Expression LSQ Expression RSQ   { printf("Expression\n"); };
+          | ID LPAR ExpressionList RPAR     { printf("Expression\n"); };
+          | ID                              { printf("Expression\n"); };
+          | INTLIT                          { printf("Expression\n"); };
+          | CHRLIT                          { printf("Expression\n"); };
+          | STRLIT                          { printf("Expression\n"); };
+          | LPAR Expression RPAR            { printf("Expression\n"); }; // not necessary??
 
 ExpressionList: CommaExpression | ExpressionList CommaExpression | /* empty */ {};
 %%
