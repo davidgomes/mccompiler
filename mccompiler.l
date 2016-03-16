@@ -146,7 +146,7 @@ SEMI  ";"
 
 {RESERVED}  {myprintf("RESERVED(%s)\n", yytext); return RESERVED;}
 {INTLIT}  {myprintf("INTLIT(%s)\n", yytext); return INTLIT;}
-{ID}  {myprintf("ID(%s)\n", yytext); return ID;}
+{ID}  {printf("ID(%s)\n", yytext); return ID;}
 
 {AMP} {myprintf("AMP\n"); return AMP;}
 {AND} {myprintf("AND\n"); return AND;}
