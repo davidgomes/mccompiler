@@ -109,7 +109,9 @@ Expression: Expression ASSIGN Expression    { printf("Expression\n"); }
           | INTLIT                          { printf("Expression\n"); }
           | CHRLIT                          { printf("Expression\n"); }
           | STRLIT                          { printf("Expression\n"); }
-          | LPAR Expression RPAR            { printf("Expression\n"); };
+          | LPAR Expression RPAR            { printf("Expression\n"); }
+          | LPAR error RPAR                 { printf("Expression\n"); }
+          | ID LPAR error RPAR              { printf("Expression\n"); };
 
 ExpressionList: CommaExpression | /* empty */ {};
 %%
