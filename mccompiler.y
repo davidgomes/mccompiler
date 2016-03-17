@@ -70,7 +70,8 @@ ParameterDeclaration: TypeSpec Id                       { printf("ParameterDecla
 Id: AST Id | ID { printf("Id\n"); };
 
 Statement: CommaExpression SEMI                                                                       { printf("CommaExpression Statement\n"); }
-         | LBRACE StatementList RBRACE                                                                    { printf("Block Statement\n"); }
+         | LBRACE StatementList RBRACE                                                                { printf("Block Statement\n"); }
+         | LBRACE error RBRACE
          | IF LPAR CommaExpression RPAR Statement %prec THEN                                          { printf("If Statement\n"); }
          | IF LPAR CommaExpression RPAR Statement ELSE Statement                                      { printf("If Else Statement\n"); }
          | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { printf("For Statement\n"); }
