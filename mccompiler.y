@@ -38,7 +38,8 @@ Block: FunctionDefinition | FunctionDeclaration | Declaration { printf("Block\n"
 
 FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { printf("FunctionDefinition\n"); };
 
-FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { printf("FunctionBody\n"); };
+FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { printf("FunctionBody\n"); }
+            | LBRACE error RBRACE                                         { printf("ErrorFunctionBody\n"); };
 
 FunctionBodyDeclaration: FunctionBodyDeclaration Declaration  { printf("FunctionBodyDeclaration\n"); }
                        | /* empty */                          { printf("FunctionBodyDeclaration\n"); };
@@ -71,7 +72,7 @@ Id: AST Id | ID { printf("Id\n"); };
 
 Statement: CommaExpression SEMI                                                                       { printf("CommaExpression Statement\n"); }
          | LBRACE StatementList RBRACE                                                                { printf("Block Statement\n"); }
-         | LBRACE error RBRACE
+         | LBRACE error RBRACE                                                                        { printf("Error Block Statement\n"); }
          | IF LPAR CommaExpression RPAR Statement %prec THEN                                          { printf("If Statement\n"); }
          | IF LPAR CommaExpression RPAR Statement ELSE Statement                                      { printf("If Else Statement\n"); }
          | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { printf("For Statement\n"); }
