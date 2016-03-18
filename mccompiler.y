@@ -78,7 +78,8 @@ Statement: CommaExpression SEMI                                                 
          | IF LPAR CommaExpression RPAR Statement %prec THEN                                          { printf("If Statement\n"); }
          | IF LPAR CommaExpression RPAR Statement ELSE Statement                                      { printf("If Else Statement\n"); }
          | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { printf("For Statement\n"); }
-         | RETURN CommaExpression SEMI                                                                { printf("Return Statement\n");} ;
+         | RETURN CommaExpression SEMI                                                                { printf("Return Statement\n");}
+         | error SEMI                                                                                 { printf("Error Statement\n"); };
 
 StatementList: StatementList Statement { printf("StatementList\n"); }
              | /* empty */             { printf("StatementList\n"); };
