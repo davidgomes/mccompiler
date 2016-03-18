@@ -39,17 +39,17 @@ Block: FunctionDefinition | FunctionDeclaration | Declaration { printf("Block\n"
 FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { printf("FunctionDefinition\n"); };
 
 FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { printf("FunctionBody\n"); }
-            | LBRACE FunctionBodyStatement RBRACE  { printf("FunctionBody\n"); }
+            | LBRACE FunctionBodyStatement RBRACE                         { printf("FunctionBody\n"); }
             | LBRACE error RBRACE                                         { printf("ErrorFunctionBody\n"); };
 
 FunctionBodyDeclaration: FunctionBodyDeclaration Declaration  { printf("FunctionBodyDeclaration\n"); }
-                       | Declaration                         { printf("FunctionBodyDeclaration\n"); };
+                       | Declaration                          { printf("FunctionBodyDeclaration\n"); };
 
 FunctionBodyStatement: FunctionBodyStatement Statement  { printf("FunctionBodyStatement\n"); }
                      | /* empty */                      { printf("FunctionBodyStatement\n"); };
 
 Declaration: TypeSpec Declarator CommaDeclarator SEMI { printf("Declaration\n"); } // int a CommaDeclarator;
-           | error SEMI { printf("Error Declaration\n"); };
+           | error SEMI                               { printf("Error Declaration\n"); };
 
 CommaDeclarator: CommaDeclarator COMMA Declarator // int a, b, c, d ...*/
                | /* empty */ {};
