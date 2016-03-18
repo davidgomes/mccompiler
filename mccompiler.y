@@ -47,7 +47,8 @@ FunctionBodyDeclaration: FunctionBodyDeclaration Declaration  { printf("Function
 FunctionBodyStatement: FunctionBodyStatement Statement  { printf("FunctionBodyStatement\n"); }
                      | /* empty */                      { printf("FunctionBodyStatement\n"); };
 
-Declaration: TypeSpec Declarator CommaDeclarator SEMI { printf("Declaration\n"); }; // int a CommaDeclarator;
+Declaration: TypeSpec Declarator CommaDeclarator SEMI { printf("Declaration\n"); } // int a CommaDeclarator;
+           | error SEMI { printf("Error Block Statement\n"); };
 
 CommaDeclarator: CommaDeclarator COMMA Declarator // int a, b, c, d ...*/
                | /* empty */ {};
