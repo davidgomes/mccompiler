@@ -40,16 +40,19 @@ FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { printf("FunctionD
 
 FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { printf("FunctionBody\n"); }
             | LBRACE FunctionBodyStatement RBRACE                         { printf("FunctionBody\n"); }
+            | LBRACE FunctionBodyDeclaration RBRACE                       { printf("FunctionBody\n"); }
+            | LBRACE RBRACE                                               { printf("FunctionBody\n"); }
             | LBRACE error RBRACE                                         { printf("ErrorFunctionBody\n"); };
 
 FunctionBodyDeclaration: FunctionBodyDeclaration Declaration  { printf("FunctionBodyDeclaration\n"); }
                        | Declaration                          { printf("FunctionBodyDeclaration\n"); };
 
 FunctionBodyStatement: FunctionBodyStatement Statement  { printf("FunctionBodyStatement\n"); }
-                     | /* empty */                      { printf("FunctionBodyStatement\n"); };
+                     | Statement                        { printf("FunctionBodyStatement\n"); };
 
 Declaration: TypeSpec Declarator CommaDeclarator SEMI { printf("Declaration\n"); } // int a CommaDeclarator;
            | error SEMI                               { printf("Error Declaration\n"); };
+
 
 CommaDeclarator: CommaDeclarator COMMA Declarator // int a, b, c, d ...*/
                | /* empty */ {};
@@ -74,6 +77,7 @@ Id: AST Id | ID { printf("Id\n"); };
 
 Statement: CommaExpression SEMI                                                                       { printf("CommaExpression Statement\n"); }
          | LBRACE StatementList RBRACE                                                                { printf("Block Statement\n"); }
+         | LBRACE RBRACE                                                                              { printf("Block Statement\n"); }
          | LBRACE error RBRACE                                                                        { printf("Error Block Statement\n"); }
          | IF LPAR CommaExpression RPAR Statement %prec THEN                                          { printf("If Statement\n"); }
          | IF LPAR CommaExpression RPAR Statement ELSE Statement                                      { printf("If Else Statement\n"); }
@@ -82,7 +86,7 @@ Statement: CommaExpression SEMI                                                 
          | error SEMI                                                                                 { printf("Error Statement\n"); };
 
 StatementList: StatementList Statement { printf("StatementList\n"); }
-             | /* empty */             { printf("StatementList\n"); };
+             | Statement            { printf("StatementList\n"); };
 
 ForCommaExpression: CommaExpression
                   | /* empty */ {  };
