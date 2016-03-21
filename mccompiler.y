@@ -17,7 +17,7 @@
     va_start(args, __format);
     //printf(__format, args);
     va_end(args);
-  }my
+  }
 %}
 
 %token CHAR ELSE FOR IF INT RETURN VOID RESERVED INTLIT ID
