@@ -16,7 +16,7 @@
   void myprintf2(__const char *__restrict __format, ...) {
     va_list args;
     va_start(args, __format);
-    printf(__format, args);
+    //printf(__format, args);
     va_end(args);
   }
 %}
