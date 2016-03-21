@@ -1,7 +1,12 @@
 %{
   #define YY_USER_ACTION col+=yyleng; //YY_USER_ACTION -  action which is always executed prior to the matched rule's action
 
-  #include "mccompiler.tab.h"
+  #ifdef __APPLE__
+    #include "mccompiler.tab.h"
+  #else
+    #include "y.tab.h"
+  #endif
+
   #include <stdarg.h>
 
   int col = 1, comment_start_col, comment_start_line;
