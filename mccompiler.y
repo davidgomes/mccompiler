@@ -11,6 +11,13 @@
 
   extern char* yytext;
   extern int yylineno, col, yyleng;
+
+  void myprintf(__const char *__restrict __format, ...) {
+    va_list args;
+    va_start(args, __format);
+    //printf(__format, args);
+    va_end(args);
+  }
 %}
 
 %token CHAR ELSE FOR IF INT RETURN VOID RESERVED INTLIT ID
@@ -73,7 +80,7 @@ ParameterList: ParameterDeclaration                     { myprintf("ParameterLis
 ParameterDeclaration: TypeSpec Id                       { myprintf("ParameterDeclaration\n"); };
 
 //Asterisk: AST | Asterisk AST | /* empty */ { printf("Asterisk\n"); };
-Id: AST Id | ID { printf("Id\n"); };
+Id: AST Id | ID { myprintf("Id\n"); };
 
 Statement: CommaExpression SEMI                                                                       { myprintf("CommaExpression Statement\n"); }
          | LBRACE StatementList RBRACE                                                                { myprintf("Block Statement\n"); }
@@ -124,7 +131,7 @@ ExpressionList: CommaExpression | /* empty */ {};
 %%
 
 int yyerror (char *s) {
-  printf ("Line %d, col %d: %s: %s\n", yylineno, col - (int) yyleng, s, yytext);
+  printf("Line %d, col %d: %s: %s\n", yylineno, col - (int) yyleng, s, yytext);
   return 0;
 }
 
@@ -149,7 +156,7 @@ int main(int argc, char **argv) {
     yylex();
   } else if (flag_t) {
     yyparse();
-    print_ast(ast);
+    //print_ast(ast);
   } else {
     // display only syntactic or lexical errors
   }

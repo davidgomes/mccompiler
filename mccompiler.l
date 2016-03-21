@@ -7,12 +7,7 @@
   int col = 1, comment_start_col, comment_start_line;
   int flag = 0;
 
-  void myprintf(__const char *__restrict __format, ...) {
-    va_list args;
-    va_start(args, __format);
-    //printf(__format, args);
-    va_end(args);
-  }
+  extern void myprintf(__const char *__restrict __format, ...);
 %}
 
 %option yylineno
