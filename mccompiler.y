@@ -12,7 +12,7 @@
   extern char* yytext;
   extern int yylineno, col, yyleng;
 
-  void myprintf(__const char *__restrict __format, ...) {
+  void myprintf2(__const char *__restrict __format, ...) {
     va_list args;
     va_start(args, __format);
     //printf(__format, args);
@@ -29,6 +29,9 @@
 
 %right ASSIGN
 
+%glr-parser
+%expect-rr 11
+
 %left COMMA
 %left LSQ
 %left OR AND
@@ -39,93 +42,93 @@
 %left AMP NOT
 %%
 
-Program: Block | Program Block { myprintf("Program\n"); };
+Program: Block | Program Block { myprintf2("Program\n"); };
 
-Block: FunctionDefinition | FunctionDeclaration | Declaration { myprintf("Block\n"); };
+Block: FunctionDefinition | FunctionDeclaration | Declaration { myprintf2("Block\n"); };
 
-FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { myprintf("FunctionDefinition\n"); };
+FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { myprintf2("FunctionDefinition\n"); };
 
-FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { myprintf("FunctionBody\n"); }
-            | LBRACE FunctionBodyStatement RBRACE                         { myprintf("FunctionBody\n"); }
-            | LBRACE FunctionBodyDeclaration RBRACE                       { myprintf("FunctionBody\n"); }
-            | LBRACE RBRACE                                               { myprintf("FunctionBody\n"); }
-            | LBRACE error RBRACE                                         { myprintf("ErrorFunctionBody\n"); };
+FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { myprintf2("FunctionBody\n"); }
+            | LBRACE FunctionBodyStatement RBRACE                         { myprintf2("FunctionBody\n"); }
+            | LBRACE FunctionBodyDeclaration RBRACE                       { myprintf2("FunctionBody\n"); }
+            | LBRACE RBRACE                                               { myprintf2("FunctionBody\n"); }
+            | LBRACE error RBRACE                                         { myprintf2("ErrorFunctionBody\n"); };
 
-FunctionBodyDeclaration: FunctionBodyDeclaration Declaration  { myprintf("FunctionBodyDeclaration\n"); }
-                       | Declaration                          { myprintf("FunctionBodyDeclaration\n"); };
+FunctionBodyDeclaration: FunctionBodyDeclaration Declaration  { myprintf2("FunctionBodyDeclaration\n"); }
+                       | Declaration                          { myprintf2("FunctionBodyDeclaration\n"); };
 
-FunctionBodyStatement: FunctionBodyStatement Statement  { myprintf("FunctionBodyStatement\n"); }
-                     | Statement                        { myprintf("FunctionBodyStatement\n"); };
+FunctionBodyStatement: FunctionBodyStatement Statement  { myprintf2("FunctionBodyStatement\n"); }
+                     | Statement                        { myprintf2("FunctionBodyStatement\n"); };
 
-Declaration: TypeSpec Declarator CommaDeclarator SEMI { myprintf("Declaration\n"); } // int a CommaDeclarator;
-           | error SEMI                               { myprintf("Error Declaration\n"); };
+Declaration: TypeSpec Declarator CommaDeclarator SEMI { myprintf2("Declaration\n"); } // int a CommaDeclarator;
+           | error SEMI                               { myprintf2("Error Declaration\n"); };
 
 
 CommaDeclarator: CommaDeclarator COMMA Declarator // int a, b, c, d ...*/
                | /* empty */ {};
 
-Declarator: Id | Id LSQ INTLIT RSQ { myprintf("Declarator\n"); };
+Declarator: Id | Id LSQ INTLIT RSQ { myprintf2("Declarator\n"); };
 
-FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { myprintf("FunctionDeclaration\n"); };
+FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { myprintf2("FunctionDeclaration\n"); };
 
-TypeSpec: CHAR { myprintf("TypeSpec CHAR\n"); }
-        | INT  { myprintf("TypeSpec INT\n"); }
-        | VOID { myprintf("TypeSpec VOID\n"); };
+TypeSpec: CHAR { myprintf2("TypeSpec CHAR\n"); }
+        | INT  { myprintf2("TypeSpec INT\n"); }
+        | VOID { myprintf2("TypeSpec VOID\n"); };
 
-FunctionDeclarator: Id LPAR ParameterList RPAR              { myprintf("FunctionDeclarator\n"); };
+FunctionDeclarator: Id LPAR ParameterList RPAR              { myprintf2("FunctionDeclarator\n"); };
 
-ParameterList: ParameterDeclaration                     { myprintf("ParameterList\n"); }
-             | ParameterList COMMA ParameterDeclaration { myprintf("ParameterList\n"); };
+ParameterList: ParameterDeclaration                     { myprintf2("ParameterList\n"); }
+             | ParameterList COMMA ParameterDeclaration { myprintf2("ParameterList\n"); };
 
-ParameterDeclaration: TypeSpec Id                       { myprintf("ParameterDeclaration\n"); };
+ParameterDeclaration: TypeSpec Id                       { myprintf2("ParameterDeclaration\n"); };
 
 //Asterisk: AST | Asterisk AST | /* empty */ { printf("Asterisk\n"); };
-Id: AST Id | ID { myprintf("Id\n"); };
+Id: AST Id | ID { myprintf2("Id\n"); };
 
-Statement: CommaExpression SEMI                                                                       { myprintf("CommaExpression Statement\n"); }
-         | LBRACE StatementList RBRACE                                                                { myprintf("Block Statement\n"); }
-         | LBRACE RBRACE                                                                              { myprintf("Block Statement\n"); }
-         | LBRACE error RBRACE                                                                        { myprintf("Error Block Statement\n"); }
-         | IF LPAR CommaExpression RPAR Statement %prec THEN                                          { myprintf("If Statement\n"); }
-         | IF LPAR CommaExpression RPAR Statement ELSE Statement                                      { myprintf("If Else Statement\n"); }
-         | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { myprintf("For Statement\n"); }
-         | RETURN CommaExpression SEMI                                                                { myprintf("Return Statement\n");}
-         | error SEMI                                                                                 { myprintf("Error Statement\n"); };
+Statement: CommaExpression SEMI                                                                       { myprintf2("CommaExpression Statement\n"); }
+         | LBRACE StatementList RBRACE                                                                { myprintf2("Block Statement\n"); }
+         | LBRACE RBRACE                                                                              { myprintf2("Block Statement\n"); }
+         | LBRACE error RBRACE                                                                        { myprintf2("Error Block Statement\n"); }
+         | IF LPAR CommaExpression RPAR Statement %prec THEN                                          { myprintf2("If Statement\n"); }
+         | IF LPAR CommaExpression RPAR Statement ELSE Statement                                      { myprintf2("If Else Statement\n"); }
+         | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { myprintf2("For Statement\n"); }
+         | RETURN CommaExpression SEMI                                                                { myprintf2("Return Statement\n");}
+         | error SEMI                                                                                 { myprintf2("Error Statement\n"); };
 
-StatementList: StatementList Statement { myprintf("StatementList\n"); }
-             | Statement            { myprintf("StatementList\n"); };
+StatementList: StatementList Statement { myprintf2("StatementList\n"); }
+             | Statement            { myprintf2("StatementList\n"); };
 
 ForCommaExpression: CommaExpression
                   | /* empty */ {  };
 
-CommaExpression: CommaExpression COMMA Expression { myprintf("CommaExpression\n"); }
-               | Expression                       { myprintf("CommaExpression\n"); };
+CommaExpression: CommaExpression COMMA Expression { myprintf2("CommaExpression\n"); }
+               | Expression                       { myprintf2("CommaExpression\n"); };
 
-Expression: Expression ASSIGN Expression    { myprintf("Expression\n"); }
-          | Expression AND Expression       { myprintf("Expression\n"); }
-          | Expression OR Expression        { myprintf("Expression\n"); }
-          | Expression EQ Expression        { myprintf("Expression\n"); }
-          | Expression NE Expression        { myprintf("Expression\n"); }
-          | Expression LT Expression        { myprintf("Expression\n"); }
-          | Expression GT Expression        { myprintf("Expression\n"); }
-          | Expression LE Expression        { myprintf("Expression\n"); }
-          | Expression GE Expression        { myprintf("Expression\n"); }
-          | Expression AMP Expression       { myprintf("Expression\n"); }
-          | Expression AST Expression       { myprintf("Expression\n"); }
-          | Expression PLUS Expression      { myprintf("Expression\n"); }
-          | Expression MINUS Expression     { myprintf("Expression\n"); }
-          | Expression DIV Expression       { myprintf("Expression\n"); }
-          | Expression MOD Expression       { myprintf("Expression\n"); }
-          | Expression NOT Expression       { myprintf("Expression\n"); }
-          | Expression LSQ Expression RSQ   { myprintf("Expression\n"); }
-          | ID LPAR ExpressionList RPAR     { myprintf("Expression\n"); }
-          | ID                              { myprintf("Expression\n"); }
-          | INTLIT                          { myprintf("Expression\n"); }
-          | CHRLIT                          { myprintf("Expression\n"); }
-          | STRLIT                          { myprintf("Expression\n"); }
-          | LPAR Expression RPAR            { myprintf("Expression\n"); }
-          | LPAR error RPAR                 { myprintf("Expression\n"); }
-          | ID LPAR error RPAR              { myprintf("Expression\n"); };
+Expression: Expression ASSIGN Expression    { myprintf2("Expression\n"); }
+          | Expression AND Expression       { myprintf2("Expression\n"); }
+          | Expression OR Expression        { myprintf2("Expression\n"); }
+          | Expression EQ Expression        { myprintf2("Expression\n"); }
+          | Expression NE Expression        { myprintf2("Expression\n"); }
+          | Expression LT Expression        { myprintf2("Expression\n"); }
+          | Expression GT Expression        { myprintf2("Expression\n"); }
+          | Expression LE Expression        { myprintf2("Expression\n"); }
+          | Expression GE Expression        { myprintf2("Expression\n"); }
+          | Expression AMP Expression       { myprintf2("Expression\n"); }
+          | Expression AST Expression       { myprintf2("Expression\n"); }
+          | Expression PLUS Expression      { myprintf2("Expression\n"); }
+          | Expression MINUS Expression     { myprintf2("Expression\n"); }
+          | Expression DIV Expression       { myprintf2("Expression\n"); }
+          | Expression MOD Expression       { myprintf2("Expression\n"); }
+          | Expression NOT Expression       { myprintf2("Expression\n"); }
+          | Expression LSQ Expression RSQ   { myprintf2("Expression\n"); }
+          | ID LPAR ExpressionList RPAR     { myprintf2("Expression\n"); }
+          | ID                              { myprintf2("Expression\n"); }
+          | INTLIT                          { myprintf2("Expression\n"); }
+          | CHRLIT                          { myprintf2("Expression\n"); }
+          | STRLIT                          { myprintf2("Expression\n"); }
+          | LPAR Expression RPAR            { myprintf2("Expression\n"); }
+          | LPAR error RPAR                 { myprintf2("Expression\n"); }
+          | ID LPAR error RPAR              { myprintf2("Expression\n"); };
 
 ExpressionList: CommaExpression | /* empty */ {};
 %%
@@ -133,31 +136,4 @@ ExpressionList: CommaExpression | /* empty */ {};
 int yyerror (char *s) {
   printf("Line %d, col %d: %s: %s\n", yylineno, col - (int) yyleng, s, yytext);
   return 0;
-}
-
-int main(int argc, char **argv) {
-  int flag_t = 0;
-  int flag_l = 0;
-  int flag_1 = 0;
-
-  while (argc--) {
-    if (!strcmp(*argv, "-l")) {
-      flag_l = 1;
-    } else if (!strcmp(*argv, "-1")) {
-      flag_1 = 1;
-    } else if (!strcmp(*argv, "-t")) {
-      flag_t = 1;
-    }
-
-    argv++;
-  }
-
-  if (flag_l || flag_1) {
-    yylex();
-  } else if (flag_t) {
-    yyparse();
-    //print_ast(ast);
-  } else {
-    // display only syntactic or lexical errors
-  }
 }
