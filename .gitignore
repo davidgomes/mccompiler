@@ -8,3 +8,6 @@ y.tab.h
 mccompiler
 y.output
 ast
+mccompiler.output
+mccompiler.tab.c
+mccompiler.tab.h
