@@ -10,7 +10,9 @@
   #include <stdarg.h>
 
   int col = 1, comment_start_col, comment_start_line;
-  int flag = 0;
+  int flag_t = 0;
+  int flag_l = 0;
+  int flag_1 = 0;
 
   void myprintf(__const char *__restrict __format, ...) {
     va_list args;
@@ -77,7 +79,7 @@ SEMI  ";"
 %%
 "/*"  {BEGIN COMMENT; comment_start_col = col-2; comment_start_line = yylineno;}
 <COMMENT><<eof>> {printf("Line %d, col %d: unterminated comment\n",comment_start_line, comment_start_col); col=1; return 0;}
-<COMMENT>"*/"  {if(flag == 1){BEGIN ERRORS;} else {BEGIN 0;}}
+<COMMENT>"*/"  {if(flag_1 == 1 && flag_l == 0){BEGIN ERRORS;} else {BEGIN 0;}}
 <COMMENT>.  {;}
 <COMMENT>\n {col = 1;}
 
@@ -183,6 +185,33 @@ SEMI  ";"
 . {myprintf("Line %d, col %d: illegal character (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
 %%
+int main(int argc, char **argv) {
+  while (argc--) {
+    if (!strcmp(*argv, "-l")) {
+      flag_l = 1;
+    } else if (!strcmp(*argv, "-1")) {
+      flag_1 = 1;
+    } else if (!strcmp(*argv, "-t")) {
+      flag_t = 1;
+    }
+
+    argv++;
+  }
+
+  if(argc == 2 && flag_1 == 1){
+    BEGIN ERRORS;
+  }
+
+  if (flag_l || flag_1) {
+    yylex();
+  } else if (flag_t) {
+    // diplay tree
+    //print_ast(ast);
+  } else {
+    yylex();
+    yyparse(); //syntatic or lexical errors
+  }
+}
 int yywrap()
 {
   return 1;
