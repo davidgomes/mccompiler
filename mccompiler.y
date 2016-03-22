@@ -5,6 +5,8 @@
 
   #include "ast.h"
 
+  #define YYDEBUG 1
+
   node_t *ast;
 
   int yyerror();
@@ -30,9 +32,6 @@
 
 %right ASSIGN
 
-%glr-parser
-%expect-rr 11
-
 %left COMMA
 %left LSQ
 %left OR AND
@@ -52,18 +51,20 @@ FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { myprintf2("Functi
 FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { myprintf2("FunctionBody\n"); }
             | LBRACE FunctionBodyStatement RBRACE                         { myprintf2("FunctionBody\n"); }
             | LBRACE FunctionBodyDeclaration RBRACE                       { myprintf2("FunctionBody\n"); }
+            | LBRACE error SEMI RBRACE                                    { myprintf2("Declaration\n"); }
             | LBRACE RBRACE                                               { myprintf2("FunctionBody\n"); }
             | LBRACE error RBRACE                                         { myprintf2("ErrorFunctionBody\n"); };
 
 FunctionBodyDeclaration: FunctionBodyDeclaration Declaration  { myprintf2("FunctionBodyDeclaration\n"); }
-                       | Declaration                          { myprintf2("FunctionBodyDeclaration\n"); };
+                       | DeclarationNotErrorSemi              { myprintf2("FunctionBodyDeclaration\n"); };
 
 FunctionBodyStatement: FunctionBodyStatement Statement  { myprintf2("FunctionBodyStatement\n"); }
-                     | Statement                        { myprintf2("FunctionBodyStatement\n"); };
+                     | StatementNotErrorSemi            { myprintf2("FunctionBodyStatement\n"); };
+
+DeclarationNotErrorSemi: TypeSpec Declarator CommaDeclarator SEMI {}
 
 Declaration: TypeSpec Declarator CommaDeclarator SEMI { myprintf2("Declaration\n"); } // int a CommaDeclarator;
            | error SEMI                               { myprintf2("Error Declaration\n"); };
-
 
 CommaDeclarator: CommaDeclarator COMMA Declarator // int a, b, c, d ...*/
                | /* empty */ {};
@@ -85,6 +86,15 @@ ParameterDeclaration: TypeSpec Id                       { myprintf2("ParameterDe
 
 //Asterisk: AST | Asterisk AST | /* empty */ { printf("Asterisk\n"); };
 Id: AST Id | ID { myprintf2("Id\n"); };
+
+StatementNotErrorSemi: CommaExpression SEMI                                                           { myprintf2("CommaExpression Statement\n"); }
+         | LBRACE StatementList RBRACE                                                                { myprintf2("Block Statement\n"); }
+         | LBRACE RBRACE                                                                              { myprintf2("Block Statement\n"); }
+         | LBRACE error RBRACE                                                                        { myprintf2("Error Block Statement\n"); }
+         | IF LPAR CommaExpression RPAR Statement %prec THEN                                          { myprintf2("If Statement\n"); }
+         | IF LPAR CommaExpression RPAR Statement ELSE Statement                                      { myprintf2("If Else Statement\n"); }
+         | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { myprintf2("For Statement\n"); }
+         | RETURN CommaExpression SEMI                                                                { myprintf2("Return Statement\n");}
 
 Statement: CommaExpression SEMI                                                                       { myprintf2("CommaExpression Statement\n"); }
          | LBRACE StatementList RBRACE                                                                { myprintf2("Block Statement\n"); }
