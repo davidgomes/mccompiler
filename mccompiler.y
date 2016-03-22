@@ -82,7 +82,9 @@ FunctionDeclarator: Id LPAR ParameterList RPAR              { myprintf2("Functio
 ParameterList: ParameterDeclaration                     { myprintf2("ParameterList\n"); }
              | ParameterList COMMA ParameterDeclaration { myprintf2("ParameterList\n"); };
 
-ParameterDeclaration: TypeSpec Id                       { myprintf2("ParameterDeclaration\n"); };
+ParameterDeclaration: TypeSpec Id                       { myprintf2("ParameterDeclaration\n"); }
+                    | TypeSpec                          { myprintf2("ParameterDeclaration\n"); }
+                    ;
 
 //Asterisk: AST | Asterisk AST | /* empty */ { printf("Asterisk\n"); };
 Id: AST Id | ID { myprintf2("Id\n"); };
