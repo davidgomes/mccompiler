@@ -51,17 +51,14 @@ FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { myprintf2("Functi
 FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { myprintf2("FunctionBody\n"); }
             | LBRACE FunctionBodyStatement RBRACE                         { myprintf2("FunctionBody\n"); }
             | LBRACE FunctionBodyDeclaration RBRACE                       { myprintf2("FunctionBody\n"); }
-            | LBRACE error SEMI RBRACE                                    { myprintf2("Declaration\n"); }
             | LBRACE RBRACE                                               { myprintf2("FunctionBody\n"); }
             | LBRACE error RBRACE                                         { myprintf2("ErrorFunctionBody\n"); };
 
 FunctionBodyDeclaration: FunctionBodyDeclaration Declaration  { myprintf2("FunctionBodyDeclaration\n"); }
-                       | DeclarationNotErrorSemi              { myprintf2("FunctionBodyDeclaration\n"); };
+                       | Declaration              { myprintf2("FunctionBodyDeclaration\n"); };
 
 FunctionBodyStatement: FunctionBodyStatement Statement  { myprintf2("FunctionBodyStatement\n"); }
                      | StatementNotErrorSemi            { myprintf2("FunctionBodyStatement\n"); };
-
-DeclarationNotErrorSemi: TypeSpec Declarator CommaDeclarator SEMI {}
 
 Declaration: TypeSpec Declarator CommaDeclarator SEMI { myprintf2("Declaration\n"); } // int a CommaDeclarator;
            | error SEMI                               { myprintf2("Error Declaration\n"); };
