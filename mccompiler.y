@@ -130,7 +130,6 @@ Expression: Expression ASSIGN Expression    { myprintf2("Expression\n"); }
           | Expression GT Expression        { myprintf2("Expression\n"); }
           | Expression LE Expression        { myprintf2("Expression\n"); }
           | Expression GE Expression        { myprintf2("Expression\n"); }
-          | Expression AMP Expression       { myprintf2("Expression\n"); }
           | Expression AST Expression       { myprintf2("Expression\n"); }
           | Expression PLUS Expression      { myprintf2("Expression\n"); }
           | Expression MINUS Expression     { myprintf2("Expression\n"); }
