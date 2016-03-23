@@ -18,7 +18,7 @@
   void myprintf2(__const char *__restrict __format, ...) {
     va_list args;
     va_start(args, __format);
-    //printf(__format, args);
+    printf(__format, args);
     va_end(args);
   }
 %}
@@ -40,6 +40,9 @@
 %left PLUS MINUS
 %left AST DIV MOD
 %left AMP NOT
+
+%precedence "Asterisk"
+%precedence "Id"
 %%
 
 Program: Block | Program Block { myprintf2("Program\n"); };
@@ -79,12 +82,16 @@ FunctionDeclarator: Id LPAR ParameterList RPAR              { myprintf2("Functio
 ParameterList: ParameterDeclaration                     { myprintf2("ParameterList\n"); }
              | ParameterList COMMA ParameterDeclaration { myprintf2("ParameterList\n"); };
 
-ParameterDeclaration: TypeSpec Id                       { myprintf2("ParameterDeclaration\n"); }
-                    | TypeSpec                          { myprintf2("ParameterDeclaration\n"); }
+ParameterDeclaration: TypeSpec Asterisk ID                  { myprintf2("ParameterDeclaration\n"); }
+                    | TypeSpec ID
+                    | TypeSpec Asterisk
+                    | TypeSpec
                     ;
 
-//Asterisk: AST | Asterisk AST | /* empty */ { printf("Asterisk\n"); };
 Id: AST Id | ID { myprintf2("Id\n"); };
+
+Asterisk: Asterisk AST
+        | AST { myprintf2("Asterisk\n"); };
 
 StatementNotErrorSemi: CommaExpression SEMI                                                           { myprintf2("CommaExpression Statement\n"); }
          | LBRACE StatementList RBRACE                                                                { myprintf2("Block Statement\n"); }
