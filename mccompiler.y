@@ -40,6 +40,7 @@
 %left PLUS MINUS
 %left AST DIV MOD
 %left AMP NOT
+
 %%
 
 Program: Block | Program Block { myprintf2("Program\n"); };
@@ -99,9 +100,7 @@ StatementNotErrorSemi: CommaExpression SEMI                                     
          | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { myprintf2("For Statement\n"); }
          | RETURN CommaExpression SEMI                                                                { myprintf2("Return Statement\n");}
 
-Statement: Expression SEMI                                                                       { myprintf2("CommaExpression Statement\n"); }
-         | Expression COMMA Expression SEMI
-         | SEMI
+Statement: CommaExpression SEMI                                                                       { myprintf2("CommaExpression Statement\n"); }
          | LBRACE StatementList RBRACE                                                                { myprintf2("Block Statement\n"); }
          | LBRACE RBRACE                                                                              { myprintf2("Block Statement\n"); }
          | LBRACE error RBRACE                                                                        { myprintf2("Error Block Statement\n"); }
