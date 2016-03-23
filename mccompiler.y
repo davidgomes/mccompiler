@@ -100,6 +100,7 @@ StatementNotErrorSemi: CommaExpression SEMI                                     
          | IF LPAR CommaExpression RPAR Statement ELSE Statement                                      { myprintf2("If Else Statement\n"); }
          | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { myprintf2("For Statement\n"); }
          | RETURN CommaExpression SEMI                                                                { myprintf2("Return Statement\n");}
+         | RETURN SEMI                                                                                { myprintf2("Return Statement\n");}
 
 Statement: CommaExpression SEMI                                                                       { myprintf2("CommaExpression Statement\n"); }
          | SEMI                                                                                       { myprintf2("SEMI Statement\n"); }
@@ -110,6 +111,7 @@ Statement: CommaExpression SEMI                                                 
          | IF LPAR CommaExpression RPAR Statement ELSE Statement                                      { myprintf2("If Else Statement\n"); }
          | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { myprintf2("For Statement\n"); }
          | RETURN CommaExpression SEMI                                                                { myprintf2("Return Statement\n");}
+         | RETURN SEMI                                                                                { myprintf2("Return Statement\n");}
          | error SEMI                                                                                 { myprintf2("Error Statement\n"); };
 
 StatementList: StatementList Statement { myprintf2("StatementList\n"); }
