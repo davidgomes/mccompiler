@@ -18,7 +18,7 @@
   void myprintf2(__const char *__restrict __format, ...) {
     va_list args;
     va_start(args, __format);
-    //printf(__format, args);
+    printf(__format, args);
     va_end(args);
   }
 %}
@@ -92,6 +92,7 @@ Asterisk: Asterisk AST
         | AST { myprintf2("Asterisk\n"); };
 
 StatementNotErrorSemi: CommaExpression SEMI                                                           { myprintf2("CommaExpression Statement\n"); }
+         | SEMI                                                                                       { myprintf2("SEMI Statement\n"); }
          | LBRACE StatementList RBRACE                                                                { myprintf2("Block Statement\n"); }
          | LBRACE RBRACE                                                                              { myprintf2("Block Statement\n"); }
          | LBRACE error RBRACE                                                                        { myprintf2("Error Block Statement\n"); }
@@ -101,6 +102,7 @@ StatementNotErrorSemi: CommaExpression SEMI                                     
          | RETURN CommaExpression SEMI                                                                { myprintf2("Return Statement\n");}
 
 Statement: CommaExpression SEMI                                                                       { myprintf2("CommaExpression Statement\n"); }
+         | SEMI                                                                                       { myprintf2("SEMI Statement\n"); }
          | LBRACE StatementList RBRACE                                                                { myprintf2("Block Statement\n"); }
          | LBRACE RBRACE                                                                              { myprintf2("Block Statement\n"); }
          | LBRACE error RBRACE                                                                        { myprintf2("Error Block Statement\n"); }
