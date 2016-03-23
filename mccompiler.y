@@ -135,7 +135,6 @@ Expression: Expression ASSIGN Expression    { myprintf2("Expression\n"); }
           | Expression MINUS Expression     { myprintf2("Expression\n"); }
           | Expression DIV Expression       { myprintf2("Expression\n"); }
           | Expression MOD Expression       { myprintf2("Expression\n"); }
-          | Expression NOT Expression       { myprintf2("Expression\n"); }
           | Expression LSQ Expression RSQ   { myprintf2("Expression\n"); }
           | ID LPAR ExpressionList RPAR     { myprintf2("Expression\n"); }
           | ID                              { myprintf2("Expression\n"); }
