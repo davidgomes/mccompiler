@@ -18,7 +18,7 @@
   void myprintf2(__const char *__restrict __format, ...) {
     va_list args;
     va_start(args, __format);
-    printf(__format, args);
+    //printf(__format, args);
     va_end(args);
   }
 %}
@@ -40,9 +40,6 @@
 %left PLUS MINUS
 %left AST DIV MOD
 %left AMP NOT
-
-%precedence "Asterisk"
-%precedence "Id"
 %%
 
 Program: Block | Program Block { myprintf2("Program\n"); };
@@ -102,7 +99,8 @@ StatementNotErrorSemi: CommaExpression SEMI                                     
          | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { myprintf2("For Statement\n"); }
          | RETURN CommaExpression SEMI                                                                { myprintf2("Return Statement\n");}
 
-Statement: CommaExpression SEMI                                                                       { myprintf2("CommaExpression Statement\n"); }
+Statement: Expression SEMI                                                                       { myprintf2("CommaExpression Statement\n"); }
+         | Expression COMMA Expression SEMI
          | LBRACE StatementList RBRACE                                                                { myprintf2("Block Statement\n"); }
          | LBRACE RBRACE                                                                              { myprintf2("Block Statement\n"); }
          | LBRACE error RBRACE                                                                        { myprintf2("Error Block Statement\n"); }
