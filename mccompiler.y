@@ -136,6 +136,7 @@ Expression: Expression ASSIGN Expression    { myprintf2("Expression\n"); }
           | Expression DIV Expression       { myprintf2("Expression\n"); }
           | Expression MOD Expression       { myprintf2("Expression\n"); }
           | AMP Expression                  { myprintf2("Expression\n"); }
+          | AST Expression                  { myprintf2("Expression\n"); }
           | PLUS Expression                 { myprintf2("Expression\n"); }
           | MINUS Expression                { myprintf2("Expression\n"); }
           | NOT Expression                  { myprintf2("Expression\n"); }
