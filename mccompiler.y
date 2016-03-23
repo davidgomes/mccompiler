@@ -101,6 +101,7 @@ StatementNotErrorSemi: CommaExpression SEMI                                     
 
 Statement: Expression SEMI                                                                       { myprintf2("CommaExpression Statement\n"); }
          | Expression COMMA Expression SEMI
+         | SEMI
          | LBRACE StatementList RBRACE                                                                { myprintf2("Block Statement\n"); }
          | LBRACE RBRACE                                                                              { myprintf2("Block Statement\n"); }
          | LBRACE error RBRACE                                                                        { myprintf2("Error Block Statement\n"); }
