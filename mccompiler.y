@@ -5,6 +5,8 @@
 
   #include "ast.h"
 
+  #define YYDEBUG 1
+
   node_t *ast;
 
   int yyerror();
@@ -16,7 +18,7 @@
   void myprintf2(__const char *__restrict __format, ...) {
     va_list args;
     va_start(args, __format);
-    //printf(__format, args);
+    printf(__format, args);
     va_end(args);
   }
 %}
@@ -30,9 +32,6 @@
 
 %right ASSIGN
 
-%glr-parser
-%expect-rr 11
-
 %left COMMA
 %left LSQ
 %left OR AND
@@ -41,6 +40,7 @@
 %left PLUS MINUS
 %left AST DIV MOD
 %left AMP NOT
+
 %%
 
 Program: Block | Program Block { myprintf2("Program\n"); };
@@ -56,14 +56,13 @@ FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { mypr
             | LBRACE error RBRACE                                         { myprintf2("ErrorFunctionBody\n"); };
 
 FunctionBodyDeclaration: FunctionBodyDeclaration Declaration  { myprintf2("FunctionBodyDeclaration\n"); }
-                       | Declaration                          { myprintf2("FunctionBodyDeclaration\n"); };
+                       | Declaration              { myprintf2("FunctionBodyDeclaration\n"); };
 
 FunctionBodyStatement: FunctionBodyStatement Statement  { myprintf2("FunctionBodyStatement\n"); }
-                     | Statement                        { myprintf2("FunctionBodyStatement\n"); };
+                     | StatementNotErrorSemi            { myprintf2("FunctionBodyStatement\n"); };
 
 Declaration: TypeSpec Declarator CommaDeclarator SEMI { myprintf2("Declaration\n"); } // int a CommaDeclarator;
            | error SEMI                               { myprintf2("Error Declaration\n"); };
-
 
 CommaDeclarator: CommaDeclarator COMMA Declarator // int a, b, c, d ...*/
                | /* empty */ {};
@@ -81,12 +80,19 @@ FunctionDeclarator: Id LPAR ParameterList RPAR              { myprintf2("Functio
 ParameterList: ParameterDeclaration                     { myprintf2("ParameterList\n"); }
              | ParameterList COMMA ParameterDeclaration { myprintf2("ParameterList\n"); };
 
-ParameterDeclaration: TypeSpec Id                       { myprintf2("ParameterDeclaration\n"); };
+ParameterDeclaration: TypeSpec Asterisk ID                  { myprintf2("ParameterDeclaration\n"); }
+                    | TypeSpec ID
+                    | TypeSpec Asterisk
+                    | TypeSpec
+                    ;
 
-//Asterisk: AST | Asterisk AST | /* empty */ { printf("Asterisk\n"); };
 Id: AST Id | ID { myprintf2("Id\n"); };
 
-Statement: CommaExpression SEMI                                                                       { myprintf2("CommaExpression Statement\n"); }
+Asterisk: Asterisk AST
+        | AST { myprintf2("Asterisk\n"); };
+
+StatementNotErrorSemi: CommaExpression SEMI                                                           { myprintf2("CommaExpression Statement\n"); }
+         | SEMI                                                                                       { myprintf2("SEMI Statement\n"); }
          | LBRACE StatementList RBRACE                                                                { myprintf2("Block Statement\n"); }
          | LBRACE RBRACE                                                                              { myprintf2("Block Statement\n"); }
          | LBRACE error RBRACE                                                                        { myprintf2("Error Block Statement\n"); }
@@ -94,6 +100,18 @@ Statement: CommaExpression SEMI                                                 
          | IF LPAR CommaExpression RPAR Statement ELSE Statement                                      { myprintf2("If Else Statement\n"); }
          | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { myprintf2("For Statement\n"); }
          | RETURN CommaExpression SEMI                                                                { myprintf2("Return Statement\n");}
+         | RETURN SEMI                                                                                { myprintf2("Return Statement\n");}
+
+Statement: CommaExpression SEMI                                                                       { myprintf2("CommaExpression Statement\n"); }
+         | SEMI                                                                                       { myprintf2("SEMI Statement\n"); }
+         | LBRACE StatementList RBRACE                                                                { myprintf2("Block Statement\n"); }
+         | LBRACE RBRACE                                                                              { myprintf2("Block Statement\n"); }
+         | LBRACE error RBRACE                                                                        { myprintf2("Error Block Statement\n"); }
+         | IF LPAR CommaExpression RPAR Statement %prec THEN                                          { myprintf2("If Statement\n"); }
+         | IF LPAR CommaExpression RPAR Statement ELSE Statement                                      { myprintf2("If Else Statement\n"); }
+         | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { myprintf2("For Statement\n"); }
+         | RETURN CommaExpression SEMI                                                                { myprintf2("Return Statement\n");}
+         | RETURN SEMI                                                                                { myprintf2("Return Statement\n");}
          | error SEMI                                                                                 { myprintf2("Error Statement\n"); };
 
 StatementList: StatementList Statement { myprintf2("StatementList\n"); }
@@ -114,13 +132,16 @@ Expression: Expression ASSIGN Expression    { myprintf2("Expression\n"); }
           | Expression GT Expression        { myprintf2("Expression\n"); }
           | Expression LE Expression        { myprintf2("Expression\n"); }
           | Expression GE Expression        { myprintf2("Expression\n"); }
-          | Expression AMP Expression       { myprintf2("Expression\n"); }
           | Expression AST Expression       { myprintf2("Expression\n"); }
           | Expression PLUS Expression      { myprintf2("Expression\n"); }
           | Expression MINUS Expression     { myprintf2("Expression\n"); }
           | Expression DIV Expression       { myprintf2("Expression\n"); }
           | Expression MOD Expression       { myprintf2("Expression\n"); }
-          | Expression NOT Expression       { myprintf2("Expression\n"); }
+          | AMP Expression                  { myprintf2("Expression\n"); }
+          | AST Expression                  { myprintf2("Expression\n"); }
+          | PLUS Expression                 { myprintf2("Expression\n"); }
+          | MINUS Expression                { myprintf2("Expression\n"); }
+          | NOT Expression                  { myprintf2("Expression\n"); }
           | Expression LSQ Expression RSQ   { myprintf2("Expression\n"); }
           | ID LPAR ExpressionList RPAR     { myprintf2("Expression\n"); }
           | ID                              { myprintf2("Expression\n"); }

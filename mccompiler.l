@@ -134,7 +134,7 @@ SEMI  ";"
 
 <ERRORS>{whitespace}  {;}
 <ERRORS>\n {col = 1;}
-<ERRORS><<eof>> {col=1; flag_errors = 0; return 0;}
+<ERRORS><<eof>> {col+=1; flag_errors = 0; return 0;}
 <ERRORS>. {printf("Line %d, col %d: illegal character (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
 {CHRLIT} {printf("CHRLIT(%s)\n", yytext);}
@@ -183,7 +183,7 @@ SEMI  ";"
 {SEMI} {printf("SEMI\n"); return SEMI;}
 {whitespace}  {;}
 \n {col = 1;}
-<<eof>> {col=1; flag_yylex = 0; return 0;}
+<<eof>> {col+=1; flag_yylex = 0; return 0;}
 . {printf("Line %d, col %d: illegal character (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
 %%
@@ -203,7 +203,7 @@ int main(int argc, char **argv) {
     }
   }
   else{
-    flag_errors = 0;
+    flag_errors = 1;
     BEGIN ERRORS;
     yyparse();
   }
