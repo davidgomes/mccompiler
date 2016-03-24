@@ -203,7 +203,7 @@ int main(int argc, char **argv) {
     }
   }
   else{
-    flag_errors = 0;
+    flag_errors = 1;
     BEGIN ERRORS;
     yyparse();
   }
