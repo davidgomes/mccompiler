@@ -14,8 +14,8 @@ struct {
   struct node_t **childs;
 } typedef node_t;
 
-node_t* node_create(nodetype_t nodetype);
-node_t insert_node(node_t *ast, node_t *new);
-void print_ast(node_t* ast);
+node_t* ast_create_node(nodetype_t nodetype);
+node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...);
+void ast_print(node_t* ast);
 
 #endif
