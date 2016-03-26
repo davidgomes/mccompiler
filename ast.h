@@ -20,7 +20,7 @@ typedef struct node{
   struct node **childs;
 } node_t;
 
-node_t* ast_create_node(nodetype_t nodetype);
+node_t* ast_create_node(nodetype_t nodetype, int to_use);
 node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...);
 void ast_print(node_t* ast);
 
