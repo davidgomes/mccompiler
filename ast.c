@@ -90,6 +90,7 @@ node_t* ast_create_node(nodetype_t nodetype, int to_use) {
   self->to_use = to_use;
   self->n_childs = 0;
   self->childs = NULL;
+  return self;
 }
 
 void ast_print(node_t* ast) {
