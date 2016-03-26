@@ -14,7 +14,8 @@ typedef enum { NODE_PROGRAM, NODE_DECLARATION, NODE_ARRAYDECLARATION, NODE_FUNCD
 struct {
   struct node_t *sibling_right;
   nodetype_t type;
-
+  char* value;
+  int to_use;
   int n_childs;
   struct node_t **childs;
 } typedef node_t;
