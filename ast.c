@@ -100,6 +100,14 @@ node_t* ast_create_node(nodetype_t nodetype, int to_use) {
   return self;
 }
 
-void ast_print(node_t* ast) {
+void ast_print_tree(node_t* n, int d) {
   printf("printing tree\n");
+  int i, k;
+  for (k = 0; k < d; k++)
+    printf("..");
+
+  print_data(n);
+
+  for (i = 0; i < n->n_childs; i++)
+    ast_print_tree(n->childs[i], d++);
 }
