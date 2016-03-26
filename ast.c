@@ -54,7 +54,7 @@ node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...)
   int i, nodes = 0;
   va_list args;
 
-  new_node = ast_create_node(nodetype);
+  new_node = ast_create_node(nodetype, to_use);
 
   tmp = merge_nodes;
   va_start(args, node_operands);
@@ -82,11 +82,14 @@ node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...)
   return new_node;
 }
 
-node_t* ast_create_node(nodetype_t nodetype) {
+node_t* ast_create_node(nodetype_t nodetype, int to_use) {
   node_t* self = (node_t*) malloc(sizeof(node_t));
   self->type = nodetype;
   self->sibling_right = NULL;
-  return self;
+  self->value = NULL;
+  self->to_use = to_use;
+  self->n_childs = 0;
+  self->childs = NULL;
 }
 
 void ast_print(node_t* ast) {
