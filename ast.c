@@ -39,12 +39,12 @@ char* node_types[] = {
   "Comma",
   "Call",
   "Char",
-  "Chrlit",
+  "ChrLit",
   "Id",
   "Int",
-  "Intlit",
+  "IntLit",
   "Pointer",
-  "Strlit",
+  "StrLit",
   "Void",
   "Null"
 };
