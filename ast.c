@@ -82,6 +82,13 @@ node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...)
   return new_node;
 }
 
+node_t* ast_insert_terminal(nodetype_t nodetype, char* s){
+  node_t* new_terminal = ast_create_node(nodetype, 1);
+  new_terminal->value = (char *) strdup(s);
+
+  return new_terminal;
+}
+
 node_t* ast_create_node(nodetype_t nodetype, int to_use) {
   node_t* self = (node_t*) malloc(sizeof(node_t));
   self->type = nodetype;
