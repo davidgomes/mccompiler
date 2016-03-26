@@ -11,14 +11,14 @@ typedef enum { NODE_PROGRAM, NODE_DECLARATION, NODE_ARRAYDECLARATION, NODE_FUNCD
   NODE_COMMA, NODE_CALL, NODE_CHAR, NODE_CHRLIT, NODE_ID, NODE_INT, NODE_INTLIT, NODE_POINTER,
   NODE_STRLIT, NODE_VOID, NODE_NULL } nodetype_t;
 
-struct {
-  struct node_t *sibling_right;
+typedef struct node{
+  struct node *sibling_right;
   nodetype_t type;
   char* value;
   int to_use;
   int n_childs;
-  struct node_t **childs;
-} typedef node_t;
+  struct node **childs;
+} node_t;
 
 node_t* ast_create_node(nodetype_t nodetype);
 node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...);
