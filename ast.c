@@ -1,7 +1,55 @@
 #include "ast.h"
 
+char* node_types[] = {
+  "Program",
+  "Declaration",
+  "ArrayDeclaration",
+  "FuncDeclaration",
+  "FuncDefinition",
+  "ParamList",
+  "FuncBody",
+  "ParamDeclaration",
+  "StatList",
+  "If",
+  "For",
+  "Return",
+  "Or",
+  "And",
+  "Eq",
+  "Ne",
+  "Lt",
+  "Gt",
+  "Le",
+  "Ge",
+  "Add",
+  "Sub",
+  "Mul",
+  "Div",
+  "Mod",
+  "Not",
+  "Minus",
+  "Plus",
+  "Addr",
+  "Deref",
+  "Store",
+  "Comma",
+  "Call",
+  "Char",
+  "Chrlit",
+  "Id",
+  "Int",
+  "Intlit",
+  "Pointer",
+  "Strlit",
+  "Void",
+  "Null"
+};
+
 node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...){
-  //insert node in ast
+  node_t *new_node, **tmp;
+  va_list args;
+
+  return new_node;
 }
 
 node_t* ast_create_node(nodetype_t nodetype) {
