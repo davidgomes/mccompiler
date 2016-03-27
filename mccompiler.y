@@ -43,6 +43,11 @@
 %left AST DIV MOD
 %left AMP NOT
 
+%type <node> Program Block FunctionDefinition FunctionBody FunctionBodyDeclaration FunctionBodyStatement
+Declaration CommaDeclarator Declarator FunctionDeclaration TypeSpec FunctionDeclarator ParameterList
+ParameterDeclaration Id Asterisk StatementNotErrorSemi Statement StatementList ForCommaExpression
+CommaExpression Expression ExpressionList
+
 %%
 
 Program: Block         {$$ = ast = ast_insert_node(NODE_PROGRAM, 1, 1, $1);}
@@ -89,7 +94,8 @@ ParameterDeclaration: TypeSpec Asterisk ID                  { myprintf2("Paramet
                     | TypeSpec
                     ;
 
-Id: AST Id | ID { myprintf2("Id\n"); };
+Id: AST Id {$$ = $2;} //TODO is this the right way to fix this?
+  | ID { myprintf2("Id\n"); };
 
 Asterisk: Asterisk AST
         | AST { myprintf2("Asterisk\n"); };
