@@ -201,6 +201,7 @@ int main(int argc, char **argv) {
         yylex();
     } else if (!strcmp(argv[1], "-t")) {
       flag_t = 1; //print tree TODO
+      yyparse();
       ast_print_tree(ast, 0);
     }
   }

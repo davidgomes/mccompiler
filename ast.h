@@ -20,6 +20,8 @@ typedef struct node{
   struct node **childs;
 } node_t;
 
+node_t *ast;
+
 node_t* ast_create_node(nodetype_t nodetype, int to_use);
 node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...);
 node_t* ast_insert_terminal(nodetype_t nodetype, char* s);
