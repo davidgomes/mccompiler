@@ -8,6 +8,7 @@
   #endif
 
   #include <stdarg.h>
+  #include "ast.h"
 
   int col = 1, comment_start_col, comment_start_line;
   int flag_t = 0;
@@ -200,6 +201,7 @@ int main(int argc, char **argv) {
         yylex();
     } else if (!strcmp(argv[1], "-t")) {
       flag_t = 1; //print tree TODO
+      ast_print_tree(ast, 0);
     }
   }
   else{

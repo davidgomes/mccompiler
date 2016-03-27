@@ -7,8 +7,6 @@
 
   #define YYDEBUG 1
 
-  node_t *ast;
-
   int yyerror();
   int yylex();
 
@@ -22,6 +20,10 @@
     va_end(args);
   }
 %}
+
+%union{
+	struct node *node;
+}
 
 %token CHAR ELSE FOR IF INT RETURN VOID RESERVED INTLIT ID
 %token AMP AND ASSIGN AST COMMA DIV EQ GE GT LBRACE LE LPAR LSQ LT MINUS MOD NE
@@ -43,7 +45,8 @@
 
 %%
 
-Program: Block | Program Block { myprintf2("Program\n"); };
+Program: Block         {$$ = ast = ast_insert_node(NODE_PROGRAM, 1, 1, $1);}
+       | Program Block { myprintf2("Program\n"); };
 
 Block: FunctionDefinition | FunctionDeclaration | Declaration { myprintf2("Block\n"); };
 
