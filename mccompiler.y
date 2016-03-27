@@ -19,6 +19,7 @@
     printf(__format, args);
     va_end(args);
   }
+
 %}
 
 %union{
@@ -51,7 +52,7 @@ CommaExpression Expression ExpressionList
 %%
 
 Program: Block         {$$ = ast = ast_insert_node(NODE_PROGRAM, 1, 1, $1);}
-       | Program Block { myprintf2("Program\n"); };
+       | Program Block {$$ = ast = ast_insert_node(NODE_PROGRAM, 1, 1, $1); myprintf2("Program\n"); };
 
 Block: FunctionDefinition | FunctionDeclaration | Declaration { myprintf2("Block\n"); };
 
@@ -163,7 +164,6 @@ Expression: Expression ASSIGN Expression    { myprintf2("Expression\n"); }
 
 ExpressionList: CommaExpression | /* empty */ {};
 %%
-
 int yyerror (char *s) {
   printf("Line %d, col %d: %s: %s\n", yylineno, col - (int) yyleng, s, yytext);
   return 0;

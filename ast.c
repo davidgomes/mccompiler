@@ -2,7 +2,7 @@
 #include <stdarg.h>
 #include <string.h>
 
-node_t *ast, *merge_nodes[2048];
+node_t *merge_nodes[2048];
 
 char* node_types[] = {
   "Program",
@@ -109,6 +109,7 @@ void ast_print_node(node_t* n){
 
 void ast_print_tree(node_t* n, int d) {
   printf("printing tree\n");
+  printf("%d\n", n->to_use);
   int i, k;
   for (k = 0; k < d; k++)
     printf("..");
