@@ -16,19 +16,20 @@
   void myprintf2(__const char *__restrict __format, ...) {
     va_list args;
     va_start(args, __format);
-    printf(__format, args);
+    //printf(__format, args);
     va_end(args);
   }
 
 %}
 
 %union{
+  char* str;
 	struct node *node;
 }
 
-%token CHAR ELSE FOR IF INT RETURN VOID RESERVED INTLIT ID
-%token AMP AND ASSIGN AST COMMA DIV EQ GE GT LBRACE LE LPAR LSQ LT MINUS MOD NE
-%token NOT OR PLUS RBRACE RPAR RSQ SEMI CHRLIT STRLIT
+%token <str> CHAR ELSE FOR IF INT RETURN VOID RESERVED INTLIT ID
+%token <str> AMP AND ASSIGN AST COMMA DIV EQ GE GT LBRACE LE LPAR LSQ LT MINUS MOD NE
+%token <str> NOT OR PLUS RBRACE RPAR RSQ SEMI CHRLIT STRLIT
 
 %nonassoc THEN
 %nonassoc ELSE
@@ -51,55 +52,73 @@ CommaExpression Expression ExpressionList
 
 %%
 
-Program: Block         {$$ = ast = ast_insert_node(NODE_PROGRAM, 1, 1, $1);}
-       | Program Block {$$ = ast = ast_insert_node(NODE_PROGRAM, 1, 1, $1); myprintf2("Program\n"); };
+Program: Block         { $$ = ast = ast_insert_node(NODE_PROGRAM, 1, 1, $1);}
+       | Program Block { $$ = ast_insert_node(NODE_PROGRAM, 1, 1, $1); myprintf2("Program\n"); }
+       ;
 
-Block: FunctionDefinition | FunctionDeclaration | Declaration { myprintf2("Block\n"); };
+Block: FunctionDefinition
+     | FunctionDeclaration
+     | Declaration { myprintf2("Block\n"); }
+     ;
 
-FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { myprintf2("FunctionDefinition\n"); };
+FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { myprintf2("FunctionDefinition\n"); }
+                  ;
 
 FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { myprintf2("FunctionBody\n"); }
             | LBRACE FunctionBodyStatement RBRACE                         { myprintf2("FunctionBody\n"); }
             | LBRACE FunctionBodyDeclaration RBRACE                       { myprintf2("FunctionBody\n"); }
             | LBRACE RBRACE                                               { myprintf2("FunctionBody\n"); }
-            | LBRACE error RBRACE                                         { myprintf2("ErrorFunctionBody\n"); };
+            | LBRACE error RBRACE                                         { myprintf2("ErrorFunctionBody\n"); }
+            ;
 
 FunctionBodyDeclaration: FunctionBodyDeclaration Declaration  { myprintf2("FunctionBodyDeclaration\n"); }
-                       | Declaration              { myprintf2("FunctionBodyDeclaration\n"); };
+                       | Declaration                          { myprintf2("FunctionBodyDeclaration\n"); }
+                       ;
 
 FunctionBodyStatement: FunctionBodyStatement Statement  { myprintf2("FunctionBodyStatement\n"); }
-                     | StatementNotErrorSemi            { myprintf2("FunctionBodyStatement\n"); };
+                     | StatementNotErrorSemi            { myprintf2("FunctionBodyStatement\n"); }
+                     ;
 
 Declaration: TypeSpec Declarator CommaDeclarator SEMI { myprintf2("Declaration\n"); } // int a CommaDeclarator;
-           | error SEMI                               { myprintf2("Error Declaration\n"); };
+           | error SEMI                               { myprintf2("Error Declaration\n"); }
+           ;
 
 CommaDeclarator: CommaDeclarator COMMA Declarator // int a, b, c, d ...*/
-               | /* empty */ {};
+               | /* empty */ {;}
+               ;
 
-Declarator: Id | Id LSQ INTLIT RSQ { myprintf2("Declarator\n"); };
+Declarator: Id
+          | Id LSQ INTLIT RSQ { myprintf2("Declarator\n"); }
+          ;
 
-FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { myprintf2("FunctionDeclaration\n"); };
+FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { myprintf2("FunctionDeclaration\n"); }
+                   ;
 
 TypeSpec: CHAR { myprintf2("TypeSpec CHAR\n"); }
         | INT  { myprintf2("TypeSpec INT\n"); }
-        | VOID { myprintf2("TypeSpec VOID\n"); };
+        | VOID { myprintf2("TypeSpec VOID\n"); }
+        ;
 
-FunctionDeclarator: Id LPAR ParameterList RPAR              { myprintf2("FunctionDeclarator\n"); };
+FunctionDeclarator: Id LPAR ParameterList RPAR  { myprintf2("FunctionDeclarator\n"); }
+                  ;
 
 ParameterList: ParameterDeclaration                     { myprintf2("ParameterList\n"); }
-             | ParameterList COMMA ParameterDeclaration { myprintf2("ParameterList\n"); };
+             | ParameterList COMMA ParameterDeclaration { myprintf2("ParameterList\n"); }
+             ;
 
-ParameterDeclaration: TypeSpec Asterisk ID                  { myprintf2("ParameterDeclaration\n"); }
-                    | TypeSpec ID
-                    | TypeSpec Asterisk
-                    | TypeSpec
+ParameterDeclaration: TypeSpec Asterisk ID  { myprintf2("ParameterDeclaration\n"); }
+                    | TypeSpec ID           {}
+                    | TypeSpec Asterisk     {}
+                    | TypeSpec              {}
                     ;
 
 Id: AST Id {$$ = $2;} //TODO is this the right way to fix this?
-  | ID { myprintf2("Id\n"); };
+  | ID     { myprintf2("Id\n"); }
+  ;
 
 Asterisk: Asterisk AST
-        | AST { myprintf2("Asterisk\n"); };
+        | AST { myprintf2("Asterisk\n"); }
+        ;
 
 StatementNotErrorSemi: CommaExpression SEMI                                                           { myprintf2("CommaExpression Statement\n"); }
          | SEMI                                                                                       { myprintf2("SEMI Statement\n"); }
@@ -111,6 +130,7 @@ StatementNotErrorSemi: CommaExpression SEMI                                     
          | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { myprintf2("For Statement\n"); }
          | RETURN CommaExpression SEMI                                                                { myprintf2("Return Statement\n");}
          | RETURN SEMI                                                                                { myprintf2("Return Statement\n");}
+         ;
 
 Statement: CommaExpression SEMI                                                                       { myprintf2("CommaExpression Statement\n"); }
          | SEMI                                                                                       { myprintf2("SEMI Statement\n"); }
@@ -122,16 +142,20 @@ Statement: CommaExpression SEMI                                                 
          | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { myprintf2("For Statement\n"); }
          | RETURN CommaExpression SEMI                                                                { myprintf2("Return Statement\n");}
          | RETURN SEMI                                                                                { myprintf2("Return Statement\n");}
-         | error SEMI                                                                                 { myprintf2("Error Statement\n"); };
+         | error SEMI                                                                                 { myprintf2("Error Statement\n"); }
+         ;
 
 StatementList: StatementList Statement { myprintf2("StatementList\n"); }
-             | Statement            { myprintf2("StatementList\n"); };
+             | Statement               { myprintf2("StatementList\n"); }
+             ;
 
 ForCommaExpression: CommaExpression
-                  | /* empty */ {  };
+                  | /* empty */ {}
+                  ;
 
 CommaExpression: CommaExpression COMMA Expression { myprintf2("CommaExpression\n"); }
-               | Expression                       { myprintf2("CommaExpression\n"); };
+               | Expression                       { myprintf2("CommaExpression\n"); }
+               ;
 
 Expression: Expression ASSIGN Expression    { myprintf2("Expression\n"); }
           | Expression AND Expression       { myprintf2("Expression\n"); }
@@ -160,9 +184,12 @@ Expression: Expression ASSIGN Expression    { myprintf2("Expression\n"); }
           | STRLIT                          { myprintf2("Expression\n"); }
           | LPAR Expression RPAR            { myprintf2("Expression\n"); }
           | LPAR error RPAR                 { myprintf2("Expression\n"); }
-          | ID LPAR error RPAR              { myprintf2("Expression\n"); };
+          | ID LPAR error RPAR              { myprintf2("Expression\n"); }
+          ;
 
-ExpressionList: CommaExpression | /* empty */ {};
+ExpressionList: CommaExpression
+              | /* empty */ {}
+              ;
 %%
 int yyerror (char *s) {
   printf("Line %d, col %d: %s: %s\n", yylineno, col - (int) yyleng, s, yytext);

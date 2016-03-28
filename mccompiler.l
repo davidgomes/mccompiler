@@ -11,9 +11,6 @@
   #include "ast.h"
 
   int col = 1, comment_start_col, comment_start_line;
-  int flag_t = 0;
-  int flag_l = 0;
-  int flag_1 = 0;
   int flag_yylex = 0;
   int flag_errors = 0;
 
@@ -200,7 +197,8 @@ int main(int argc, char **argv) {
       while(flag_errors)
         yylex();
     } else if (!strcmp(argv[1], "-t")) {
-      flag_t = 1; //print tree TODO
+      flag_errors = 1;
+      BEGIN ERRORS;
       yyparse();
       ast_print_tree(ast, 0);
     }

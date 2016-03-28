@@ -109,7 +109,6 @@ void ast_print_node(node_t* n){
 
 void ast_print_tree(node_t* n, int d) {
   printf("printing tree\n");
-  printf("%d\n", n->to_use);
   int i, k;
   for (k = 0; k < d; k++)
     printf("..");
@@ -118,4 +117,5 @@ void ast_print_tree(node_t* n, int d) {
 
   for (i = 0; i < n->n_childs; i++)
     ast_print_tree(n->childs[i], d++);
+
 }
