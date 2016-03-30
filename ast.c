@@ -103,7 +103,7 @@ node_t* ast_create_node(nodetype_t nodetype, int to_use) {
 
 void ast_print_node(node_t* n){
   if(n->type == NODE_ID || n->type == NODE_CHRLIT || n->type == NODE_INTLIT || n->type == NODE_STRLIT)
-    printf("%s(%s)\n", node_types[n->type], n->value);
+    printf("%s (%s)\n", node_types[n->type], n->value);
   else
     printf("%s\n", node_types[n->type]);
 }
