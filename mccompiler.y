@@ -53,12 +53,12 @@ CommaExpression Expression ExpressionList
 %%
 
 Program: Block         { $$ = ast = ast_insert_node(NODE_PROGRAM, 1, 1, $1);}
-       | Program Block { $$ = ast_insert_node(NODE_PROGRAM, 1, 1, $1); myprintf2("Program\n"); }
+       | Program Block { myprintf2("Program\n"); }
        ;
 
 Block: FunctionDefinition
      | FunctionDeclaration
-     | Declaration { myprintf2("Block\n"); }
+     | Declaration { $$ = ast_insert_node(NODE_ARRAYDECLARATION, 0, 1, $1); myprintf2("Block\n"); }
      ;
 
 FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { myprintf2("FunctionDefinition\n"); }
@@ -79,7 +79,7 @@ FunctionBodyStatement: FunctionBodyStatement Statement  { myprintf2("FunctionBod
                      | StatementNotErrorSemi            { myprintf2("FunctionBodyStatement\n"); }
                      ;
 
-Declaration: TypeSpec Declarator CommaDeclarator SEMI { myprintf2("Declaration\n"); } // int a CommaDeclarator;
+Declaration: TypeSpec Declarator CommaDeclarator SEMI { $$ = ast_insert_node(NODE_DECLARATION, 0, 3, $1, $2, $3); myprintf2("Declaration\n"); } // int a CommaDeclarator;
            | error SEMI                               { myprintf2("Error Declaration\n"); }
            ;
 
@@ -88,13 +88,13 @@ CommaDeclarator: CommaDeclarator COMMA Declarator // int a, b, c, d ...*/
                ;
 
 Declarator: Id
-          | Id LSQ INTLIT RSQ { myprintf2("Declarator\n"); }
+          | Id LSQ INTLIT RSQ { $$ = ast_insert_node(NODE_ARRAYDECLARATION, 1, 2, $1, $3); myprintf2("Declarator\n"); }
           ;
 
 FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { myprintf2("FunctionDeclaration\n"); }
                    ;
 
-TypeSpec: CHAR { myprintf2("TypeSpec CHAR\n"); }
+TypeSpec: CHAR { $$ = ast_insert_terminal(NODE_CHAR, "Char"); myprintf2("TypeSpec CHAR\n"); } /*FIXME*/
         | INT  { myprintf2("TypeSpec INT\n"); }
         | VOID { myprintf2("TypeSpec VOID\n"); }
         ;

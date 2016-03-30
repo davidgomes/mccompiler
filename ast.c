@@ -50,6 +50,7 @@ char* node_types[] = {
 };
 
 node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...){
+  printf("Inserting new node: %s\n", node_types[nodetype]);
   node_t *new_node, **tmp;
   int i, nodes = 0;
   va_list args;
@@ -115,7 +116,9 @@ void ast_print_tree(node_t* n, int d) {
 
   ast_print_node(n);
 
+  printf("n_childs: %d\n", n->n_childs);
+
   for (i = 0; i < n->n_childs; i++)
-    ast_print_tree(n->childs[i], d++);
+    ast_print_tree(n->childs[i], ++d);
 
 }
