@@ -154,37 +154,37 @@ ForCommaExpression: CommaExpression
                   ;
 
 CommaExpression: CommaExpression COMMA CommaExpression { myprintf2("CommaExpression\n"); }
-               | Expression                       { myprintf2("CommaExpression\n"); }
+               | Expression                            { myprintf2("CommaExpression\n"); }
                ;
 
-Expression: Expression ASSIGN Expression    { myprintf2("Expression\n"); }
-          | Expression AND Expression       { myprintf2("Expression\n"); }
-          | Expression OR Expression        { myprintf2("Expression\n"); }
-          | Expression EQ Expression        { myprintf2("Expression\n"); }
-          | Expression NE Expression        { myprintf2("Expression\n"); }
-          | Expression LT Expression        { myprintf2("Expression\n"); }
-          | Expression GT Expression        { myprintf2("Expression\n"); }
-          | Expression LE Expression        { myprintf2("Expression\n"); }
-          | Expression GE Expression        { myprintf2("Expression\n"); }
-          | Expression AST Expression       { myprintf2("Expression\n"); }
-          | Expression PLUS Expression      { myprintf2("Expression\n"); }
-          | Expression MINUS Expression     { myprintf2("Expression\n"); }
-          | Expression DIV Expression       { myprintf2("Expression\n"); }
-          | Expression MOD Expression       { myprintf2("Expression\n"); }
-          | AMP Expression                  { myprintf2("Expression\n"); }
-          | AST Expression                  { myprintf2("Expression\n"); }
-          | PLUS Expression                 { myprintf2("Expression\n"); }
-          | MINUS Expression                { myprintf2("Expression\n"); }
-          | NOT Expression                  { myprintf2("Expression\n"); }
+Expression: Expression ASSIGN Expression         { myprintf2("Expression\n"); }
+          | Expression AND Expression            { myprintf2("Expression\n"); }
+          | Expression OR Expression             { myprintf2("Expression\n"); }
+          | Expression EQ Expression             { myprintf2("Expression\n"); }
+          | Expression NE Expression             { myprintf2("Expression\n"); }
+          | Expression LT Expression             { myprintf2("Expression\n"); }
+          | Expression GT Expression             { myprintf2("Expression\n"); }
+          | Expression LE Expression             { myprintf2("Expression\n"); }
+          | Expression GE Expression             { myprintf2("Expression\n"); }
+          | Expression AST Expression            { myprintf2("Expression\n"); }
+          | Expression PLUS Expression           { myprintf2("Expression\n"); }
+          | Expression MINUS Expression          { myprintf2("Expression\n"); }
+          | Expression DIV Expression            { myprintf2("Expression\n"); }
+          | Expression MOD Expression            { myprintf2("Expression\n"); }
+          | AMP Expression                       { myprintf2("Expression\n"); }
+          | AST Expression                       { myprintf2("Expression\n"); }
+          | PLUS Expression                      { myprintf2("Expression\n"); }
+          | MINUS Expression                     { myprintf2("Expression\n"); }
+          | NOT Expression                       { myprintf2("Expression\n"); }
           | Expression LSQ CommaExpression RSQ   { myprintf2("Expression\n"); }
-          | ID LPAR ExpressionList RPAR     { myprintf2("Expression\n"); }
-          | ID                              { myprintf2("Expression\n"); }
-          | INTLIT                          { myprintf2("Expression\n"); }
-          | CHRLIT                          { myprintf2("Expression\n"); }
-          | STRLIT                          { myprintf2("Expression\n"); }
+          | ID LPAR ExpressionList RPAR          { myprintf2("Expression\n"); }
+          | ID                                   { myprintf2("Expression\n"); }
+          | INTLIT                               { myprintf2("Expression\n"); }
+          | CHRLIT                               { myprintf2("Expression\n"); }
+          | STRLIT                               { myprintf2("Expression\n"); }
           | LPAR CommaExpression RPAR            { myprintf2("Expression\n"); }
-          | LPAR error RPAR                 { myprintf2("Expression\n"); }
-          | ID LPAR error RPAR              { myprintf2("Expression\n"); }
+          | LPAR error RPAR                      { myprintf2("Expression\n"); }
+          | ID LPAR error RPAR                   { myprintf2("Expression\n"); }
           ;
 
 ExpressionList: CommaExpression
