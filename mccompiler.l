@@ -85,11 +85,11 @@ SEMI  ";"
 
 <ERRORS>"/*"  {BEGIN COMMENT; comment_start_col = col-2; comment_start_line = yylineno;}
 
-<ERRORS>{CHRLIT} {;}
+<ERRORS>{CHRLIT} {return CHRLIT;}
 <ERRORS>{UN_CHRLIT} {printf("Line %d, col %d: unterminated char constant\n",yylineno, col-(int)yyleng); col = 1;}
 <ERRORS>{INV_CHRLIT}  {printf("Line %d, col %d: invalid char constant (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
-<ERRORS>{STRLIT}  {;}
+<ERRORS>{STRLIT}  {return STRLIT;}
 <ERRORS>{UN_STRLIT} {printf("Line %d, col %d: unterminated string constant\n",yylineno, col-(int)yyleng); col = 1;}
 <ERRORS>{INV_STRLIT}  {printf("Line %d, col %d: invalid string constant (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
@@ -135,11 +135,11 @@ SEMI  ";"
 <ERRORS><<eof>> {col+=1; flag_errors = 0; return 0;}
 <ERRORS>. {printf("Line %d, col %d: illegal character (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
-{CHRLIT} {printf("CHRLIT(%s)\n", yytext);}
+{CHRLIT} {printf("CHRLIT(%s)\n", yytext); return CHRLIT;}
 {UN_CHRLIT} {printf("Line %d, col %d: unterminated char constant\n",yylineno, col-(int)yyleng); col = 1;}
 {INV_CHRLIT}  {printf("Line %d, col %d: invalid char constant (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
-{STRLIT}  {printf("STRLIT(%s)\n", yytext);}
+{STRLIT}  {printf("STRLIT(%s)\n", yytext); return STRLIT;}
 {UN_STRLIT} {printf("Line %d, col %d: unterminated string constant\n",yylineno, col-(int)yyleng); col = 1;}
 {INV_STRLIT}  {printf("Line %d, col %d: invalid string constant (%s)\n",yylineno, col-(int)yyleng, yytext);}
 

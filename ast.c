@@ -50,7 +50,7 @@ char* node_types[] = {
 };
 
 node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...){
-  printf("Inserting new node: %s\n", node_types[nodetype]);
+  //printf("Inserting new node: %s\n", node_types[nodetype]);
   node_t *new_node, **tmp;
   int i, nodes = 0;
   va_list args;
