@@ -48,7 +48,7 @@
 %type <node> Program Block FunctionDefinition FunctionBody FunctionBodyDeclaration FunctionBodyStatement
 Declaration CommaDeclarator Declarator FunctionDeclaration TypeSpec FunctionDeclarator ParameterList
 ParameterDeclaration Id Asterisk StatementNotErrorSemi Statement StatementList ForCommaExpression
-CommaExpression Expression ExpressionList
+CommaExpression Expression ExpressionList TerminalIntlit
 
 %%
 
@@ -61,7 +61,7 @@ Block: FunctionDefinition
      | Declaration { $$ = ast_insert_node(NODE_ARRAYDECLARATION, 0, 1, $1); myprintf2("Block\n"); }
      ;
 
-FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { myprintf2("FunctionDefinition\n"); }
+FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { $$ = ast_insert_node(NODE_FUNCDEFINITION, 1, 3, $1, $2, $3); }
                   ;
 
 FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { myprintf2("FunctionBody\n"); }
@@ -79,7 +79,7 @@ FunctionBodyStatement: FunctionBodyStatement Statement  { myprintf2("FunctionBod
                      | StatementNotErrorSemi            { myprintf2("FunctionBodyStatement\n"); }
                      ;
 
-Declaration: TypeSpec Declarator CommaDeclarator SEMI { $$ = ast_insert_node(NODE_DECLARATION, 0, 3, $1, $2, $3); myprintf2("Declaration\n"); } // int a CommaDeclarator;
+Declaration: TypeSpec Declarator CommaDeclarator SEMI { printf("here\n"); printf("%d\n", $2->n_childs); $$ = $2->n_childs == 1 ? ast_insert_node(NODE_DECLARATION, 1, 3, $1, $2, $3) : ast_insert_node(NODE_ARRAYDECLARATION, 1, 3, $1, $2, $3); } // int a CommaDeclarator;
            | error SEMI                               { myprintf2("Error Declaration\n"); }
            ;
 
@@ -88,8 +88,10 @@ CommaDeclarator: CommaDeclarator COMMA Declarator // int a, b, c, d ...*/
                ;
 
 Declarator: Id
-          | Id LSQ INTLIT RSQ { $$ = ast_insert_node(NODE_ARRAYDECLARATION, 1, 2, $1, $3); myprintf2("Declarator\n"); }
+          | Id LSQ TerminalIntlit RSQ { printf("right before segfault\n"); $$ = ast_insert_node(NODE_DECLARATOR, 0, 2, $1, $3); myprintf2("Declarator\n"); }
           ;
+TerminalIntlit: INTLIT {$$ = ast_insert_terminal(NODE_INTLIT, $1);}
+              ;
 
 FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { myprintf2("FunctionDeclaration\n"); }
                    ;
@@ -113,7 +115,7 @@ ParameterDeclaration: TypeSpec Asterisk ID  { myprintf2("ParameterDeclaration\n"
                     ;
 
 Id: AST Id {$$ = $2;} //TODO is this the right way to fix this?
-  | ID     { myprintf2("Id\n"); }
+  | ID     { $$ = ast_insert_terminal(NODE_ID, $1); myprintf2("Id\n"); }
   ;
 
 Asterisk: Asterisk AST

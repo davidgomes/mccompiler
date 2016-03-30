@@ -201,6 +201,7 @@ int main(int argc, char **argv) {
       BEGIN ERRORS;
       yyparse();
       ast_print_tree(ast, 0);
+      ast_destroy(ast);
     }
   }
   else{

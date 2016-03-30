@@ -108,17 +108,25 @@ void ast_print_node(node_t* n){
     printf("%s\n", node_types[n->type]);
 }
 
+void ast_destroy(node_t *where) {
+  if (where != NULL) {
+    int i;
+    for (i = 0; i < where->n_childs; i++) {
+      ast_destroy(where->childs[i]);
+    }
+    free(where);
+  }
+}
+
 void ast_print_tree(node_t* n, int d) {
-  printf("printing tree\n");
+  //printf("printing tree\n");
   int i, k;
   for (k = 0; k < d; k++)
     printf("..");
 
   ast_print_node(n);
 
-  printf("n_childs: %d\n", n->n_childs);
-
   for (i = 0; i < n->n_childs; i++)
-    ast_print_tree(n->childs[i], ++d);
+    ast_print_tree(n->childs[i], d+1);
 
 }
