@@ -163,7 +163,7 @@ CommaExpression: CommaExpression COMMA CommaExpression { myprintf2("CommaExpress
 Expression: Expression ASSIGN Expression         { myprintf2("Expression\n"); }
           | Expression AND Expression            { myprintf2("Expression\n"); }
           | Expression OR Expression             { myprintf2("Expression\n"); }
-          | Expression EQ Expression             { myprintf2("Expression\n"); }
+          | Expression EQ Expression             { $$ = ast_insert_node(NODE_EQ, 1, 2, $1, $3); }
           | Expression NE Expression             { myprintf2("Expression\n"); }
           | Expression LT Expression             { myprintf2("Expression\n"); }
           | Expression GT Expression             { myprintf2("Expression\n"); }
