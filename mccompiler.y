@@ -47,8 +47,8 @@
 
 %type <node> FunctionDefinition FunctionBody FunctionBodyDeclaration FunctionBodyStatement
 Declaration CommaDeclarator Declarator FunctionDeclaration TypeSpec FunctionDeclarator ParameterList
-ParameterDeclaration Id Asterisk StatementCanError Statement StatementList ForCommaExpression
-CommaExpression Expression ExpressionList TerminalIntlit ArrayDeclarator Start StartAgain
+ParameterDeclaration Asterisk StatementCanError Statement StatementList ForCommaExpression
+CommaExpression Expression ExpressionList TerminalIntlit ArrayDeclarator Start StartAgain Id
 
 %%
 
@@ -86,7 +86,8 @@ Declaration: TypeSpec Declarator CommaDeclarator SEMI      { $$ = ast_insert_nod
            | error SEMI                                    {}
            ;
 
-ArrayDeclarator: Id LSQ TerminalIntlit RSQ {$$ = ast_insert_node(NODE_ARRAYDECLARATOR, 0, 2, $1, $3); }
+ArrayDeclarator: Asterisk Id LSQ TerminalIntlit RSQ { $$ = ast_insert_node(NODE_ARRAYDECLARATOR, 0, 2, $1, $3); }
+               | Id LSQ TerminalIntlit RSQ          { $$ = ast_insert_node(NODE_ARRAYDECLARATOR, 0, 2, $1, $3); }
                ;
 
 CommaDeclarator: CommaDeclarator COMMA Declarator { $$ = ast_insert_node(NODE_COMMA, 0, 2, $1, $3); } // int a, b, c, d ...*/
@@ -94,7 +95,8 @@ CommaDeclarator: CommaDeclarator COMMA Declarator { $$ = ast_insert_node(NODE_CO
                | /* empty */ { $$ = NULL; }
                ;
 
-Declarator: Id {$$ = ast_insert_node(NODE_DECLARATOR, 0, 1, $1); }
+Declarator: Id           { $$ = ast_insert_node(NODE_DECLARATOR, 0, 1, $1); }
+          | Asterisk Id  { $$ = ast_insert_node(NODE_DECLARATOR, 0, 2, $1, $2); }
           ;
 
 TerminalIntlit: INTLIT {$$ = ast_insert_terminal(NODE_INTLIT, $1); }
@@ -109,26 +111,31 @@ TypeSpec: CHAR { $$ = ast_insert_terminal(NODE_CHAR, "Char"); }
         ;
 
 FunctionDeclarator: Id LPAR ParameterList RPAR  { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 2, $1, $3); }
+                  | Asterisk Id LPAR ParameterList RPAR { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 3, $1, $2, $4); }
                   ;
 
 ParameterList: ParameterList COMMA ParameterDeclaration { $$ = ast_insert_node(NODE_PARAMLIST, 1, 2, $1, $3); }
              | ParameterDeclaration                     { $$ = ast_insert_node(NODE_PARAMLIST, 0, 1, $1); }
              ;
 
-ParameterDeclaration: TypeSpec Id           { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2); }
-                    | TypeSpec Asterisk     { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2); }
-                    | TypeSpec              { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 1, $1); }
+ParameterDeclaration: TypeSpec Asterisk Id           { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 3, $1, $2, $3); }
+                    | TypeSpec Id                    { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2); }
+                    | TypeSpec Asterisk              { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2); }
+                    | TypeSpec                       { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 1, $1); }
                     ;
 
 /*Id: AST Id { $$ = ast_insert_terminal(NODE_POINTER, "Pointer"); } //TODO is this the right way to fix this? no.
   | ID     { $$ = ast_insert_terminal(NODE_ID, $1); }
   ;*/
 
-Id: Asterisk ID { $$ = ast_insert_terminal(NODE_ID, $2); }
+/*Id: Asterisk ID {  }
   | ID          { $$ = ast_insert_terminal(NODE_ID, $1); }
+  ;*/
+
+Id: ID { $$ = ast_insert_terminal(NODE_ID, $1); }
   ;
 
-Asterisk: Asterisk AST { $$ = ast_insert_terminal(NODE_POINTER, "Pointer"); }
+Asterisk: Asterisk AST { $$ = ast_insert_node(NODE_POINTER, 0, 1, $1); }
         | AST          { $$ = ast_insert_terminal(NODE_POINTER, "Pointer"); }
         ;
 

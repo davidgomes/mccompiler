@@ -1,4 +1,4 @@
 int a, b;
 
-int main(int **, int *a) {
+int main(int **, int **a) {
 }
