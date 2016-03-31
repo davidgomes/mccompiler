@@ -47,7 +47,7 @@
 
 %type <node> Program Block FunctionDefinition FunctionBody FunctionBodyDeclaration FunctionBodyStatement
 Declaration CommaDeclarator Declarator FunctionDeclaration TypeSpec FunctionDeclarator ParameterList
-ParameterDeclaration Id Asterisk StatementNotErrorSemi Statement StatementList ForCommaExpression
+ParameterDeclaration Id Asterisk StatementCanError Statement StatementList ForCommaExpression
 CommaExpression Expression ExpressionList TerminalIntlit
 
 %%
@@ -75,8 +75,8 @@ FunctionBodyDeclaration: FunctionBodyDeclaration Declaration  { $$ = ast_insert_
                        | Declaration                          { myprintf2("FunctionBodyDeclaration\n"); }
                        ;
 
-FunctionBodyStatement: FunctionBodyStatement Statement  { myprintf2("FunctionBodyStatement\n"); }
-                     | StatementNotErrorSemi            { myprintf2("FunctionBodyStatement\n"); }
+FunctionBodyStatement: FunctionBodyStatement StatementCanError  { myprintf2("FunctionBodyStatement\n"); }
+                     | Statement                                { myprintf2("FunctionBodyStatement\n"); }
                      ;
 
 Declaration: TypeSpec Declarator CommaDeclarator SEMI { printf("here\n"); printf("%d\n", $2->n_childs); $$ = $2->n_childs == 1 ? ast_insert_node(NODE_DECLARATION, 1, 3, $1, $2, $3) : ast_insert_node(NODE_ARRAYDECLARATION, 1, 3, $1, $2, $3); } // int a CommaDeclarator;
@@ -122,17 +122,9 @@ Asterisk: Asterisk AST
         | AST { myprintf2("Asterisk\n"); }
         ;
 
-StatementNotErrorSemi: CommaExpression SEMI                                                           { myprintf2("CommaExpression Statement\n"); }
-         | SEMI                                                                                       { myprintf2("SEMI Statement\n"); }
-         | LBRACE StatementList RBRACE                                                                { myprintf2("Block Statement\n"); }
-         | LBRACE RBRACE                                                                              { myprintf2("Block Statement\n"); }
-         | LBRACE error RBRACE                                                                        { myprintf2("Error Block Statement\n"); }
-         | IF LPAR CommaExpression RPAR Statement %prec THEN                                          { myprintf2("If Statement\n"); }
-         | IF LPAR CommaExpression RPAR Statement ELSE Statement                                      { myprintf2("If Else Statement\n"); }
-         | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { myprintf2("For Statement\n"); }
-         | RETURN CommaExpression SEMI                                                                { myprintf2("Return Statement\n");}
-         | RETURN SEMI                                                                                { myprintf2("Return Statement\n");}
-         ;
+StatementCanError: Statement {}
+                 | error SEMI {}
+                 ;
 
 Statement: CommaExpression SEMI                                                                       { myprintf2("CommaExpression Statement\n"); }
          | SEMI                                                                                       { myprintf2("SEMI Statement\n"); }
@@ -144,11 +136,10 @@ Statement: CommaExpression SEMI                                                 
          | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { myprintf2("For Statement\n"); }
          | RETURN CommaExpression SEMI                                                                { myprintf2("Return Statement\n");}
          | RETURN SEMI                                                                                { myprintf2("Return Statement\n");}
-         | error SEMI                                                                                 { myprintf2("Error Statement\n"); }
          ;
 
-StatementList: StatementList Statement { myprintf2("StatementList\n"); }
-             | Statement               { myprintf2("StatementList\n"); }
+StatementList: StatementList StatementCanError { myprintf2("StatementList\n"); }
+             | StatementCanError               { myprintf2("StatementList\n"); }
              ;
 
 ForCommaExpression: CommaExpression
