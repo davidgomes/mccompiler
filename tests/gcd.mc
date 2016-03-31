@@ -1,1 +1,1 @@
-int a;
+char buf[10];

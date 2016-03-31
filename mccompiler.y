@@ -106,7 +106,7 @@ CommaDeclarator: CommaDeclarator COMMA Declarator { $$ = ast_insert_node(NODE_CO
                | /* empty */ { $$ = NULL; }
                ;
 
-Declarator: Id {$$ = ast_insert_node(NODE_DECLARATOR, 0, 1, $1);}
+Declarator: Id {printf("id\n\n\n"); $$ = ast_insert_node(NODE_DECLARATOR, 0, 1, $1);}
           ;
 
 TerminalIntlit: INTLIT {$$ = ast_insert_terminal(NODE_INTLIT, $1);}
@@ -133,7 +133,7 @@ ParameterDeclaration: TypeSpec Asterisk ID  { $$ = ast_insert_node(NODE_PARAMDEC
                     | TypeSpec              { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 1, $1);}
                     ;
 
-Id: AST Id {$$ = $2;} //TODO is this the right way to fix this?
+Id: AST Id {$$ = $2;} //TODO is this the right way to fix this? no.
   | ID     { $$ = ast_insert_terminal(NODE_ID, $1); myprintf2("Id\n"); }
   ;
 
