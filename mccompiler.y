@@ -103,12 +103,12 @@ TerminalIntlit: INTLIT {$$ = ast_insert_terminal(NODE_INTLIT, $1);}
 FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { myprintf2("FunctionDeclaration\n"); }
                    ;
 
-TypeSpec: CHAR { $$ = ast_insert_terminal(NODE_CHAR, "Char"); myprintf2("TypeSpec CHAR\n"); }
-        | INT  { $$ = ast_insert_terminal(NODE_INT, "Int"); myprintf2("TypeSpec INT\n"); }
-        | VOID { $$ = ast_insert_terminal(NODE_VOID, "Void"); myprintf2("TypeSpec VOID\n"); }
+TypeSpec: CHAR { $$ = ast_insert_terminal(NODE_CHAR, "Char"); }
+        | INT  { $$ = ast_insert_terminal(NODE_INT, "Int"); }
+        | VOID { $$ = ast_insert_terminal(NODE_VOID, "Void"); }
         ;
 
-FunctionDeclarator: Id LPAR ParameterList RPAR  { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 2, $1, $2); myprintf2("FunctionDeclarator\n"); }
+FunctionDeclarator: Id LPAR ParameterList RPAR  { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 2, $1, $2); }
                   ;
 
 ParameterList: ParameterList COMMA ParameterDeclaration { $$ = ast_insert_node(NODE_PARAMLIST, 1, 2, $1, $3);}
