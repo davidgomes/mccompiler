@@ -58,7 +58,6 @@ char* node_types[] = {
 };
 
 node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...) {
-  printf("%d\n", nodetype);
   printf("Inserting new node: %s\n", node_types[nodetype]);
   node_t *new_node, **tmp;
   int i, nodes = 0;
@@ -70,14 +69,10 @@ node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...)
 
   va_start(args, node_operands);
 
-  printf("node_operands: %d\n", node_operands);
-
   while (node_operands--) {
     node_t *t = va_arg(args, node_t *);
 
-    //printf("child is of type %s\n", node_types[t->type]);
-
-    if(t == NULL) {
+    if (t == NULL) {
       continue;
     } else if(!t->to_use) {
       for(nodes += t->n_childs, i = 0; i < t->n_childs; i++){
@@ -87,11 +82,7 @@ node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...)
       *(tmp++) = t;
       nodes++;
     }
-    printf("yessir\n");
-
   }
-
-  printf("end childs\n");
 
   new_node->childs = (node_t **) malloc (nodes * sizeof(node_t *));
   memcpy(new_node->childs, merge_nodes, nodes * sizeof(node_t *));

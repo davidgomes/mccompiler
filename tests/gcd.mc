@@ -1,1 +1,2 @@
-char buf[10];
+char buffer[20];
+int a;

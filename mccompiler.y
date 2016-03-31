@@ -52,29 +52,16 @@ CommaExpression Expression ExpressionList TerminalIntlit ArrayDeclarator Start S
 
 %%
 
-/*Program: Block         { printf("BLOCK"); $$ = ast = ast_insert_node(NODE_PROGRAM, 1, 1, $1); }
-       | Program Block { printf("Program Block\n\n\n"); $$ = ast_insert_node(NODE_PROGRAM, 0, 2, $1, $2); }
-       ;*/
-
 Start: FunctionDefinition StartAgain  {$$ = ast = ast_insert_node(NODE_PROGRAM, 1, 2, $1, $2);}
      | FunctionDeclaration StartAgain {$$ = ast = ast_insert_node(NODE_PROGRAM, 1, 2, $1, $2);}
-     | Declaration StartAgain         {printf("decl\n"); $$ = ast = ast_insert_node(NODE_PROGRAM, 1, 2, $1, $2);}
+     | Declaration StartAgain         {$$ = ast = ast_insert_node(NODE_PROGRAM, 1, 2, $1, $2);}
      ;
 
 StartAgain: FunctionDefinition StartAgain {$$ = ast_insert_node(NODE_BLOCK, 0, 2, $1, $2);}
           | FunctionDeclaration StartAgain {$$ = ast_insert_node(NODE_BLOCK, 0, 2, $1, $2);}
-          | Declaration StartAgain         {$$ = ast_insert_node(NODE_BLOCK, 0, 2, $1, $2);printf("block\n");}
-          | /* empty */ {}
+          | Declaration StartAgain         {$$ = ast_insert_node(NODE_BLOCK, 0, 2, $1, $2);}
+          | /* empty */ {$$ = NULL;}
           ;
-
-/*Program: Block Program  { printf("BLOCK"); $$ = ast_insert_node(NODE_PROGRAM, 0, 2, $1, $2); }
-       | Block          { printf("Program Block\n\n\n"); $$ = ast = ast_insert_node(NODE_PROGRAM, 1, 1, $1); }
-       ;
-
-Block: FunctionDefinition
-     | FunctionDeclaration
-     | Declaration { printf("segfaultXXX\n"); $$ = ast_insert_node(NODE_BLOCK, 0, 1, $1); printf("test\n"); }
-     ;*/
 
 FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { $$ = ast_insert_node(NODE_FUNCDEFINITION, 1, 3, $1, $2, $3); }
                   ;
@@ -94,8 +81,8 @@ FunctionBodyStatement: FunctionBodyStatement StatementCanError  { $$ = ast_inser
                      | Statement                                { $$ = ast_insert_node(NODE_FUNCTIONBODYSTATEMENT, 0, 1, $1); }
                      ;
 
-Declaration: TypeSpec Declarator CommaDeclarator SEMI      { printf("here\n"); $$ = ast_insert_node(NODE_DECLARATION, 1, 3, $1, $2, $3); printf("hey\n"); } // int a CommaDeclarator;
-           | TypeSpec ArrayDeclarator CommaDeclarator SEMI { printf("here2\n"); $$ = ast_insert_node(NODE_ARRAYDECLARATION, 1, 3, $1, $2, $3); }
+Declaration: TypeSpec Declarator CommaDeclarator SEMI      { $$ = ast_insert_node(NODE_DECLARATION, 1, 3, $1, $2, $3); } // int a CommaDeclarator;
+           | TypeSpec ArrayDeclarator CommaDeclarator SEMI { $$ = ast_insert_node(NODE_ARRAYDECLARATION, 1, 3, $1, $2, $3); }
            | error SEMI                                    {}
            ;
 
@@ -106,7 +93,7 @@ CommaDeclarator: CommaDeclarator COMMA Declarator { $$ = ast_insert_node(NODE_CO
                | /* empty */ { $$ = NULL; }
                ;
 
-Declarator: Id {printf("id\n\n\n"); $$ = ast_insert_node(NODE_DECLARATOR, 0, 1, $1);}
+Declarator: Id {$$ = ast_insert_node(NODE_DECLARATOR, 0, 1, $1);}
           ;
 
 TerminalIntlit: INTLIT {$$ = ast_insert_terminal(NODE_INTLIT, $1);}
@@ -115,9 +102,9 @@ TerminalIntlit: INTLIT {$$ = ast_insert_terminal(NODE_INTLIT, $1);}
 FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { myprintf2("FunctionDeclaration\n"); }
                    ;
 
-TypeSpec: CHAR { printf("hello\n"); $$ = ast_insert_terminal(NODE_CHAR, "Char"); myprintf2("TypeSpec CHAR\n"); }
-        | INT  { printf("hello2\n");$$ = ast_insert_terminal(NODE_INT, "Int"); myprintf2("TypeSpec INT\n"); }
-        | VOID { printf("hello3\n");$$ = ast_insert_terminal(NODE_VOID, "Void"); myprintf2("TypeSpec VOID\n"); }
+TypeSpec: CHAR { $$ = ast_insert_terminal(NODE_CHAR, "Char"); myprintf2("TypeSpec CHAR\n"); }
+        | INT  { $$ = ast_insert_terminal(NODE_INT, "Int"); myprintf2("TypeSpec INT\n"); }
+        | VOID { $$ = ast_insert_terminal(NODE_VOID, "Void"); myprintf2("TypeSpec VOID\n"); }
         ;
 
 FunctionDeclarator: Id LPAR ParameterList RPAR  { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 2, $1, $2); myprintf2("FunctionDeclarator\n"); }
