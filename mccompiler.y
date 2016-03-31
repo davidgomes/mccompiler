@@ -48,7 +48,7 @@
 %type <node> FunctionDefinition FunctionBody FunctionBodyDeclaration FunctionBodyStatement
 Declaration CommaDeclarator Declarator FunctionDeclaration TypeSpec FunctionDeclarator ParameterList
 ParameterDeclaration Asterisk StatementCanError Statement StatementList ForCommaExpression
-CommaExpression Expression ExpressionList TerminalIntlit ArrayDeclarator Start StartAgain Id
+CommaExpression Expression ExpressionList TerminalIntlit ArrayDeclarator Start StartAgain Id Ast
 
 %%
 
@@ -90,7 +90,7 @@ ArrayDeclarator: Asterisk Id LSQ TerminalIntlit RSQ { $$ = ast_insert_node(NODE_
                | Id LSQ TerminalIntlit RSQ          { $$ = ast_insert_node(NODE_ARRAYDECLARATOR, 0, 2, $1, $3); }
                ;
 
-CommaDeclarator: CommaDeclarator COMMA Declarator { $$ = ast_insert_node(NODE_COMMA, 0, 2, $1, $3); } // int a, b, c, d ...*/
+CommaDeclarator: CommaDeclarator COMMA Declarator      { $$ = ast_insert_node(NODE_COMMA, 0, 2, $1, $3); } // int a, b, c, d ...*/
                | CommaDeclarator COMMA ArrayDeclarator { $$ = ast_insert_node(NODE_COMMA, 0, 2, $1, $3); }
                | /* empty */ { $$ = NULL; }
                ;
@@ -102,7 +102,7 @@ Declarator: Id           { $$ = ast_insert_node(NODE_DECLARATOR, 0, 1, $1); }
 TerminalIntlit: INTLIT {$$ = ast_insert_terminal(NODE_INTLIT, $1); }
               ;
 
-FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { myprintf2("FunctionDeclaration\n"); }
+FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { $$ = ast_insert_node(NODE_FUNCDECLARATION, 1, 2, $1, $2); }
                    ;
 
 TypeSpec: CHAR { $$ = ast_insert_terminal(NODE_CHAR, "Char"); }
@@ -135,9 +135,12 @@ ParameterDeclaration: TypeSpec Asterisk Id           { $$ = ast_insert_node(NODE
 Id: ID { $$ = ast_insert_terminal(NODE_ID, $1); }
   ;
 
-Asterisk: Asterisk AST { $$ = ast_insert_node(NODE_POINTER, 0, 1, $1); }
-        | AST          { $$ = ast_insert_terminal(NODE_POINTER, "Pointer"); }
+Asterisk: Asterisk Ast { $$ = ast_insert_node(NODE_POINTER, 0, 2, $1, $2); }
+        | Ast          { $$ = ast_insert_node(NODE_POINTER, 0, 1, $1); }
         ;
+
+Ast: AST { $$ = ast_insert_terminal(NODE_POINTER, "Pointer"); }
+   ;
 
 StatementCanError: Statement {}
                  | error SEMI {}
