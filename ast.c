@@ -46,11 +46,20 @@ char* node_types[] = {
   "Pointer",
   "StrLit",
   "Void",
-  "Null"
+  "Null",
+  "Declarator",
+  "FuncDeclarator",
+  "FunctionBodyDeclaration",
+  "FunctionBodyStatement",
+  "Statement",
+  "ArrayDeclarator",
+  "Block",
+  "ProgramBlock"
 };
 
-node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...){
-  //printf("Inserting new node: %s\n", node_types[nodetype]);
+node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...) {
+  printf("%d\n", nodetype);
+  printf("Inserting new node: %s\n", node_types[nodetype]);
   node_t *new_node, **tmp;
   int i, nodes = 0;
   va_list args;
@@ -58,22 +67,31 @@ node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...)
   new_node = ast_create_node(nodetype, to_use);
 
   tmp = merge_nodes;
+
   va_start(args, node_operands);
 
-  while(node_operands--){
+  printf("node_operands: %d\n", node_operands);
+
+  while (node_operands--) {
     node_t *t = va_arg(args, node_t *);
 
-    if(t == NULL)
+    //printf("child is of type %s\n", node_types[t->type]);
+
+    if(t == NULL) {
       continue;
-    else if(!t->to_use)
-      for(nodes += t->n_childs, i = 0; i < t->n_childs; i++)
+    } else if(!t->to_use) {
+      for(nodes += t->n_childs, i = 0; i < t->n_childs; i++){
         *tmp++ = t->childs[i];
-    else{
-      *tmp++ = t;
+      }
+    } else{
+      *(tmp++) = t;
       nodes++;
     }
+    printf("yessir\n");
 
   }
+
+  printf("end childs\n");
 
   new_node->childs = (node_t **) malloc (nodes * sizeof(node_t *));
   memcpy(new_node->childs, merge_nodes, nodes * sizeof(node_t *));
@@ -84,6 +102,7 @@ node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...)
 }
 
 node_t* ast_insert_terminal(nodetype_t nodetype, char* s){
+  printf("Inserting new terminal: %s\n", node_types[nodetype]);
   node_t* new_terminal = ast_create_node(nodetype, 1);
   new_terminal->value = (char *) strdup(s);
 
@@ -126,7 +145,8 @@ void ast_print_tree(node_t* n, int d) {
 
   ast_print_node(n);
 
-  for (i = 0; i < n->n_childs; i++)
+  for (i = 0; i < n->n_childs; i++) {
     ast_print_tree(n->childs[i], d+1);
+  }
 
 }

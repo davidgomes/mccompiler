@@ -200,8 +200,9 @@ int main(int argc, char **argv) {
       flag_errors = 1;
       BEGIN ERRORS;
       yyparse();
+      printf("Finished yyparse\n");
       ast_print_tree(ast, 0);
-      ast_destroy(ast);
+      //ast_destroy(ast);
     }
   }
   else{
