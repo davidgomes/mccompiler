@@ -120,12 +120,16 @@ ParameterDeclaration: TypeSpec Id           { $$ = ast_insert_node(NODE_PARAMDEC
                     | TypeSpec              { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 1, $1); }
                     ;
 
-Id: AST Id { $$ = ast_insert_terminal(NODE_POINTER, "Pointer"); } //TODO is this the right way to fix this? no.
+/*Id: AST Id { $$ = ast_insert_terminal(NODE_POINTER, "Pointer"); } //TODO is this the right way to fix this? no.
   | ID     { $$ = ast_insert_terminal(NODE_ID, $1); }
+  ;*/
+
+Id: Asterisk ID { $$ = ast_insert_terminal(NODE_ID, $2); }
+  | ID          { $$ = ast_insert_terminal(NODE_ID, $1); }
   ;
 
-Asterisk: Asterisk AST
-        | AST { $$ = ast_insert_terminal(NODE_POINTER, "Pointer"); }
+Asterisk: Asterisk AST { $$ = ast_insert_terminal(NODE_POINTER, "Pointer"); }
+        | AST          { $$ = ast_insert_terminal(NODE_POINTER, "Pointer"); }
         ;
 
 StatementCanError: Statement {}
@@ -176,7 +180,7 @@ Expression: Expression ASSIGN Expression         { myprintf2("Expression\n"); }
           | MINUS Expression                     { myprintf2("Expression\n"); }
           | NOT Expression                       { myprintf2("Expression\n"); }
           | Expression LSQ CommaExpression RSQ   { myprintf2("Expression\n"); }
-          | ID LPAR ExpressionList RPAR          { myprintf2("Expression\n"); }
+          | ID LPAR ExpressionList RPAR          { $$ = ast_insert_node(NODE_CALL, 1, 2, $1, $3); }
           | ID                                   { myprintf2("Expression\n"); }
           | INTLIT                               { $$ = ast_insert_terminal(NODE_INTLIT, $1); }
           | CHRLIT                               { $$ = ast_insert_terminal(NODE_CHRLIT, $1); }
@@ -186,8 +190,8 @@ Expression: Expression ASSIGN Expression         { myprintf2("Expression\n"); }
           | ID LPAR error RPAR                   { myprintf2("Expression\n"); }
           ;
 
-ExpressionList: CommaExpression
-              | /* empty */ {}
+ExpressionList: CommaExpression { }
+              | /* empty */ { $$ = NULL; }
               ;
 %%
 int yyerror (char *s) {
