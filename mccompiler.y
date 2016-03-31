@@ -90,6 +90,7 @@ ArrayDeclarator: Id LSQ TerminalIntlit RSQ {$$ = ast_insert_node(NODE_ARRAYDECLA
                ;
 
 CommaDeclarator: CommaDeclarator COMMA Declarator { $$ = ast_insert_node(NODE_COMMA, 0, 2, $1, $3);}// int a, b, c, d ...*/
+               | CommaDeclarator COMMA ArrayDeclarator
                | /* empty */ { $$ = NULL; }
                ;
 
@@ -133,15 +134,15 @@ StatementCanError: Statement {}
                  ;
 
 Statement: CommaExpression SEMI                                                                       { $$ = ast_insert_node(NODE_STATEMENT, 0, 1, $1); }
-         | SEMI                                                                                       {}
-         | LBRACE StatementList RBRACE                                                                {}
+         | SEMI                                                                                       { }
+         | LBRACE StatementList RBRACE                                                                { }
          | LBRACE RBRACE                                                                              { myprintf2("Block Statement\n"); }
          | LBRACE error RBRACE                                                                        { myprintf2("Error Block Statement\n"); }
          | IF LPAR CommaExpression RPAR Statement %prec THEN                                          { $$ = ast_insert_node(NODE_IF, 1, 2, $1, $2); }
          | IF LPAR CommaExpression RPAR Statement ELSE Statement                                      { $$ = ast_insert_node(NODE_IF, 1, 3, $1, $2, $3); }
          | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { $$ = ast_insert_node(NODE_FOR, 1, 4, $1, $2, $3, $4); }
-         | RETURN CommaExpression SEMI                                                                { $$ = ast_insert_node(NODE_RETURN, 1, 1, $1);}
-         | RETURN SEMI                                                                                { $$ = ast_insert_node(NODE_RETURN, 1, 0);}
+         | RETURN CommaExpression SEMI                                                                { $$ = ast_insert_node(NODE_RETURN, 1, 1, $1); }
+         | RETURN SEMI                                                                                { $$ = ast_insert_node(NODE_RETURN, 1, 0); }
          ;
 
 StatementList: StatementList StatementCanError {  }
@@ -191,6 +192,7 @@ ExpressionList: CommaExpression
               ;
 %%
 int yyerror (char *s) {
+  where_there_errors = 1;
   printf("Line %d, col %d: %s: %s\n", yylineno, col - (int) yyleng, s, yytext);
   return 0;
 }

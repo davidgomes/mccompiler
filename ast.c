@@ -3,6 +3,7 @@
 #include <string.h>
 
 node_t *merge_nodes[2048];
+int where_there_errors = 0;
 
 char* node_types[] = {
   "Program",
@@ -58,7 +59,7 @@ char* node_types[] = {
 };
 
 node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...) {
-  printf("Inserting new node: %s\n", node_types[nodetype]);
+  //printf("Inserting new node: %s\n", node_types[nodetype]);
   node_t *new_node, **tmp;
   int i, nodes = 0;
   va_list args;
@@ -93,7 +94,7 @@ node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...)
 }
 
 node_t* ast_insert_terminal(nodetype_t nodetype, char* s){
-  printf("Inserting new terminal: %s\n", node_types[nodetype]);
+  //printf("Inserting new terminal: %s\n", node_types[nodetype]);
   node_t* new_terminal = ast_create_node(nodetype, 1);
   new_terminal->value = (char *) strdup(s);
 

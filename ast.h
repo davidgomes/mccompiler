@@ -21,6 +21,7 @@ typedef struct node{
 } node_t;
 
 node_t *ast;
+int where_there_errors;
 
 node_t* ast_create_node(nodetype_t nodetype, int to_use);
 node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...);
