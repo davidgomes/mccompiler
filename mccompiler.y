@@ -178,9 +178,9 @@ Expression: Expression ASSIGN Expression         { myprintf2("Expression\n"); }
           | Expression LSQ CommaExpression RSQ   { myprintf2("Expression\n"); }
           | ID LPAR ExpressionList RPAR          { myprintf2("Expression\n"); }
           | ID                                   { myprintf2("Expression\n"); }
-          | INTLIT                               { myprintf2("Expression\n"); }
-          | CHRLIT                               { myprintf2("Expression\n"); }
-          | STRLIT                               { myprintf2("Expression\n"); }
+          | INTLIT                               { $$ = ast_insert_terminal(NODE_INTLIT, "IntLit"); }
+          | CHRLIT                               { $$ = ast_insert_terminal(NODE_CHRLIT, "CharLit"); }
+          | STRLIT                               { $$ = ast_insert_terminal(NODE_STRLIT, "StrLit"); }
           | LPAR CommaExpression RPAR            { myprintf2("Expression\n"); }
           | LPAR error RPAR                      { myprintf2("Expression\n"); }
           | ID LPAR error RPAR                   { myprintf2("Expression\n"); }
