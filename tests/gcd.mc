@@ -1,1 +1,3 @@
-int c;
+int main(int *, int a) {
+
+}

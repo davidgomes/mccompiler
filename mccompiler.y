@@ -89,8 +89,8 @@ Declaration: TypeSpec Declarator CommaDeclarator SEMI      { $$ = ast_insert_nod
 ArrayDeclarator: Id LSQ TerminalIntlit RSQ {$$ = ast_insert_node(NODE_ARRAYDECLARATOR, 0, 2, $1, $3); }
                ;
 
-CommaDeclarator: CommaDeclarator COMMA Declarator { $$ = ast_insert_node(NODE_COMMA, 0, 2, $1, $3); }// int a, b, c, d ...*/
-               | CommaDeclarator COMMA ArrayDeclarator
+CommaDeclarator: CommaDeclarator COMMA Declarator { $$ = ast_insert_node(NODE_COMMA, 0, 2, $1, $3); } // int a, b, c, d ...*/
+               | CommaDeclarator COMMA ArrayDeclarator { $$ = ast_insert_node(NODE_COMMA, 0, 2, $1, $3); }
                | /* empty */ { $$ = NULL; }
                ;
 
@@ -108,25 +108,24 @@ TypeSpec: CHAR { $$ = ast_insert_terminal(NODE_CHAR, "Char"); }
         | VOID { $$ = ast_insert_terminal(NODE_VOID, "Void"); }
         ;
 
-FunctionDeclarator: Id LPAR ParameterList RPAR  { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 2, $1, $2); }
+FunctionDeclarator: Id LPAR ParameterList RPAR  { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 2, $1, $3); }
                   ;
 
 ParameterList: ParameterList COMMA ParameterDeclaration { $$ = ast_insert_node(NODE_PARAMLIST, 1, 2, $1, $3); }
-             | ParameterDeclaration                     { $$ = ast_insert_node(NODE_PARAMLIST, 1, 1, $1); }
+             | ParameterDeclaration                     { $$ = ast_insert_node(NODE_PARAMLIST, 0, 1, $1); }
              ;
 
-ParameterDeclaration: TypeSpec Asterisk ID  { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 3, $1, $2, $3); }
-                    | TypeSpec ID           { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2); }
+ParameterDeclaration: TypeSpec Id           { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2); }
                     | TypeSpec Asterisk     { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2); }
                     | TypeSpec              { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 1, $1); }
                     ;
 
-Id: AST Id {$$ = $2;} //TODO is this the right way to fix this? no.
+Id: AST Id { $$ = ast_insert_terminal(NODE_POINTER, "Pointer"); } //TODO is this the right way to fix this? no.
   | ID     { $$ = ast_insert_terminal(NODE_ID, $1); }
   ;
 
 Asterisk: Asterisk AST
-        | AST { myprintf2("Asterisk\n"); }
+        | AST { $$ = ast_insert_terminal(NODE_POINTER, "Pointer"); }
         ;
 
 StatementCanError: Statement {}
@@ -179,9 +178,9 @@ Expression: Expression ASSIGN Expression         { myprintf2("Expression\n"); }
           | Expression LSQ CommaExpression RSQ   { myprintf2("Expression\n"); }
           | ID LPAR ExpressionList RPAR          { myprintf2("Expression\n"); }
           | ID                                   { myprintf2("Expression\n"); }
-          | INTLIT                               { $$ = ast_insert_terminal(NODE_INTLIT, "IntLit"); }
-          | CHRLIT                               { $$ = ast_insert_terminal(NODE_CHRLIT, "CharLit"); }
-          | STRLIT                               { $$ = ast_insert_terminal(NODE_STRLIT, "StrLit"); }
+          | INTLIT                               { $$ = ast_insert_terminal(NODE_INTLIT, $1); }
+          | CHRLIT                               { $$ = ast_insert_terminal(NODE_CHRLIT, $1); }
+          | STRLIT                               { $$ = ast_insert_terminal(NODE_STRLIT, $1); }
           | LPAR CommaExpression RPAR            { myprintf2("Expression\n"); }
           | LPAR error RPAR                      { myprintf2("Expression\n"); }
           | ID LPAR error RPAR                   { myprintf2("Expression\n"); }

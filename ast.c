@@ -76,11 +76,11 @@ node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...)
     if (t == NULL) {
       continue;
     } else if(!t->to_use) {
-      for(nodes += t->n_childs, i = 0; i < t->n_childs; i++){
+      for (nodes += t->n_childs, i = 0; i < t->n_childs; i++) {
         *tmp++ = t->childs[i];
       }
-    } else{
-      *(tmp++) = t;
+    } else {
+      *tmp++ = t;
       nodes++;
     }
   }
