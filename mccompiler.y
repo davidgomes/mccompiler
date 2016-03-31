@@ -60,14 +60,14 @@ Start: FunctionDefinition StartAgain  { $$ = ast = ast_insert_node(NODE_PROGRAM,
 StartAgain: FunctionDefinition StartAgain { $$ = ast_insert_node(NODE_BLOCK, 0, 2, $1, $2); }
           | FunctionDeclaration StartAgain { $$ = ast_insert_node(NODE_BLOCK, 0, 2, $1, $2); }
           | Declaration StartAgain         { $$ = ast_insert_node(NODE_BLOCK, 0, 2, $1, $2); }
-          | /* empty */ {$$ = NULL;}
+          | /* empty */ { $$ = NULL; }
           ;
 
 FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { $$ = ast_insert_node(NODE_FUNCDEFINITION, 1, 3, $1, $2, $3); }
                   ;
 
-FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { $$ = ast_insert_node(NODE_FUNCBODY, 1, 2, $1, $2); }
-            | LBRACE FunctionBodyStatement RBRACE                         { $$ = ast_insert_node(NODE_FUNCBODY, 1, 1, $1); }
+FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { $$ = ast_insert_node(NODE_FUNCBODY, 1, 2, $2, $3); }
+            | LBRACE FunctionBodyStatement RBRACE                         { $$ = ast_insert_node(NODE_FUNCBODY, 1, 1, $2); }
             | LBRACE FunctionBodyDeclaration RBRACE                       { $$ = ast_insert_node(NODE_FUNCBODY, 1, 1, $2); }
             | LBRACE RBRACE                                               { $$ = ast_insert_node(NODE_FUNCBODY, 1, 0); }
             | LBRACE error RBRACE                                         {}
