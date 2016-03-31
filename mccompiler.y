@@ -64,14 +64,14 @@ Block: FunctionDefinition
 FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { $$ = ast_insert_node(NODE_FUNCDEFINITION, 1, 3, $1, $2, $3); }
                   ;
 
-FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { myprintf2("FunctionBody\n"); }
-            | LBRACE FunctionBodyStatement RBRACE                         { myprintf2("FunctionBody\n"); }
-            | LBRACE FunctionBodyDeclaration RBRACE                       { myprintf2("FunctionBody\n"); }
-            | LBRACE RBRACE                                               { myprintf2("FunctionBody\n"); }
-            | LBRACE error RBRACE                                         { myprintf2("ErrorFunctionBody\n"); }
+FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { $$ = ast_insert_node(NODE_FUNCBODY, 1, 2, $1, $2); }
+            | LBRACE FunctionBodyStatement RBRACE                         { $$ = ast_insert_node(NODE_FUNCBODY, 1, 1, $1); }
+            | LBRACE FunctionBodyDeclaration RBRACE                       { $$ = ast_insert_node(NODE_FUNCBODY, 1, 2, $1, $2); }
+            | LBRACE RBRACE                                               {}
+            | LBRACE error RBRACE                                         {}
             ;
 
-FunctionBodyDeclaration: FunctionBodyDeclaration Declaration  { myprintf2("FunctionBodyDeclaration\n"); }
+FunctionBodyDeclaration: FunctionBodyDeclaration Declaration  { $$ = ast_insert_node(NODE_FUNCBODYDECLARATION, 1, 2, $1, $2); }
                        | Declaration                          { myprintf2("FunctionBodyDeclaration\n"); }
                        ;
 
@@ -97,21 +97,21 @@ FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { myprintf2("FunctionDecla
                    ;
 
 TypeSpec: CHAR { $$ = ast_insert_terminal(NODE_CHAR, "Char"); myprintf2("TypeSpec CHAR\n"); } /*FIXME*/
-        | INT  { myprintf2("TypeSpec INT\n"); }
-        | VOID { myprintf2("TypeSpec VOID\n"); }
+        | INT  { $$ = ast_insert_terminal(NODE_CHAR, "Int"); myprintf2("TypeSpec INT\n"); }
+        | VOID { $$ = ast_insert_terminal(NODE_CHAR, "Void"); myprintf2("TypeSpec VOID\n"); }
         ;
 
-FunctionDeclarator: Id LPAR ParameterList RPAR  { myprintf2("FunctionDeclarator\n"); }
+FunctionDeclarator: Id LPAR ParameterList RPAR  { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 2, $1, $2); myprintf2("FunctionDeclarator\n"); }
                   ;
 
-ParameterList: ParameterDeclaration                     { myprintf2("ParameterList\n"); }
-             | ParameterList COMMA ParameterDeclaration { myprintf2("ParameterList\n"); }
+ParameterList: ParameterList COMMA ParameterDeclaration { $$ = ast_insert_node(NODE_PARAMLIST, 1, 2, $1, $3);}
+             | ParameterDeclaration                     { $$ = ast_insert_node(NODE_PARAMLIST, 1, 1, $1);}
              ;
 
-ParameterDeclaration: TypeSpec Asterisk ID  { myprintf2("ParameterDeclaration\n"); }
-                    | TypeSpec ID           {}
-                    | TypeSpec Asterisk     {}
-                    | TypeSpec              {}
+ParameterDeclaration: TypeSpec Asterisk ID  { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 3, $1, $2, $3);}
+                    | TypeSpec ID           { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2);}
+                    | TypeSpec Asterisk     { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2);}
+                    | TypeSpec              { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 1, $1);}
                     ;
 
 Id: AST Id {$$ = $2;} //TODO is this the right way to fix this?
