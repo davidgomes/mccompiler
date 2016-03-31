@@ -52,14 +52,14 @@ CommaExpression Expression ExpressionList TerminalIntlit ArrayDeclarator Start S
 
 %%
 
-Start: FunctionDefinition StartAgain  {$$ = ast = ast_insert_node(NODE_PROGRAM, 1, 2, $1, $2);}
-     | FunctionDeclaration StartAgain {$$ = ast = ast_insert_node(NODE_PROGRAM, 1, 2, $1, $2);}
-     | Declaration StartAgain         {$$ = ast = ast_insert_node(NODE_PROGRAM, 1, 2, $1, $2);}
+Start: FunctionDefinition StartAgain  { $$ = ast = ast_insert_node(NODE_PROGRAM, 1, 2, $1, $2); }
+     | FunctionDeclaration StartAgain { $$ = ast = ast_insert_node(NODE_PROGRAM, 1, 2, $1, $2); }
+     | Declaration StartAgain         { $$ = ast = ast_insert_node(NODE_PROGRAM, 1, 2, $1, $2); }
      ;
 
-StartAgain: FunctionDefinition StartAgain {$$ = ast_insert_node(NODE_BLOCK, 0, 2, $1, $2);}
-          | FunctionDeclaration StartAgain {$$ = ast_insert_node(NODE_BLOCK, 0, 2, $1, $2);}
-          | Declaration StartAgain         {$$ = ast_insert_node(NODE_BLOCK, 0, 2, $1, $2);}
+StartAgain: FunctionDefinition StartAgain { $$ = ast_insert_node(NODE_BLOCK, 0, 2, $1, $2); }
+          | FunctionDeclaration StartAgain { $$ = ast_insert_node(NODE_BLOCK, 0, 2, $1, $2); }
+          | Declaration StartAgain         { $$ = ast_insert_node(NODE_BLOCK, 0, 2, $1, $2); }
           | /* empty */ {$$ = NULL;}
           ;
 
@@ -89,15 +89,15 @@ Declaration: TypeSpec Declarator CommaDeclarator SEMI      { $$ = ast_insert_nod
 ArrayDeclarator: Id LSQ TerminalIntlit RSQ {$$ = ast_insert_node(NODE_ARRAYDECLARATOR, 0, 2, $1, $3); }
                ;
 
-CommaDeclarator: CommaDeclarator COMMA Declarator { $$ = ast_insert_node(NODE_COMMA, 0, 2, $1, $3);}// int a, b, c, d ...*/
+CommaDeclarator: CommaDeclarator COMMA Declarator { $$ = ast_insert_node(NODE_COMMA, 0, 2, $1, $3); }// int a, b, c, d ...*/
                | CommaDeclarator COMMA ArrayDeclarator
                | /* empty */ { $$ = NULL; }
                ;
 
-Declarator: Id {$$ = ast_insert_node(NODE_DECLARATOR, 0, 1, $1);}
+Declarator: Id {$$ = ast_insert_node(NODE_DECLARATOR, 0, 1, $1); }
           ;
 
-TerminalIntlit: INTLIT {$$ = ast_insert_terminal(NODE_INTLIT, $1);}
+TerminalIntlit: INTLIT {$$ = ast_insert_terminal(NODE_INTLIT, $1); }
               ;
 
 FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { myprintf2("FunctionDeclaration\n"); }
@@ -111,18 +111,18 @@ TypeSpec: CHAR { $$ = ast_insert_terminal(NODE_CHAR, "Char"); }
 FunctionDeclarator: Id LPAR ParameterList RPAR  { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 2, $1, $2); }
                   ;
 
-ParameterList: ParameterList COMMA ParameterDeclaration { $$ = ast_insert_node(NODE_PARAMLIST, 1, 2, $1, $3);}
-             | ParameterDeclaration                     { $$ = ast_insert_node(NODE_PARAMLIST, 1, 1, $1);}
+ParameterList: ParameterList COMMA ParameterDeclaration { $$ = ast_insert_node(NODE_PARAMLIST, 1, 2, $1, $3); }
+             | ParameterDeclaration                     { $$ = ast_insert_node(NODE_PARAMLIST, 1, 1, $1); }
              ;
 
-ParameterDeclaration: TypeSpec Asterisk ID  { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 3, $1, $2, $3);}
-                    | TypeSpec ID           { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2);}
-                    | TypeSpec Asterisk     { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2);}
-                    | TypeSpec              { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 1, $1);}
+ParameterDeclaration: TypeSpec Asterisk ID  { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 3, $1, $2, $3); }
+                    | TypeSpec ID           { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2); }
+                    | TypeSpec Asterisk     { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2); }
+                    | TypeSpec              { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 1, $1); }
                     ;
 
 Id: AST Id {$$ = $2;} //TODO is this the right way to fix this? no.
-  | ID     { $$ = ast_insert_terminal(NODE_ID, $1); myprintf2("Id\n"); }
+  | ID     { $$ = ast_insert_terminal(NODE_ID, $1); }
   ;
 
 Asterisk: Asterisk AST
