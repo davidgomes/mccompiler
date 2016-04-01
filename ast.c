@@ -144,7 +144,7 @@ void ast_add_typespec(node_t *typespec, node_t *declarator) {
   //printf("childs[0]->type: %s\n", node_types[declarator->childs[0]->type]);
   //printf("childs[1]->type: %s\n", node_types[declarator->childs[1]->type]);
 
-  if (strcmp(node_types[declarator->childs[0]->type], "Declaration") == 0) {
+  if (strcmp(node_types[declarator->childs[0]->type], "Declaration") == 0 || strcmp(node_types[declarator->childs[0]->type], "ArrayDeclaration") == 0) {
     //printf("here\n");
     int i;
     for (i = 0; i < declarator->n_childs; i++) {
