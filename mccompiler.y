@@ -146,22 +146,22 @@ StatementCanError: Statement { $$ = $1; }
 
 Statement: CommaExpression SEMI                                                                       { $$ = ast_insert_node(NODE_STATEMENT, 0, 1, $1); }
          | SEMI                                                                                       { $$ = ast_insert_node(NODE_NULL, 1, 0); }
-         | LBRACE StatementList RBRACE                                                                { $$ = ast_insert_node(NODE_STATLIST, 1, 1, $2); }
+         | LBRACE StatementList RBRACE                                                                { $$ = ast_insert_node(NODE_STATLIST, 0, 1, $2); }
          | LBRACE RBRACE                                                                              { $$ = ast_insert_node(NODE_NULL, 1, 0); }
          | LBRACE error RBRACE                                                                        { $$ = NULL; }
-         | IF LPAR CommaExpression RPAR Statement %prec THEN                                          { $$ = ast_insert_node(NODE_IF, 1, 2, $3, $5); }
-         | IF LPAR CommaExpression RPAR Statement ELSE Statement                                      { $$ = ast_insert_node(NODE_IF, 1, 3, $3, $5, $7); }
+         | IF LPAR CommaExpressionTwo RPAR Statement %prec THEN                                       { $$ = ast_insert_node(NODE_IF, 1, 2, $3, $5); }
+         | IF LPAR CommaExpressionTwo RPAR Statement ELSE Statement                                   { $$ = ast_insert_node(NODE_IF, 1, 3, $3, $5, $7); }
          | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { $$ = ast_insert_node(NODE_FOR, 1, 4, $3, $5, $7, $9); }
          | RETURN CommaExpression SEMI                                                                { $$ = ast_insert_node(NODE_RETURN, 1, 1, $2); }
          | RETURN SEMI                                                                                { $$ = ast_insert_node(NODE_RETURN, 1, 0); }
          ;
 
-StatementList: StatementList StatementCanError { $$ = ast_insert_node(NODE_STATLIST, 0, 2, $1, $2); }
+StatementList: StatementList StatementCanError { $$ = ast_insert_node(NODE_STATLIST, 1, 2, $1, $2); }
              | StatementCanError               { $$ = $1; }
              ;
 
 ForCommaExpression: CommaExpression { $$ = $1; }
-                  | /* empty */     { $$ = NULL; }
+                  | /* empty */     { $$ = ast_insert_node(NODE_NULL, 1, 0); }
                   ;
 
 CommaExpression: CommaExpression COMMA CommaExpression { $$ = ast_insert_node(NODE_COMMA, 1, 2, $1, $3); }
