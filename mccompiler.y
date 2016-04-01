@@ -20,6 +20,7 @@
     va_end(args);
   }
 
+  node_t *cur_typespec;
 %}
 
 %union{
@@ -81,7 +82,7 @@ FunctionBodyStatement: FunctionBodyStatement StatementCanError  { $$ = ast_inser
                      | Statement                                { $$ = ast_insert_node(NODE_FUNCTIONBODYSTATEMENT, 0, 1, $1); }
                      ;
 
-Declaration: TypeSpec Declarator CommaDeclarator SEMI      { $$ = ast_insert_node(NODE_DECLARATION, 1, 3, $1, $2, $3); } // int a CommaDeclarator;
+Declaration: TypeSpec Declarator CommaDeclarator SEMI      { if ($3 != NULL) { ast_add_typespec($1, $3); } $$ = ast_insert_node(NODE_DECLARATION, 1, 3, $1, $2, $3); } // int a CommaDeclarator;
            | TypeSpec ArrayDeclarator CommaDeclarator SEMI { $$ = ast_insert_node(NODE_ARRAYDECLARATION, 1, 3, $1, $2, $3); }
            | error SEMI                                    {}
            ;
@@ -90,7 +91,7 @@ ArrayDeclarator: Asterisk Id LSQ TerminalIntlit RSQ { $$ = ast_insert_node(NODE_
                | Id LSQ TerminalIntlit RSQ          { $$ = ast_insert_node(NODE_ARRAYDECLARATOR, 0, 2, $1, $3); }
                ;
 
-CommaDeclarator: CommaDeclarator COMMA Declarator      { $$ = ast_insert_node(NODE_COMMA, 0, 2, $1, $3); } // int a, b, c, d ...*/
+CommaDeclarator: CommaDeclarator COMMA Declarator      { $$ = ast_insert_node(NODE_DECLARATION, 0, 2, $1, $3); } // int a, b, c, d ...*/
                | CommaDeclarator COMMA ArrayDeclarator { $$ = ast_insert_node(NODE_COMMA, 0, 2, $1, $3); }
                | /* empty */ { $$ = NULL; }
                ;

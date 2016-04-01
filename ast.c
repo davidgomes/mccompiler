@@ -112,6 +112,24 @@ node_t* ast_create_node(nodetype_t nodetype, int to_use) {
   return self;
 }
 
+void ast_add_typespec(node_t *typespec, node_t *comma_declarator) {
+  printf("hey\n");
+  printf("%s\n", typespec->value);
+
+  comma_declarator->n_childs++;
+
+  node_t *tmp = comma_declarator->childs[0];
+
+  comma_declarator->childs = (node_t **) malloc (2 * sizeof(node_t *));
+  comma_declarator->childs[0] = typespec;
+  comma_declarator->childs[1] = tmp;
+
+
+  printf("d: %s\n", node_types[comma_declarator->childs[0]->type]);
+
+  //memcpy(comma_declarator->childs[0], typespec, sizeof(node_t*));
+}
+
 void ast_print_node(node_t* n){
   if(n->type == NODE_ID || n->type == NODE_CHRLIT || n->type == NODE_INTLIT || n->type == NODE_STRLIT)
     printf("%s(%s)\n", node_types[n->type], n->value);
