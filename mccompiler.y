@@ -50,6 +50,7 @@
 Declaration Declarator FunctionDeclaration TypeSpec FunctionDeclarator ParameterList
 ParameterDeclaration Asterisk StatementCanError Statement StatementList ForCommaExpression
 CommaExpression Expression ExpressionList TerminalIntlit Start StartAgain Id Ast DeclarationSecond
+CommaExpressionTwo
 
 %%
 
@@ -167,6 +168,10 @@ CommaExpression: CommaExpression COMMA CommaExpression { $$ = ast_insert_node(NO
                | Expression                            { $$ = $1; }
                ;
 
+CommaExpressionTwo: CommaExpression COMMA CommaExpression { $$ = ast_insert_node(NODE_COMMA, 0, 2, $1, $3); }
+                  | Expression                            { $$ = $1; }
+                  ;
+
 Expression: Expression ASSIGN Expression         { $$ = ast_insert_node(NODE_STORE, 1, 2, $1, $3); }
           | Expression AND Expression            { $$ = ast_insert_node(NODE_AND, 1, 2, $1, $3); }
           | Expression OR Expression             { $$ = ast_insert_node(NODE_OR, 1, 2, $1, $3); }
@@ -197,7 +202,7 @@ Expression: Expression ASSIGN Expression         { $$ = ast_insert_node(NODE_STO
           | Id LPAR error RPAR                   { $$ = NULL; }
           ;
 
-ExpressionList: CommaExpression { $$ = $1; }
+ExpressionList: CommaExpressionTwo { $$ = $1; }
               | /* empty */ { $$ = NULL; }
               ;
 %%
