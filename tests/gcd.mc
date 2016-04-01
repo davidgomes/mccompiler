@@ -1,3 +1,3 @@
-int x(void a, void b) {
+int x(void a) {
 
 }

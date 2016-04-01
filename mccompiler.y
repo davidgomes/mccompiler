@@ -111,8 +111,8 @@ FunctionDeclarator: Id LPAR ParameterList RPAR          { $$ = ast_insert_node(N
                   | Asterisk Id LPAR ParameterList RPAR { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 3, $1, $2, $4); }
                   ;
 
-ParameterList: ParameterList COMMA ParameterDeclaration { $$ = ast_insert_node(NODE_PARAMLIST, 1, 2, $1, $3); }
-             | ParameterDeclaration                     { $$ = ast_insert_node(NODE_PARAMLIST, 0, 1, $1); }
+ParameterList: ParameterList COMMA ParameterDeclaration { $1->to_use = 0; $$ = ast_insert_node(NODE_PARAMLIST, 1, 2, $1, $3); }
+             | ParameterDeclaration                     { $$ = ast_insert_node(NODE_PARAMLIST, 1, 1, $1); }
              ;
 
 ParameterDeclaration: TypeSpec Asterisk Id           { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 3, $1, $2, $3); }
