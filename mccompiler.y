@@ -47,9 +47,9 @@
 %left AMP NOT
 
 %type <node> FunctionDefinition FunctionBody FunctionBodyDeclaration FunctionBodyStatement
-Declaration CommaDeclarator Declarator FunctionDeclaration TypeSpec FunctionDeclarator ParameterList
+Declaration Declarator FunctionDeclaration TypeSpec FunctionDeclarator ParameterList
 ParameterDeclaration Asterisk StatementCanError Statement StatementList ForCommaExpression
-CommaExpression Expression ExpressionList TerminalIntlit ArrayDeclarator Start StartAgain Id Ast
+CommaExpression Expression ExpressionList TerminalIntlit Start StartAgain Id Ast DeclarationSecond
 
 %%
 
@@ -82,25 +82,21 @@ FunctionBodyStatement: FunctionBodyStatement StatementCanError  { $$ = ast_inser
                      | Statement                                { $$ = ast_insert_node(NODE_FUNCTIONBODYSTATEMENT, 0, 1, $1); }
                      ;
 
-Declaration: TypeSpec Declarator CommaDeclarator SEMI      { if ($3 != NULL) { ast_add_typespec($1, $3); } $$ = ast_insert_node(NODE_DECLARATION, 1, 3, $1, $2, $3); } // int a CommaDeclarator;
-           | TypeSpec ArrayDeclarator CommaDeclarator SEMI { $$ = ast_insert_node(NODE_ARRAYDECLARATION, 1, 3, $1, $2, $3); }
-           | error SEMI                                    {}
+Declaration: TypeSpec DeclarationSecond SEMI         { if ($2 != NULL) { ast_add_typespec($1, $2); $$ = $2; } else { $$ = $2; } }
+           | error SEMI                              { $$ = NULL; }
            ;
 
-ArrayDeclarator: Asterisk Id LSQ TerminalIntlit RSQ { $$ = ast_insert_node(NODE_ARRAYDECLARATOR, 0, 2, $1, $3); }
-               | Id LSQ TerminalIntlit RSQ          { $$ = ast_insert_node(NODE_ARRAYDECLARATOR, 0, 2, $1, $3); }
-               ;
+DeclarationSecond: DeclarationSecond COMMA Declarator     { $$ = ast_insert_node(NODE_DECLARATION, 0, 2, $1, $3); }
+                 | Declarator                             { $$ = $1; }
+                 ;
 
-CommaDeclarator: CommaDeclarator COMMA Declarator      { $$ = ast_insert_node(NODE_DECLARATION, 0, 2, $1, $3); } // int a, b, c, d ...*/
-               | CommaDeclarator COMMA ArrayDeclarator { $$ = ast_insert_node(NODE_COMMA, 0, 2, $1, $3); }
-               | /* empty */ { $$ = NULL; }
-               ;
-
-Declarator: Id           { $$ = ast_insert_node(NODE_DECLARATOR, 0, 1, $1); }
-          | Asterisk Id  { $$ = ast_insert_node(NODE_DECLARATOR, 0, 2, $1, $2); }
+Declarator: Id                                 { $$ = ast_insert_node(NODE_DECLARATION, 1, 1, $1); }
+          | Asterisk Id                        { $$ = ast_insert_node(NODE_DECLARATION, 1, 2, $1, $2); }
+          | Id LSQ TerminalIntlit RSQ          { $$ = ast_insert_node(NODE_ARRAYDECLARATION, 1, 2, $1, $3); }
+          | Asterisk Id LSQ TerminalIntlit RSQ { $$ = ast_insert_node(NODE_ARRAYDECLARATION, 1, 3, $1, $2, $3); }
           ;
 
-TerminalIntlit: INTLIT {$$ = ast_insert_terminal(NODE_INTLIT, $1); }
+TerminalIntlit: INTLIT { $$ = ast_insert_terminal(NODE_INTLIT, $1); }
               ;
 
 FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { $$ = ast_insert_node(NODE_FUNCDECLARATION, 1, 2, $1, $2); }

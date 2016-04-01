@@ -112,22 +112,61 @@ node_t* ast_create_node(nodetype_t nodetype, int to_use) {
   return self;
 }
 
-void ast_add_typespec(node_t *typespec, node_t *comma_declarator) {
-  printf("hey\n");
-  printf("%s\n", typespec->value);
+void ast_add_typespec(node_t *typespec, node_t *declarator) {
+  //printf("hey\n");
+  //printf("%s\n", comma);
 
-  comma_declarator->n_childs++;
+  //printf("node_types[declarator->type] = %s\n", node_types[declarator->type]);
+  //printf("node_types[declarator->childs[0]->type] = %s\n", node_types[declarator->childs[0]->type]);
+  //printf("n_childs: %d\n", declarator->n_childs);
 
-  node_t *tmp = comma_declarator->childs[0];
+  if (strcmp(node_types[declarator->type], "ArrayDeclaration") == 0) {
+    node_t *tmp1 = declarator->childs[0];
+    node_t *tmp2 = declarator->childs[1];
 
-  comma_declarator->childs = (node_t **) malloc (2 * sizeof(node_t *));
-  comma_declarator->childs[0] = typespec;
-  comma_declarator->childs[1] = tmp;
+    declarator->n_childs++;
 
+    declarator->childs = (node_t **) malloc (3 * sizeof(node_t *));
+    declarator->childs[0] = typespec;
+    declarator->childs[1] = tmp1;
+    declarator->childs[2] = tmp2;
+    return;
+  }
 
-  printf("d: %s\n", node_types[comma_declarator->childs[0]->type]);
+  if (declarator->n_childs == 1) {
+    node_t *tmp = declarator->childs[0];
+    declarator->n_childs++;
+    declarator->childs = (node_t **) malloc (2 * sizeof(node_t *));
 
-  //memcpy(comma_declarator->childs[0], typespec, sizeof(node_t*));
+    declarator->childs[0] = typespec;
+    declarator->childs[1] = tmp;
+    return;
+  }
+
+  int i;
+  for (i = 0; i < declarator->n_childs; i++) {
+    node_t *child = declarator->childs[i];
+
+    if (strcmp(node_types[child->type], "ArrayDeclaration") == 0) {
+      child->n_childs++;
+
+      node_t *tmp1 = child->childs[0];
+      node_t *tmp2 = child->childs[1];
+      child->childs = (node_t **) malloc (3 * sizeof(node_t *));
+
+      child->childs[0] = typespec;
+      child->childs[1] = tmp1;
+      child->childs[2] = tmp2;
+    } else {
+      child->n_childs++;
+
+      node_t *tmp = child->childs[0];
+      child->childs = (node_t **) malloc (2 * sizeof(node_t *));
+
+      child->childs[0] = typespec;
+      child->childs[1] = tmp;
+      }
+  }
 }
 
 void ast_print_node(node_t* n){
