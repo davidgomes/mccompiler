@@ -93,7 +93,7 @@ DeclarationSecond: DeclarationSecond COMMA Declarator     { $$ = ast_insert_node
 Declarator: Id                                 { $$ = ast_insert_node(NODE_DECLARATION, 1, 1, $1); }
           | Asterisk Id                        { $$ = ast_insert_node(NODE_DECLARATION, 1, 2, $1, $2); }
           | Id LSQ TerminalIntlit RSQ          { $$ = ast_insert_node(NODE_ARRAYDECLARATION, 1, 2, $1, $3); }
-          | Asterisk Id LSQ TerminalIntlit RSQ { $$ = ast_insert_node(NODE_ARRAYDECLARATION, 1, 3, $1, $2, $3); }
+          | Asterisk Id LSQ TerminalIntlit RSQ { $$ = ast_insert_node(NODE_ARRAYDECLARATION, 1, 3, $1, $2, $4); }
           ;
 
 TerminalIntlit: INTLIT { $$ = ast_insert_terminal(NODE_INTLIT, $1); }

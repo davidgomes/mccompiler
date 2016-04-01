@@ -1,1 +1,3 @@
-int x[20], k;
+int x(void a, void b) {
+
+}
