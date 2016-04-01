@@ -1,3 +1,3 @@
 int main(void) {
-  a = *argv[1];
+  c = c[1];
 }

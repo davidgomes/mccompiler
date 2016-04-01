@@ -94,7 +94,7 @@ node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...)
   return new_node;
 }
 
-node_t* ast_insert_terminal(nodetype_t nodetype, char* s){
+node_t* ast_insert_terminal(nodetype_t nodetype, char* s) {
   //printf("Inserting new terminal: %s\n", node_types[nodetype]);
   node_t* new_terminal = ast_create_node(nodetype, 1);
   new_terminal->value = (char *) strdup(s);
@@ -144,11 +144,28 @@ void ast_add_typespec(node_t *typespec, node_t *declarator) {
   }
 }
 
-void ast_print_node(node_t* n){
+void ast_print_node(node_t* n) {
   if(n->type == NODE_ID || n->type == NODE_CHRLIT || n->type == NODE_INTLIT || n->type == NODE_STRLIT)
     printf("%s(%s)\n", node_types[n->type], n->value);
   else
     printf("%s\n", node_types[n->type]);
+}
+
+void ast_fix_call_add(node_t *add) {
+  if (strcmp(node_types[add->childs[add->n_childs - 1]->type], "Comma") == 0) {
+    node_t *comma = add->childs[add->n_childs - 1];
+
+    node_t *tmp = add->childs[0];
+    char *real_value = comma->childs[1]->value;
+
+    free(comma);
+
+    add->childs = (node_t **) malloc (add->n_childs * sizeof(node_t*));
+    //printf("%d\n", add->n_childs - 1);
+    add->childs[0] = tmp;
+    add->childs[1] = ast_insert_terminal(NODE_INTLIT, real_value);
+  }
+
 }
 
 void ast_destroy(node_t *where) {
