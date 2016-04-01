@@ -133,25 +133,12 @@ void _ast_add_typespec_to_declaration(node_t *typespec, node_t *declaration) {
 }
 
 void ast_add_typespec(node_t *typespec, node_t *declarator) {
-  //printf("hey\n");
-  //printf("%s\n", comma);
-
-  //printf("node_types[declarator->type] = %s\n", node_types[declarator->type]);
-  //printf("node_types[declarator->childs[0]->type] = %s\n", node_types[declarator->childs[0]->type]);
-  //printf("n_childs: %d\n", declarator->n_childs);
-
-  //printf("n_childs: %d\n", declarator->n_childs);
-  //printf("childs[0]->type: %s\n", node_types[declarator->childs[0]->type]);
-  //printf("childs[1]->type: %s\n", node_types[declarator->childs[1]->type]);
-
   if (strcmp(node_types[declarator->childs[0]->type], "Declaration") == 0 || strcmp(node_types[declarator->childs[0]->type], "ArrayDeclaration") == 0) {
-    //printf("here\n");
     int i;
     for (i = 0; i < declarator->n_childs; i++) {
       _ast_add_typespec_to_declaration(typespec, declarator->childs[i]);
     }
   } else {
-    //printf("here2\n");
     _ast_add_typespec_to_declaration(typespec, declarator);
   }
 }
