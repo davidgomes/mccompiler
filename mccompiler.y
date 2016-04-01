@@ -33,18 +33,19 @@
 %token <str> NOT OR PLUS RBRACE RPAR RSQ SEMI CHRLIT STRLIT
 
 %nonassoc THEN
-%nonassoc ELSE
-
-%right ASSIGN
 
 %left COMMA
-%left LSQ
-%left OR AND
+%right ASSIGN
+%left OR
+%left AND
 %left EQ NE
-%left GE GT LE LT
+%left GT LT GE LE
 %left PLUS MINUS
 %left AST DIV MOD
-%left AMP NOT
+%right NOT AMP
+%left LPAR RPAR LSQ RSQ
+
+%nonassoc ELSE
 
 %type <node> FunctionDefinition FunctionBody FunctionBodyDeclaration FunctionBodyStatement
 Declaration Declarator FunctionDeclaration TypeSpec FunctionDeclarator ParameterList
@@ -187,11 +188,11 @@ Expression: Expression ASSIGN Expression         { $$ = ast_insert_node(NODE_STO
           | Expression DIV Expression            { $$ = ast_insert_node(NODE_DIV, 1, 2, $1, $3); }
           | Expression MOD Expression            { $$ = ast_insert_node(NODE_MOD, 1, 2, $1, $3); }
           | AMP Expression                       { $$ = ast_insert_node(NODE_ADDR, 1, 1, $2); }
-          | AST Expression                       { $$ = ast_insert_node(NODE_DEREF, 1, 1, $2); }
-          | PLUS Expression                      { $$ = ast_insert_node(NODE_PLUS, 1, 1, $2); }
-          | MINUS Expression                     { $$ = ast_insert_node(NODE_MINUS, 1, 1, $2); }
+          | AST Expression          %prec NOT    { $$ = ast_insert_node(NODE_DEREF, 1, 1, $2); }
+          | PLUS Expression         %prec NOT    { $$ = ast_insert_node(NODE_PLUS, 1, 1, $2); }
+          | MINUS Expression        %prec NOT    { $$ = ast_insert_node(NODE_MINUS, 1, 1, $2); }
           | NOT Expression                       { $$ = ast_insert_node(NODE_NOT, 1, 1, $2); }
-          | Expression LSQ CommaExpression RSQ   { node_t* add = ast_insert_node(NODE_ADD, 1, 2, $1, $3); ast_fix_call_add(add); $$ = ast_insert_node(NODE_DEREF, 1, 1, add); }
+          | Expression LSQ CommaExpression RSQ   { node_t* add = ast_insert_node(NODE_ADD, 1, 2, $1, $3); $$ = ast_insert_node(NODE_DEREF, 1, 1, add); }
           | Id LPAR ExpressionList RPAR          { $$ = ast_insert_node(NODE_CALL, 1, 2, $1, $3); }
           | Id                                   { $$ = ast_insert_node(NODE_EXPRESSION, 0, 1, $1); }
           | INTLIT                               { $$ = ast_insert_terminal(NODE_INTLIT, $1); }

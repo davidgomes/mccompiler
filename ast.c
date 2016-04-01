@@ -152,21 +152,6 @@ void ast_print_node(node_t* n) {
   }
 }
 
-void ast_fix_call_add(node_t *add) {
-  if (strcmp(node_types[add->childs[add->n_childs - 1]->type], "Comma") == 0) {
-    node_t *comma = add->childs[add->n_childs - 1];
-
-    node_t *tmp = add->childs[0];
-    char *real_value = comma->childs[1]->value;
-
-    free(comma);
-
-    add->childs = (node_t **) malloc (add->n_childs * sizeof(node_t*));
-    add->childs[0] = tmp;
-    add->childs[1] = ast_insert_terminal(NODE_INTLIT, real_value);
-  }
-}
-
 void ast_destroy(node_t *where) {
   if (where != NULL) {
     int i;

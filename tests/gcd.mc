@@ -1,4 +1,3 @@
 int main(void) {
-  int a;
-  a = b[3];
+  call(1, 2, 3);
 }

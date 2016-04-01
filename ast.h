@@ -30,7 +30,6 @@ node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...)
 node_t* ast_insert_terminal(nodetype_t nodetype, char* s);
 void ast_destroy(node_t *where);
 void ast_print_tree(node_t* n, int d);
-void ast_fix_call_add(node_t *add);
 void ast_print_node(node_t* n);
 void ast_add_typespec(node_t *typespec, node_t *declarator);
 
