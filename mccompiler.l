@@ -185,8 +185,9 @@ SEMI  ";"
 . {printf("Line %d, col %d: illegal character (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
 %%
+
 int main(int argc, char **argv) {
-  if(argc > 1){
+  if (argc > 1) {
     if (!strcmp(argv[1], "-l")) {
       flag_yylex = 1;
       while(flag_yylex)
@@ -207,8 +208,7 @@ int main(int argc, char **argv) {
 
       ast_destroy(ast);
     }
-  }
-  else{
+  } else {
     flag_errors = 1;
     BEGIN ERRORS;
     yyparse();
@@ -216,7 +216,7 @@ int main(int argc, char **argv) {
 
   return 0;
 }
-int yywrap()
-{
+
+int yywrap() {
   return 1;
 }

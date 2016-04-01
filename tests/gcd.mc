@@ -1,3 +1,3 @@
+int a, b, c;
 int main(void) {
-  c = c[1];
 }
