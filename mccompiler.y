@@ -145,9 +145,9 @@ StatementCanError: Statement { $$ = $1; }
                  ;
 
 Statement: CommaExpression SEMI                                                                       { $$ = ast_insert_node(NODE_STATEMENT, 0, 1, $1); }
-         | SEMI                                                                                       { $$ = ast_insert_node(NODE_NULL, 1, 0); }
-         | LBRACE StatementList RBRACE                                                                { $$ = ast_insert_node(NODE_STATLIST, 0, 1, $2); }
-         | LBRACE RBRACE                                                                              { $$ = ast_insert_node(NODE_NULL, 1, 0); }
+         | SEMI                                                                                       { $$ = NULL; }
+         | LBRACE StatementList RBRACE                                                                { if($1 == NULL) { ast_insert_node(NODE_NULL, 1,0); } else{ $$ = ast_insert_node(NODE_STATLIST, 0, 1, $2); } }
+         | LBRACE RBRACE                                                                              { $$ = NULL; }
          | LBRACE error RBRACE                                                                        { $$ = NULL; }
          | IF LPAR CommaExpressionTwo RPAR Statement %prec THEN                                       { $$ = ast_insert_node(NODE_IF, 1, 2, $3, $5); }
          | IF LPAR CommaExpressionTwo RPAR Statement ELSE Statement                                   { $$ = ast_insert_node(NODE_IF, 1, 3, $3, $5, $7); }
