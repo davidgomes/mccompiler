@@ -1,9 +1,23 @@
 int main(void) {
-  if (5) {
-    for (;;) {
-    }
+  if (a);
 
-    for (;;) {
+  if (a) {} else {}
+
+  if (a) {
+    if (a);
+
+    if (b) {
+      if (c) {
+
+      } else {
+        if (a);
+
+        if (t) {
+        
+        }
+
+        if (b);
+      }
     }
   }
 }
