@@ -76,7 +76,7 @@ node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...)
 
     if (t == NULL) {
       continue;
-    } else if(!t->to_use) {
+    } else if (!t->to_use) {
       for (nodes += t->n_childs, i = 0; i < t->n_childs; i++) {
         *tmp++ = t->childs[i];
       }
@@ -145,10 +145,11 @@ void ast_add_typespec(node_t *typespec, node_t *declarator) {
 }
 
 void ast_print_node(node_t* n) {
-  if(n->type == NODE_ID || n->type == NODE_CHRLIT || n->type == NODE_INTLIT || n->type == NODE_STRLIT)
+  if (n->type == NODE_ID || n->type == NODE_CHRLIT || n->type == NODE_INTLIT || n->type == NODE_STRLIT) {
     printf("%s(%s)\n", node_types[n->type], n->value);
-  else
+  } else {
     printf("%s\n", node_types[n->type]);
+  }
 }
 
 void ast_fix_call_add(node_t *add) {
@@ -161,25 +162,24 @@ void ast_fix_call_add(node_t *add) {
     free(comma);
 
     add->childs = (node_t **) malloc (add->n_childs * sizeof(node_t*));
-    //printf("%d\n", add->n_childs - 1);
     add->childs[0] = tmp;
     add->childs[1] = ast_insert_terminal(NODE_INTLIT, real_value);
   }
-
 }
 
 void ast_destroy(node_t *where) {
   if (where != NULL) {
     int i;
+
     for (i = 0; i < where->n_childs; i++) {
       ast_destroy(where->childs[i]);
     }
+
     free(where);
   }
 }
 
 void ast_print_tree(node_t* n, int d) {
-  //printf("printing tree\n");
   int i, k;
   for (k = 0; k < d; k++)
     printf("..");
@@ -189,5 +189,4 @@ void ast_print_tree(node_t* n, int d) {
   for (i = 0; i < n->n_childs; i++) {
     ast_print_tree(n->childs[i], d+1);
   }
-
 }

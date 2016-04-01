@@ -206,7 +206,7 @@ int main(int argc, char **argv) {
         ast_print_tree(ast, 0);
       }
 
-      ast_destroy(ast);
+      //ast_destroy(ast);
     }
   } else {
     flag_errors = 1;
