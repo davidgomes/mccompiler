@@ -59,10 +59,10 @@ Start: FunctionDefinition StartAgain  { $$ = ast = ast_insert_node(NODE_PROGRAM,
      | Declaration StartAgain         { $$ = ast = ast_insert_node(NODE_PROGRAM, 1, 2, $1, $2); }
      ;
 
-StartAgain: FunctionDefinition StartAgain { $$ = ast_insert_node(NODE_BLOCK, 0, 2, $1, $2); }
+StartAgain: FunctionDefinition StartAgain  { $$ = ast_insert_node(NODE_BLOCK, 0, 2, $1, $2); }
           | FunctionDeclaration StartAgain { $$ = ast_insert_node(NODE_BLOCK, 0, 2, $1, $2); }
           | Declaration StartAgain         { $$ = ast_insert_node(NODE_BLOCK, 0, 2, $1, $2); }
-          | /* empty */ { $$ = NULL; }
+          | /* empty */                    { $$ = NULL; }
           ;
 
 FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { $$ = ast_insert_node(NODE_FUNCDEFINITION, 1, 3, $1, $2, $3); }
@@ -72,7 +72,7 @@ FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { $$ =
             | LBRACE FunctionBodyStatement RBRACE                         { $$ = ast_insert_node(NODE_FUNCBODY, 1, 1, $2); }
             | LBRACE FunctionBodyDeclaration RBRACE                       { $$ = ast_insert_node(NODE_FUNCBODY, 1, 1, $2); }
             | LBRACE RBRACE                                               { $$ = ast_insert_node(NODE_FUNCBODY, 1, 0); }
-            | LBRACE error RBRACE                                         {}
+            | LBRACE error RBRACE                                         { $$ = NULL;}
             ;
 
 FunctionBodyDeclaration: FunctionBodyDeclaration Declaration  { $$ = ast_insert_node(NODE_FUNCBODYDECLARATION, 0, 2, $1, $2); }
@@ -83,12 +83,12 @@ FunctionBodyStatement: FunctionBodyStatement StatementCanError  { $$ = ast_inser
                      | Statement                                { $$ = ast_insert_node(NODE_FUNCTIONBODYSTATEMENT, 0, 1, $1); }
                      ;
 
-Declaration: TypeSpec DeclarationSecond SEMI         { if ($2 != NULL) { ast_add_typespec($1, $2); $$ = $2; } else { $$ = $2; } }
-           | error SEMI                              { $$ = NULL; }
+Declaration: TypeSpec DeclarationSecond SEMI  { if ($2 != NULL) { ast_add_typespec($1, $2); $$ = $2; } else { $$ = $2; } }
+           | error SEMI                       { $$ = NULL; }
            ;
 
-DeclarationSecond: DeclarationSecond COMMA Declarator     { $$ = ast_insert_node(NODE_DECLARATION, 0, 2, $1, $3); }
-                 | Declarator                             { $$ = $1; }
+DeclarationSecond: DeclarationSecond COMMA Declarator { $$ = ast_insert_node(NODE_DECLARATION, 0, 2, $1, $3); }
+                 | Declarator                         { $$ = $1; }
                  ;
 
 Declarator: Id                                 { $$ = ast_insert_node(NODE_DECLARATION, 1, 1, $1); }
@@ -116,10 +116,10 @@ ParameterList: ParameterList COMMA ParameterDeclaration { $1->to_use = 0; $$ = a
              | ParameterDeclaration                     { $$ = ast_insert_node(NODE_PARAMLIST, 1, 1, $1); }
              ;
 
-ParameterDeclaration: TypeSpec Asterisk Id           { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 3, $1, $2, $3); }
-                    | TypeSpec Id                    { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2); }
-                    | TypeSpec Asterisk              { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2); }
-                    | TypeSpec                       { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 1, $1); }
+ParameterDeclaration: TypeSpec Asterisk Id { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 3, $1, $2, $3); }
+                    | TypeSpec Id          { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2); }
+                    | TypeSpec Asterisk    { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2); }
+                    | TypeSpec             { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 1, $1); }
                     ;
 
 /*Id: AST Id { $$ = ast_insert_terminal(NODE_POINTER, "Pointer"); } //TODO is this the right way to fix this? no.
@@ -203,7 +203,7 @@ Expression: Expression ASSIGN Expression         { $$ = ast_insert_node(NODE_STO
           ;
 
 ExpressionList: CommaExpressionTwo { $$ = $1; }
-              | /* empty */ { $$ = NULL; }
+              | /* empty */        { $$ = NULL; }
               ;
 %%
 int yyerror (char *s) {
