@@ -169,7 +169,7 @@ CommaExpression: CommaExpression COMMA CommaExpression { $$ = ast_insert_node(NO
                | Expression                            { $$ = $1; }
                ;
 
-CommaExpressionTwo: CommaExpression COMMA CommaExpression { $$ = ast_insert_node(NODE_COMMA, 0, 2, $1, $3); }
+CommaExpressionTwo: CommaExpressionTwo COMMA CommaExpressionTwo { $$ = ast_insert_node(NODE_COMMA, 0, 2, $1, $3); }
                   | Expression                            { $$ = $1; }
                   ;
 
