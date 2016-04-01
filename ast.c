@@ -112,6 +112,26 @@ node_t* ast_create_node(nodetype_t nodetype, int to_use) {
   return self;
 }
 
+node_t *save_nodes[2048];
+
+void _ast_add_typespec_to_declaration(node_t *typespec, node_t *declaration) {
+  node_t **ptr = save_nodes;
+
+  int u;
+  for (u = 0; u < declaration->n_childs; u++) {
+    *ptr++ = declaration->childs[u];
+  }
+
+  declaration->n_childs++;
+  declaration->childs = (node_t **) malloc (declaration->n_childs * sizeof(node_t*));
+  declaration->childs[0] = typespec;
+
+  ptr = save_nodes;
+  for (u = 1; u < declaration->n_childs; u++) {
+    declaration->childs[u] = *ptr++;
+  }
+}
+
 void ast_add_typespec(node_t *typespec, node_t *declarator) {
   //printf("hey\n");
   //printf("%s\n", comma);
@@ -119,6 +139,22 @@ void ast_add_typespec(node_t *typespec, node_t *declarator) {
   //printf("node_types[declarator->type] = %s\n", node_types[declarator->type]);
   //printf("node_types[declarator->childs[0]->type] = %s\n", node_types[declarator->childs[0]->type]);
   //printf("n_childs: %d\n", declarator->n_childs);
+
+  //printf("n_childs: %d\n", declarator->n_childs);
+  //printf("childs[0]->type: %s\n", node_types[declarator->childs[0]->type]);
+  //printf("childs[1]->type: %s\n", node_types[declarator->childs[1]->type]);
+
+  if (strcmp(node_types[declarator->childs[0]->type], "Declaration") == 0) {
+    //printf("here\n");
+    int i;
+    for (i = 0; i < declarator->n_childs; i++) {
+      _ast_add_typespec_to_declaration(typespec, declarator->childs[i]);
+    }
+  } else {
+    //printf("here2\n");
+    _ast_add_typespec_to_declaration(typespec, declarator);
+  }
+  return;
 
   if (strcmp(node_types[declarator->type], "ArrayDeclaration") == 0) {
     node_t *tmp1 = declarator->childs[0];
