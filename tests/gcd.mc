@@ -1,3 +1,3 @@
-int x(void a) {
-
+int main(void){
+ a=3;
 }

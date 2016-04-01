@@ -163,41 +163,41 @@ ForCommaExpression: CommaExpression
                   | /* empty */ {}
                   ;
 
-CommaExpression: CommaExpression COMMA CommaExpression { myprintf2("CommaExpression\n"); }
-               | Expression                            { myprintf2("CommaExpression\n"); }
+CommaExpression: CommaExpression COMMA CommaExpression { $$ = ast_insert_node(NODE_COMMA, 1, 2, $1, $3); }
+               | Expression                            { $$ = $1; }
                ;
 
-Expression: Expression ASSIGN Expression         { myprintf2("Expression\n"); }
-          | Expression AND Expression            { myprintf2("Expression\n"); }
-          | Expression OR Expression             { myprintf2("Expression\n"); }
+Expression: Expression ASSIGN Expression         { $$ = ast_insert_node(NODE_STORE, 1, 2, $1, $3); }
+          | Expression AND Expression            { $$ = ast_insert_node(NODE_AND, 1, 2, $1, $3); }
+          | Expression OR Expression             { $$ = ast_insert_node(NODE_OR, 1, 2, $1, $3); }
           | Expression EQ Expression             { $$ = ast_insert_node(NODE_EQ, 1, 2, $1, $3); }
-          | Expression NE Expression             { myprintf2("Expression\n"); }
-          | Expression LT Expression             { myprintf2("Expression\n"); }
-          | Expression GT Expression             { myprintf2("Expression\n"); }
-          | Expression LE Expression             { myprintf2("Expression\n"); }
-          | Expression GE Expression             { myprintf2("Expression\n"); }
-          | Expression AST Expression            { myprintf2("Expression\n"); }
-          | Expression PLUS Expression           { myprintf2("Expression\n"); }
-          | Expression MINUS Expression          { myprintf2("Expression\n"); }
-          | Expression DIV Expression            { myprintf2("Expression\n"); }
-          | Expression MOD Expression            { myprintf2("Expression\n"); }
-          | AMP Expression                       { myprintf2("Expression\n"); }
-          | AST Expression                       { myprintf2("Expression\n"); }
-          | PLUS Expression                      { myprintf2("Expression\n"); }
-          | MINUS Expression                     { myprintf2("Expression\n"); }
-          | NOT Expression                       { myprintf2("Expression\n"); }
-          | Expression LSQ CommaExpression RSQ   { myprintf2("Expression\n"); }
-          | ID LPAR ExpressionList RPAR          { $$ = ast_insert_node(NODE_CALL, 1, 2, $1, $3); }
-          | ID                                   { myprintf2("Expression\n"); }
+          | Expression NE Expression             { $$ = ast_insert_node(NODE_NE, 1, 2, $1, $3); }
+          | Expression LT Expression             { $$ = ast_insert_node(NODE_LT, 1, 2, $1, $3); }
+          | Expression GT Expression             { $$ = ast_insert_node(NODE_GT, 1, 2, $1, $3); }
+          | Expression LE Expression             { $$ = ast_insert_node(NODE_LE, 1, 2, $1, $3); }
+          | Expression GE Expression             { $$ = ast_insert_node(NODE_GE, 1, 2, $1, $3); }
+          | Expression AST Expression            { $$ = ast_insert_node(NODE_MUL, 1, 2, $1, $3); }
+          | Expression PLUS Expression           { $$ = ast_insert_node(NODE_PLUS, 1, 2, $1, $3); }
+          | Expression MINUS Expression          { $$ = ast_insert_node(NODE_MINUS, 1, 2, $1, $3); }
+          | Expression DIV Expression            { $$ = ast_insert_node(NODE_DIV, 1, 2, $1, $3); }
+          | Expression MOD Expression            { $$ = ast_insert_node(NODE_MOD, 1, 2, $1, $3); }
+          | AMP Expression                       { $$ = ast_insert_node(NODE_DEREF, 1, 1, $2); }
+          | AST Expression                       { $$ = ast_insert_node(NODE_ADDR, 1, 1, $2); }
+          | PLUS Expression                      { $$ = ast_insert_node(NODE_PLUS, 1, 1, $2); }
+          | MINUS Expression                     { $$ = ast_insert_node(NODE_MINUS, 1, 1, $2); }
+          | NOT Expression                       { $$ = ast_insert_node(NODE_NOT, 1, 1, $2); }
+          | Expression LSQ CommaExpression RSQ   { $$ = ast_insert_node(NODE_DEREF, 1, 2, $1, $2); }
+          | Id LPAR ExpressionList RPAR          { $$ = ast_insert_node(NODE_CALL, 1, 2, $1, $3); }
+          | Id                                   { $$ = ast_insert_node(NODE_EXPRESSION, 0, 1, $1); }
           | INTLIT                               { $$ = ast_insert_terminal(NODE_INTLIT, $1); }
           | CHRLIT                               { $$ = ast_insert_terminal(NODE_CHRLIT, $1); }
           | STRLIT                               { $$ = ast_insert_terminal(NODE_STRLIT, $1); }
-          | LPAR CommaExpression RPAR            { myprintf2("Expression\n"); }
-          | LPAR error RPAR                      { myprintf2("Expression\n"); }
-          | ID LPAR error RPAR                   { myprintf2("Expression\n"); }
+          | LPAR CommaExpression RPAR            { $$ = ast_insert_node(NODE_EXPRESSION, 0, 1, $2); }
+          | LPAR error RPAR                      { $$ = NULL; }
+          | Id LPAR error RPAR                   { $$ = NULL; }
           ;
 
-ExpressionList: CommaExpression { }
+ExpressionList: CommaExpression { $$ = $1; }
               | /* empty */ { $$ = NULL; }
               ;
 %%

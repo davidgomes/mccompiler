@@ -55,7 +55,8 @@ char* node_types[] = {
   "Statement",
   "ArrayDeclarator",
   "Block",
-  "ProgramBlock"
+  "ProgramBlock",
+  "NodeExpresion"
 };
 
 node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...) {
