@@ -152,6 +152,38 @@ void ast_print_node(node_t* n) {
   }
 }
 
+int _ast_count_not_nulls(node_t *list, int cur) {
+  int i;
+
+  for (i = 0; i < list->n_childs; i++) {
+    if (list->childs[i] != NULL) {
+      cur++;
+      cur += _ast_count_not_nulls(list->childs[i], cur);
+    }
+  }
+
+  return cur;
+}
+
+int ast_count_statement_childs(node_t* which) {
+  int res = 0;
+  int i;
+  for (i = 0; i < which->n_childs; i++) {
+    if (strcmp(node_types[which->childs[i]->type], "Statement") == 0) {
+      res++;
+    }
+  }
+  return res;
+}
+
+int ast_count_not_nulls(node_t *list, node_t *st) {
+  int res = 0;
+  if (st != NULL) res++;
+  if (list == NULL) return res;
+
+  return _ast_count_not_nulls(list, 1);
+}
+
 void ast_destroy(node_t *where) {
   if (where != NULL) {
     int i;

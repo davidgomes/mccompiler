@@ -147,17 +147,20 @@ StatementCanError: Statement { $$ = $1; }
 
 Statement: CommaExpression SEMI                                                                       { $$ = ast_insert_node(NODE_STATEMENT, 0, 1, $1); }
          | SEMI                                                                                       { $$ = NULL; }
-         | LBRACE StatementList RBRACE                                                                { $$ = ast_insert_node(NODE_STATLIST, 0, 1, $2); }
+         | LBRACE StatementList RBRACE                                                                { if ($2 != NULL && ast_count_statement_childs($2) >= 2) { $$ = ast_insert_node(NODE_STATLIST, 1, 1, $2); } else { $$ = $2; } }
          | LBRACE RBRACE                                                                              { $$ = NULL; }
          | LBRACE error RBRACE                                                                        { $$ = NULL; }
          | IF LPAR CommaExpression RPAR Statement %prec THEN                                          { if ($5 == NULL) {node_t* null_node = ast_insert_node(NODE_NULL, 1, 0); node_t* null_node2 = ast_insert_node(NODE_NULL, 1, 0); $$ = ast_insert_node(NODE_IF, 1, 3, $3, null_node, null_node2); } else { node_t* null_node = ast_insert_node(NODE_NULL, 1, 0); $$ = ast_insert_node(NODE_IF, 1, 3, $3, $5, null_node); } }
          | IF LPAR CommaExpression RPAR Statement ELSE Statement                                      { if ($5 == NULL && $7 == NULL) {node_t* null_node = ast_insert_node(NODE_NULL, 1, 0); node_t* null_node2 = ast_insert_node(NODE_NULL, 1, 0); $$ = ast_insert_node(NODE_IF, 1, 3, $3, null_node, null_node2); } else if($5 == NULL){node_t* null_node = ast_insert_node(NODE_NULL, 1, 0); $$ = ast_insert_node(NODE_IF, 1, 3, $3, null_node, $7);} else if($7 == NULL){node_t* null_node = ast_insert_node(NODE_NULL, 1, 0); $$ = ast_insert_node(NODE_IF, 1, 3, $3, $5, null_node);} else {$$ = ast_insert_node(NODE_IF, 1, 3, $3, $5, $7); }}
          | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { if($9 == NULL) {node_t* null_node = ast_insert_node(NODE_NULL, 1, 0); $$ = ast_insert_node(NODE_FOR, 1, 4, $3, $5, $7, null_node);} else { $$ = ast_insert_node(NODE_FOR, 1, 4, $3, $5, $7, $9); } }
          | RETURN CommaExpression SEMI                                                                { $$ = ast_insert_node(NODE_RETURN, 1, 1, $2); }
-         | RETURN SEMI                                                                                { $$ = ast_insert_node(NODE_RETURN, 1, 0); }
+         | RETURN SEMI                                                                                { node_t* null_node = ast_insert_node(NODE_NULL, 1, 0); $$ = ast_insert_node(NODE_RETURN, 1, 1, null_node); }
          ;
 
-StatementList: StatementList StatementCanError { if($1 == NULL && $2 == NULL) {$$ = ast_insert_node(NODE_STATLIST, 0, 2, $1, $2);} else if ($1 != NULL && $2 != NULL){ $$ = ast_insert_node(NODE_STATLIST, 1, 2, $1, $2);}}
+//StatementList StatementCanError { printf("%d\n", $1->n_childs); if($1 == NULL && $2 == NULL) {$$ = ast_insert_node(NODE_STATLIST, 0, 2, $1, $2);} else if (($2 != NULL && $1->n_childs >= 1) || ($1 != NULL && $2 != NULL)){ $$ = ast_insert_node(NODE_STATLIST, 1, 2, $1, $2);}}
+// StatementList StatementCanError { int not_nulls = ast_count_not_nulls($1, $2); /*printf("n_nulls: %d\n", not_nulls);*/ if (not_nulls >= 2 && $1->type != 8) { $$ = ast_insert_node(NODE_STATLIST, 1, 2, $1, $2); } else { $$ = ast_insert_node(NODE_STATLIST, 0, 0); } }
+
+StatementList: StatementList StatementCanError { if ($1 == NULL && $2 != NULL) { $$ = ast_insert_node(NODE_STATLIST, 0, 1, $2); } else if ($1 != NULL && $2 == NULL) { $$ = ast_insert_node(NODE_STATLIST, 0, 1, $1); } else if ($1 != NULL && $2 != NULL) $$ = ast_insert_node(NODE_STATLIST, 0, 2, $1, $2); else { $$ = NULL; } }
              | StatementCanError               { $$ = $1; }
              ;
 
