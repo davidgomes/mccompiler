@@ -144,6 +144,16 @@ void ast_add_typespec(node_t *typespec, node_t *declarator) {
   }
 }
 
+node_t *ast_fix_to_null(node_t *which) {
+  if (which == NULL) {
+    return ast_insert_node(NODE_NULL, 1, 0);
+  } else if (strcmp(node_types[which->type], "StatList") == 0 && which->n_childs == 0) {
+    return ast_insert_node(NODE_NULL, 1, 0);
+  }
+
+  return which;
+}
+
 void ast_print_node(node_t* n) {
   if (n->type == NODE_ID || n->type == NODE_CHRLIT || n->type == NODE_INTLIT || n->type == NODE_STRLIT) {
     printf("%s(%s)\n", node_types[n->type], n->value);
