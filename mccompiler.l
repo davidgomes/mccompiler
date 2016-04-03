@@ -8,11 +8,9 @@
   #endif
 
   #include <stdarg.h>
+  #include "ast.h"
 
   int col = 1, comment_start_col, comment_start_line;
-  int flag_t = 0;
-  int flag_l = 0;
-  int flag_1 = 0;
   int flag_yylex = 0;
   int flag_errors = 0;
 
@@ -87,11 +85,11 @@ SEMI  ";"
 
 <ERRORS>"/*"  {BEGIN COMMENT; comment_start_col = col-2; comment_start_line = yylineno;}
 
-<ERRORS>{CHRLIT} {;}
+<ERRORS>{CHRLIT} {yylval.str=(char *) strdup(yytext); return CHRLIT;}
 <ERRORS>{UN_CHRLIT} {printf("Line %d, col %d: unterminated char constant\n",yylineno, col-(int)yyleng); col = 1;}
 <ERRORS>{INV_CHRLIT}  {printf("Line %d, col %d: invalid char constant (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
-<ERRORS>{STRLIT}  {;}
+<ERRORS>{STRLIT}  {yylval.str=(char *) strdup(yytext); return STRLIT;}
 <ERRORS>{UN_STRLIT} {printf("Line %d, col %d: unterminated string constant\n",yylineno, col-(int)yyleng); col = 1;}
 <ERRORS>{INV_STRLIT}  {printf("Line %d, col %d: invalid string constant (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
@@ -104,8 +102,8 @@ SEMI  ";"
 <ERRORS>{VOID} {return VOID;}
 
 <ERRORS>{RESERVED}  {return RESERVED;}
-<ERRORS>{INTLIT}  {return INTLIT;}
-<ERRORS>{ID}  {return ID;}
+<ERRORS>{INTLIT}  {yylval.str=(char *) strdup(yytext); return INTLIT;}
+<ERRORS>{ID}  {yylval.str=(char *) strdup(yytext); return ID;}
 
 <ERRORS>{AMP} {return AMP;}
 <ERRORS>{AND} {return AND;}
@@ -137,11 +135,11 @@ SEMI  ";"
 <ERRORS><<eof>> {col+=1; flag_errors = 0; return 0;}
 <ERRORS>. {printf("Line %d, col %d: illegal character (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
-{CHRLIT} {printf("CHRLIT(%s)\n", yytext);}
+{CHRLIT} {printf("CHRLIT(%s)\n", yytext); yylval.str=(char *) strdup(yytext); return CHRLIT;}
 {UN_CHRLIT} {printf("Line %d, col %d: unterminated char constant\n",yylineno, col-(int)yyleng); col = 1;}
 {INV_CHRLIT}  {printf("Line %d, col %d: invalid char constant (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
-{STRLIT}  {printf("STRLIT(%s)\n", yytext);}
+{STRLIT}  {printf("STRLIT(%s)\n", yytext); yylval.str=(char *) strdup(yytext); return STRLIT;}
 {UN_STRLIT} {printf("Line %d, col %d: unterminated string constant\n",yylineno, col-(int)yyleng); col = 1;}
 {INV_STRLIT}  {printf("Line %d, col %d: invalid string constant (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
@@ -154,8 +152,8 @@ SEMI  ";"
 {VOID} {printf("VOID\n"); return VOID;}
 
 {RESERVED}  {printf("RESERVED(%s)\n", yytext); return RESERVED;}
-{INTLIT}  {printf("INTLIT(%s)\n", yytext); return INTLIT;}
-{ID}  {printf("ID(%s)\n", yytext); return ID;}
+{INTLIT}  {printf("INTLIT(%s)\n", yytext); yylval.str=(char *) strdup(yytext); return INTLIT;}
+{ID}  {yylval.str=(char *) strdup(yytext); printf("ID(%s)\n", yytext); return ID;}
 
 {AMP} {printf("AMP\n"); return AMP;}
 {AND} {printf("AND\n"); return AND;}
@@ -187,8 +185,9 @@ SEMI  ";"
 . {printf("Line %d, col %d: illegal character (%s)\n",yylineno, col-(int)yyleng, yytext);}
 
 %%
+
 int main(int argc, char **argv) {
-  if(argc > 1){
+  if (argc > 1) {
     if (!strcmp(argv[1], "-l")) {
       flag_yylex = 1;
       while(flag_yylex)
@@ -199,10 +198,17 @@ int main(int argc, char **argv) {
       while(flag_errors)
         yylex();
     } else if (!strcmp(argv[1], "-t")) {
-      flag_t = 1; //print tree TODO
+      flag_errors = 1;
+      BEGIN ERRORS;
+      yyparse();
+
+      if (!where_there_errors) {
+        ast_print_tree(ast, 0);
+      }
+
+      ast_destroy(ast);
     }
-  }
-  else{
+  } else {
     flag_errors = 1;
     BEGIN ERRORS;
     yyparse();
@@ -210,7 +216,7 @@ int main(int argc, char **argv) {
 
   return 0;
 }
-int yywrap()
-{
+
+int yywrap() {
   return 1;
 }

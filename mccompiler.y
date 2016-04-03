@@ -7,8 +7,6 @@
 
   #define YYDEBUG 1
 
-  node_t *ast;
-
   int yyerror();
   int yylex();
 
@@ -18,144 +16,191 @@
   void myprintf2(__const char *__restrict __format, ...) {
     va_list args;
     va_start(args, __format);
-    printf(__format, args);
+    //printf(__format, args);
     va_end(args);
   }
+
+  node_t *cur_typespec;
 %}
 
-%token CHAR ELSE FOR IF INT RETURN VOID RESERVED INTLIT ID
-%token AMP AND ASSIGN AST COMMA DIV EQ GE GT LBRACE LE LPAR LSQ LT MINUS MOD NE
-%token NOT OR PLUS RBRACE RPAR RSQ SEMI CHRLIT STRLIT
+%union{
+  char* str;
+	struct node *node;
+}
+
+%token <str> CHAR ELSE FOR IF INT RETURN VOID RESERVED INTLIT ID
+%token <str> AMP AND ASSIGN AST COMMA DIV EQ GE GT LBRACE LE LPAR LSQ LT MINUS MOD NE
+%token <str> NOT OR PLUS RBRACE RPAR RSQ SEMI CHRLIT STRLIT
 
 %nonassoc THEN
-%nonassoc ELSE
-
-%right ASSIGN
 
 %left COMMA
-%left LSQ
-%left OR AND
+%right ASSIGN
+%left OR
+%left AND
 %left EQ NE
-%left GE GT LE LT
+%left GT LT GE LE
 %left PLUS MINUS
 %left AST DIV MOD
-%left AMP NOT
+%right NOT AMP
+%left LPAR RPAR LSQ RSQ
+
+%nonassoc ELSE
+
+%type <node> FunctionDefinition FunctionBody FunctionBodyDeclaration FunctionBodyStatement
+Declaration Declarator FunctionDeclaration TypeSpec FunctionDeclarator ParameterList
+ParameterDeclaration Asterisk StatementCanError Statement StatementList ForCommaExpression
+CommaExpression Expression ExpressionList TerminalIntlit Start StartAgain Id Ast DeclarationSecond
+CommaExpressionTwo
 
 %%
 
-Program: Block | Program Block { myprintf2("Program\n"); };
+Start: FunctionDefinition StartAgain  { $$ = ast = ast_insert_node(NODE_PROGRAM, 1, 2, $1, $2); }
+     | FunctionDeclaration StartAgain { $$ = ast = ast_insert_node(NODE_PROGRAM, 1, 2, $1, $2); }
+     | Declaration StartAgain         { $$ = ast = ast_insert_node(NODE_PROGRAM, 1, 2, $1, $2); }
+     ;
 
-Block: FunctionDefinition | FunctionDeclaration | Declaration { myprintf2("Block\n"); };
+StartAgain: FunctionDefinition StartAgain  { $$ = ast_insert_node(NODE_BLOCK, 0, 2, $1, $2); }
+          | FunctionDeclaration StartAgain { $$ = ast_insert_node(NODE_BLOCK, 0, 2, $1, $2); }
+          | Declaration StartAgain         { $$ = ast_insert_node(NODE_BLOCK, 0, 2, $1, $2); }
+          | /* empty */                    { $$ = NULL; }
+          ;
 
-FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { myprintf2("FunctionDefinition\n"); };
+FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { $$ = ast_insert_node(NODE_FUNCDEFINITION, 1, 3, $1, $2, $3); }
+                  ;
 
-FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { myprintf2("FunctionBody\n"); }
-            | LBRACE FunctionBodyStatement RBRACE                         { myprintf2("FunctionBody\n"); }
-            | LBRACE FunctionBodyDeclaration RBRACE                       { myprintf2("FunctionBody\n"); }
-            | LBRACE RBRACE                                               { myprintf2("FunctionBody\n"); }
-            | LBRACE error RBRACE                                         { myprintf2("ErrorFunctionBody\n"); };
+FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { $$ = ast_insert_node(NODE_FUNCBODY, 1, 2, $2, $3); }
+            | LBRACE FunctionBodyStatement RBRACE                         { $$ = ast_insert_node(NODE_FUNCBODY, 1, 1, $2); }
+            | LBRACE FunctionBodyDeclaration RBRACE                       { $$ = ast_insert_node(NODE_FUNCBODY, 1, 1, $2); }
+            | LBRACE RBRACE                                               { $$ = ast_insert_node(NODE_FUNCBODY, 1, 0); }
+            | LBRACE error RBRACE                                         { $$ = NULL;}
+            ;
 
-FunctionBodyDeclaration: FunctionBodyDeclaration Declaration  { myprintf2("FunctionBodyDeclaration\n"); }
-                       | Declaration              { myprintf2("FunctionBodyDeclaration\n"); };
+FunctionBodyDeclaration: FunctionBodyDeclaration Declaration  { $$ = ast_insert_node(NODE_FUNCBODYDECLARATION, 0, 2, $1, $2); }
+                       | Declaration                          { $$ = ast_insert_node(NODE_FUNCBODYDECLARATION, 0, 1, $1); }
+                       ;
 
-FunctionBodyStatement: FunctionBodyStatement Statement  { myprintf2("FunctionBodyStatement\n"); }
-                     | StatementNotErrorSemi            { myprintf2("FunctionBodyStatement\n"); };
+FunctionBodyStatement: FunctionBodyStatement StatementCanError  { $$ = ast_insert_node(NODE_FUNCTIONBODYSTATEMENT, 0, 2, $1, $2); }
+                     | Statement                                { $$ = ast_insert_node(NODE_FUNCTIONBODYSTATEMENT, 0, 1, $1); }
+                     ;
 
-Declaration: TypeSpec Declarator CommaDeclarator SEMI { myprintf2("Declaration\n"); } // int a CommaDeclarator;
-           | error SEMI                               { myprintf2("Error Declaration\n"); };
+Declaration: TypeSpec DeclarationSecond SEMI  { if ($2 != NULL) { ast_add_typespec($1, $2); $$ = $2; } else { $$ = $2; } }
+           | error SEMI                       { $$ = NULL; }
+           ;
 
-CommaDeclarator: CommaDeclarator COMMA Declarator // int a, b, c, d ...*/
-               | /* empty */ {};
+DeclarationSecond: DeclarationSecond COMMA Declarator { $$ = ast_insert_node(NODE_DECLARATION, 0, 2, $1, $3); }
+                 | Declarator                         { $$ = $1; }
+                 ;
 
-Declarator: Id | Id LSQ INTLIT RSQ { myprintf2("Declarator\n"); };
+Declarator: Id                                 { $$ = ast_insert_node(NODE_DECLARATION, 1, 1, $1); }
+          | Asterisk Id                        { $$ = ast_insert_node(NODE_DECLARATION, 1, 2, $1, $2); }
+          | Id LSQ TerminalIntlit RSQ          { $$ = ast_insert_node(NODE_ARRAYDECLARATION, 1, 2, $1, $3); }
+          | Asterisk Id LSQ TerminalIntlit RSQ { $$ = ast_insert_node(NODE_ARRAYDECLARATION, 1, 3, $1, $2, $4); }
+          ;
 
-FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { myprintf2("FunctionDeclaration\n"); };
+TerminalIntlit: INTLIT { $$ = ast_insert_terminal(NODE_INTLIT, $1); }
+              ;
 
-TypeSpec: CHAR { myprintf2("TypeSpec CHAR\n"); }
-        | INT  { myprintf2("TypeSpec INT\n"); }
-        | VOID { myprintf2("TypeSpec VOID\n"); };
+FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { $$ = ast_insert_node(NODE_FUNCDECLARATION, 1, 2, $1, $2); }
+                   ;
 
-FunctionDeclarator: Id LPAR ParameterList RPAR              { myprintf2("FunctionDeclarator\n"); };
+TypeSpec: CHAR { $$ = ast_insert_terminal(NODE_CHAR, "Char"); }
+        | INT  { $$ = ast_insert_terminal(NODE_INT, "Int"); }
+        | VOID { $$ = ast_insert_terminal(NODE_VOID, "Void"); }
+        ;
 
-ParameterList: ParameterDeclaration                     { myprintf2("ParameterList\n"); }
-             | ParameterList COMMA ParameterDeclaration { myprintf2("ParameterList\n"); };
+FunctionDeclarator: Id LPAR ParameterList RPAR          { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 2, $1, $3); }
+                  | Asterisk Id LPAR ParameterList RPAR { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 3, $1, $2, $4); }
+                  ;
 
-ParameterDeclaration: TypeSpec Asterisk ID                  { myprintf2("ParameterDeclaration\n"); }
-                    | TypeSpec ID
-                    | TypeSpec Asterisk
-                    | TypeSpec
+ParameterList: ParameterList COMMA ParameterDeclaration { $1->to_use = 0; $$ = ast_insert_node(NODE_PARAMLIST, 1, 2, $1, $3); }
+             | ParameterDeclaration                     { $$ = ast_insert_node(NODE_PARAMLIST, 1, 1, $1); }
+             ;
+
+ParameterDeclaration: TypeSpec Asterisk Id { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 3, $1, $2, $3); }
+                    | TypeSpec Id          { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2); }
+                    | TypeSpec Asterisk    { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2); }
+                    | TypeSpec             { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 1, $1); }
                     ;
 
-Id: AST Id | ID { myprintf2("Id\n"); };
+Id: ID { $$ = ast_insert_terminal(NODE_ID, $1); }
+  ;
 
-Asterisk: Asterisk AST
-        | AST { myprintf2("Asterisk\n"); };
+Asterisk: Asterisk Ast { $$ = ast_insert_node(NODE_POINTER, 0, 2, $1, $2); }
+        | Ast          { $$ = ast_insert_node(NODE_POINTER, 0, 1, $1); }
+        ;
 
-StatementNotErrorSemi: CommaExpression SEMI                                                           { myprintf2("CommaExpression Statement\n"); }
-         | SEMI                                                                                       { myprintf2("SEMI Statement\n"); }
-         | LBRACE StatementList RBRACE                                                                { myprintf2("Block Statement\n"); }
-         | LBRACE RBRACE                                                                              { myprintf2("Block Statement\n"); }
-         | LBRACE error RBRACE                                                                        { myprintf2("Error Block Statement\n"); }
-         | IF LPAR CommaExpression RPAR Statement %prec THEN                                          { myprintf2("If Statement\n"); }
-         | IF LPAR CommaExpression RPAR Statement ELSE Statement                                      { myprintf2("If Else Statement\n"); }
-         | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { myprintf2("For Statement\n"); }
-         | RETURN CommaExpression SEMI                                                                { myprintf2("Return Statement\n");}
-         | RETURN SEMI                                                                                { myprintf2("Return Statement\n");}
+Ast: AST { $$ = ast_insert_terminal(NODE_POINTER, "Pointer"); }
+   ;
 
-Statement: CommaExpression SEMI                                                                       { myprintf2("CommaExpression Statement\n"); }
-         | SEMI                                                                                       { myprintf2("SEMI Statement\n"); }
-         | LBRACE StatementList RBRACE                                                                { myprintf2("Block Statement\n"); }
-         | LBRACE RBRACE                                                                              { myprintf2("Block Statement\n"); }
-         | LBRACE error RBRACE                                                                        { myprintf2("Error Block Statement\n"); }
-         | IF LPAR CommaExpression RPAR Statement %prec THEN                                          { myprintf2("If Statement\n"); }
-         | IF LPAR CommaExpression RPAR Statement ELSE Statement                                      { myprintf2("If Else Statement\n"); }
-         | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { myprintf2("For Statement\n"); }
-         | RETURN CommaExpression SEMI                                                                { myprintf2("Return Statement\n");}
-         | RETURN SEMI                                                                                { myprintf2("Return Statement\n");}
-         | error SEMI                                                                                 { myprintf2("Error Statement\n"); };
+StatementCanError: Statement { $$ = $1; }
+                 | error SEMI { $$ = NULL; }
+                 ;
 
-StatementList: StatementList Statement { myprintf2("StatementList\n"); }
-             | Statement            { myprintf2("StatementList\n"); };
+Statement: CommaExpression SEMI                                                                       { $$ = ast_insert_node(NODE_STATEMENT, 0, 1, $1); }
+         | SEMI                                                                                       { $$ = NULL; }
+         | LBRACE StatementList RBRACE                                                                { if ($2 != NULL && $2->n_childs >= 2) { $$ = ast_insert_node(NODE_STATLIST, 1, 1, $2); } else { $$ = $2; } }
+         | LBRACE RBRACE                                                                              { $$ = NULL; }
+         | LBRACE error RBRACE                                                                        { $$ = NULL; }
+         | IF LPAR CommaExpression RPAR Statement %prec THEN                                          { $3 = ast_fix_to_null($3); $5 = ast_fix_to_null($5); node_t *null_node = ast_insert_node(NODE_NULL, 1, 0); $$ = ast_insert_node(NODE_IF, 1, 3, $3, $5, null_node); }
+         | IF LPAR CommaExpression RPAR Statement ELSE Statement                                      { $3 = ast_fix_to_null($3); $5 = ast_fix_to_null($5); $7 = ast_fix_to_null($7); $$ = ast_insert_node(NODE_IF, 1, 3, $3, $5, $7); }
+         | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { $9 = ast_fix_to_null($9); $$ = ast_insert_node(NODE_FOR, 1, 4, $3, $5, $7, $9); }
+         | RETURN CommaExpression SEMI                                                                { $$ = ast_insert_node(NODE_RETURN, 1, 1, $2); }
+         | RETURN SEMI                                                                                { node_t* null_node = ast_insert_node(NODE_NULL, 1, 0); $$ = ast_insert_node(NODE_RETURN, 1, 1, null_node); }
+         ;
 
-ForCommaExpression: CommaExpression
-                  | /* empty */ {  };
+StatementList: StatementList StatementCanError { if ($1 == NULL && $2 != NULL) { $$ = ast_insert_node(NODE_STATLIST, 0, 1, $2); } else if ($1 != NULL && $2 == NULL) { $$ = ast_insert_node(NODE_STATLIST, 0, 1, $1); } else if ($1 != NULL && $2 != NULL) $$ = ast_insert_node(NODE_STATLIST, 0, 2, $1, $2); else { $$ = NULL; } }
+             | StatementCanError               { $$ = ast_insert_node(NODE_STATLIST, 0, 1, $1); }
+             ;
 
-CommaExpression: CommaExpression COMMA Expression { myprintf2("CommaExpression\n"); }
-               | Expression                       { myprintf2("CommaExpression\n"); };
+ForCommaExpression: CommaExpression { $$ = $1; }
+                  | /* empty */     { $$ = ast_insert_node(NODE_NULL, 1, 0); }
+                  ;
 
-Expression: Expression ASSIGN Expression    { myprintf2("Expression\n"); }
-          | Expression AND Expression       { myprintf2("Expression\n"); }
-          | Expression OR Expression        { myprintf2("Expression\n"); }
-          | Expression EQ Expression        { myprintf2("Expression\n"); }
-          | Expression NE Expression        { myprintf2("Expression\n"); }
-          | Expression LT Expression        { myprintf2("Expression\n"); }
-          | Expression GT Expression        { myprintf2("Expression\n"); }
-          | Expression LE Expression        { myprintf2("Expression\n"); }
-          | Expression GE Expression        { myprintf2("Expression\n"); }
-          | Expression AST Expression       { myprintf2("Expression\n"); }
-          | Expression PLUS Expression      { myprintf2("Expression\n"); }
-          | Expression MINUS Expression     { myprintf2("Expression\n"); }
-          | Expression DIV Expression       { myprintf2("Expression\n"); }
-          | Expression MOD Expression       { myprintf2("Expression\n"); }
-          | AMP Expression                  { myprintf2("Expression\n"); }
-          | AST Expression                  { myprintf2("Expression\n"); }
-          | PLUS Expression                 { myprintf2("Expression\n"); }
-          | MINUS Expression                { myprintf2("Expression\n"); }
-          | NOT Expression                  { myprintf2("Expression\n"); }
-          | Expression LSQ Expression RSQ   { myprintf2("Expression\n"); }
-          | ID LPAR ExpressionList RPAR     { myprintf2("Expression\n"); }
-          | ID                              { myprintf2("Expression\n"); }
-          | INTLIT                          { myprintf2("Expression\n"); }
-          | CHRLIT                          { myprintf2("Expression\n"); }
-          | STRLIT                          { myprintf2("Expression\n"); }
-          | LPAR Expression RPAR            { myprintf2("Expression\n"); }
-          | LPAR error RPAR                 { myprintf2("Expression\n"); }
-          | ID LPAR error RPAR              { myprintf2("Expression\n"); };
+CommaExpression: CommaExpression COMMA CommaExpression { $$ = ast_insert_node(NODE_COMMA, 1, 2, $1, $3); }
+               | Expression                            { $$ = $1; }
+               ;
 
-ExpressionList: CommaExpression | /* empty */ {};
+CommaExpressionTwo: CommaExpressionTwo COMMA CommaExpressionTwo { $$ = ast_insert_node(NODE_COMMA, 0, 2, $1, $3); }
+                  | Expression                            { $$ = $1; }
+                  ;
+
+Expression: Expression ASSIGN Expression         { $$ = ast_insert_node(NODE_STORE, 1, 2, $1, $3); }
+          | Expression AND Expression            { $$ = ast_insert_node(NODE_AND, 1, 2, $1, $3); }
+          | Expression OR Expression             { $$ = ast_insert_node(NODE_OR, 1, 2, $1, $3); }
+          | Expression EQ Expression             { $$ = ast_insert_node(NODE_EQ, 1, 2, $1, $3); }
+          | Expression NE Expression             { $$ = ast_insert_node(NODE_NE, 1, 2, $1, $3); }
+          | Expression LT Expression             { $$ = ast_insert_node(NODE_LT, 1, 2, $1, $3); }
+          | Expression GT Expression             { $$ = ast_insert_node(NODE_GT, 1, 2, $1, $3); }
+          | Expression LE Expression             { $$ = ast_insert_node(NODE_LE, 1, 2, $1, $3); }
+          | Expression GE Expression             { $$ = ast_insert_node(NODE_GE, 1, 2, $1, $3); }
+          | Expression AST Expression            { $$ = ast_insert_node(NODE_MUL, 1, 2, $1, $3); }
+          | Expression PLUS Expression           { $$ = ast_insert_node(NODE_ADD, 1, 2, $1, $3); }
+          | Expression MINUS Expression          { $$ = ast_insert_node(NODE_SUB, 1, 2, $1, $3); }
+          | Expression DIV Expression            { $$ = ast_insert_node(NODE_DIV, 1, 2, $1, $3); }
+          | Expression MOD Expression            { $$ = ast_insert_node(NODE_MOD, 1, 2, $1, $3); }
+          | AMP Expression                       { $$ = ast_insert_node(NODE_ADDR, 1, 1, $2); }
+          | AST Expression          %prec NOT    { $$ = ast_insert_node(NODE_DEREF, 1, 1, $2); }
+          | PLUS Expression         %prec NOT    { $$ = ast_insert_node(NODE_PLUS, 1, 1, $2); }
+          | MINUS Expression        %prec NOT    { $$ = ast_insert_node(NODE_MINUS, 1, 1, $2); }
+          | NOT Expression                       { $$ = ast_insert_node(NODE_NOT, 1, 1, $2); }
+          | Expression LSQ CommaExpression RSQ   { node_t* add = ast_insert_node(NODE_ADD, 1, 2, $1, $3); $$ = ast_insert_node(NODE_DEREF, 1, 1, add); }
+          | Id LPAR ExpressionList RPAR          { $$ = ast_insert_node(NODE_CALL, 1, 2, $1, $3); }
+          | Id                                   { $$ = ast_insert_node(NODE_EXPRESSION, 0, 1, $1); }
+          | INTLIT                               { $$ = ast_insert_terminal(NODE_INTLIT, $1); }
+          | CHRLIT                               { $$ = ast_insert_terminal(NODE_CHRLIT, $1); }
+          | STRLIT                               { $$ = ast_insert_terminal(NODE_STRLIT, $1); }
+          | LPAR CommaExpression RPAR            { $$ = ast_insert_node(NODE_EXPRESSION, 0, 1, $2); }
+          | LPAR error RPAR                      { $$ = NULL; }
+          | Id LPAR error RPAR                   { $$ = NULL; }
+          ;
+
+ExpressionList: CommaExpressionTwo { $$ = $1; }
+              | /* empty */        { $$ = NULL; }
+              ;
 %%
-
 int yyerror (char *s) {
+  where_there_errors = 1;
   printf("Line %d, col %d: %s: %s\n", yylineno, col - (int) yyleng, s, yytext);
   return 0;
 }
