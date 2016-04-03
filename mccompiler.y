@@ -123,14 +123,6 @@ ParameterDeclaration: TypeSpec Asterisk Id { $$ = ast_insert_node(NODE_PARAMDECL
                     | TypeSpec             { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 1, $1); }
                     ;
 
-/*Id: AST Id { $$ = ast_insert_terminal(NODE_POINTER, "Pointer"); } //TODO is this the right way to fix this? no.
-  | ID     { $$ = ast_insert_terminal(NODE_ID, $1); }
-  ;*/
-
-/*Id: Asterisk ID {  }
-  | ID          { $$ = ast_insert_terminal(NODE_ID, $1); }
-  ;*/
-
 Id: ID { $$ = ast_insert_terminal(NODE_ID, $1); }
   ;
 
@@ -156,9 +148,6 @@ Statement: CommaExpression SEMI                                                 
          | RETURN CommaExpression SEMI                                                                { $$ = ast_insert_node(NODE_RETURN, 1, 1, $2); }
          | RETURN SEMI                                                                                { node_t* null_node = ast_insert_node(NODE_NULL, 1, 0); $$ = ast_insert_node(NODE_RETURN, 1, 1, null_node); }
          ;
-
-//StatementList StatementCanError { printf("%d\n", $1->n_childs); if($1 == NULL && $2 == NULL) {$$ = ast_insert_node(NODE_STATLIST, 0, 2, $1, $2);} else if (($2 != NULL && $1->n_childs >= 1) || ($1 != NULL && $2 != NULL)){ $$ = ast_insert_node(NODE_STATLIST, 1, 2, $1, $2);}}
-// StatementList StatementCanError { int not_nulls = ast_count_not_nulls($1, $2); /*printf("n_nulls: %d\n", not_nulls);*/ if (not_nulls >= 2 && $1->type != 8) { $$ = ast_insert_node(NODE_STATLIST, 1, 2, $1, $2); } else { $$ = ast_insert_node(NODE_STATLIST, 0, 0); } }
 
 StatementList: StatementList StatementCanError { if ($1 == NULL && $2 != NULL) { $$ = ast_insert_node(NODE_STATLIST, 0, 1, $2); } else if ($1 != NULL && $2 == NULL) { $$ = ast_insert_node(NODE_STATLIST, 0, 1, $1); } else if ($1 != NULL && $2 != NULL) $$ = ast_insert_node(NODE_STATLIST, 0, 2, $1, $2); else { $$ = NULL; } }
              | StatementCanError               { $$ = ast_insert_node(NODE_STATLIST, 0, 1, $1); }
