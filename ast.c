@@ -86,9 +86,11 @@ node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...)
     }
   }
 
-  new_node->childs = (node_t **) malloc (nodes * sizeof(node_t *));
-  memcpy(new_node->childs, merge_nodes, nodes * sizeof(node_t *));
-  new_node->n_childs = nodes;
+  if (nodes != 0) {
+    new_node->childs = (node_t **) malloc (nodes * sizeof(node_t *));
+    memcpy(new_node->childs, merge_nodes, nodes * sizeof(node_t *));
+    new_node->n_childs = nodes;
+  }
 
   va_end(args);
   return new_node;
