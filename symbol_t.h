@@ -1,12 +1,13 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "ast.h"
 
 typedef enum {
-	CLASS_TABLE,
-	METHOD_TABLE,
-	VARIABLE,
-	METHOD
+  GLOBAL,
+	FUNC_TABLE,
+  VARIABLE,
+  RETURN_NODE
 } table_type_t;
 
 extern char* node_types[];
@@ -19,7 +20,7 @@ typedef struct sym_t {
 	char* id;
 
 	/*The type of the element - String[]; int[]; etc*/
-	nodetype_t *type;
+	type_t type;
 
 	/*In case the current table corresponds to a method, then this field tells us if the element is a parameter or not*/
 	int is_parameter;
