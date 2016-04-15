@@ -40,7 +40,7 @@ sym_t* st_analyze_ast(node_t *root) {
 }
 
 void st_print_table_element(sym_t* element) {
-
+  printf("%s\n", element->id);
 }
 
 void st_print_table(sym_t* table) {
@@ -54,7 +54,8 @@ void st_print_table(sym_t* table) {
   sym_t* cur_node = table;
 
   while (cur_node != NULL) {
-    printf("%s\n", cur_node->id);
+    st_print_table_element(cur_node);
+
     cur_node = cur_node->next;
   }
 }
