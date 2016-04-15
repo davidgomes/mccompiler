@@ -8,7 +8,9 @@
   #endif
 
   #include <stdarg.h>
+
   #include "ast.h"
+  #include "symbol_t.h"
 
   int col = 1, comment_start_col, comment_start_line;
   int flag_yylex = 0;
@@ -207,6 +209,15 @@ int main(int argc, char **argv) {
       }
 
       //ast_destroy(ast);
+    } else if (!strcmp(argv[1], "-s")) {
+      flag_errors = 1;
+      BEGIN ERRORS;
+      yyparse();
+
+      if (!where_there_errors) {
+        st = st_analyze_ast(ast);
+        st_print_table(st);
+      }
     }
   } else {
     flag_errors = 1;

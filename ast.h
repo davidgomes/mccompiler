@@ -13,7 +13,7 @@ typedef enum { NODE_PROGRAM, NODE_DECLARATION, NODE_ARRAYDECLARATION, NODE_FUNCD
   NODE_FUNCTIONBODYSTATEMENT, NODE_STATEMENT, NODE_ARRAYDECLARATOR, NODE_BLOCK, NODE_PROGRAM_BLOCK,
   NODE_EXPRESSION} nodetype_t;
 
-typedef struct node{
+typedef struct node {
   struct node *sibling_right;
   nodetype_t type;
   char* value;

@@ -11,3 +11,5 @@ ast
 mccompiler.output
 mccompiler.tab.c
 mccompiler.tab.h
+symbol_t
+mccompiler.dSYM/
