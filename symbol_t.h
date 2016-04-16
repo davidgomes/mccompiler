@@ -11,6 +11,7 @@ typedef enum {
 } table_type_t;
 
 extern char* node_types[];
+extern char* type_str[];
 
 typedef struct sym_t {
 	/*Tells us if the current element is the table of a class, the table of a method, a variable, or a method*/
