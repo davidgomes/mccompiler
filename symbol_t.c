@@ -18,6 +18,7 @@ sym_t *create_node(table_type_t node_type, char *name, type_t type) {
   memset(node, 0, sizeof(sym_t));
 
   node->type = type;
+  node->n_pointers = 0;
   node->is_parameter = 0;
   node->id = name;
   node->array_size = -1;
@@ -27,6 +28,21 @@ sym_t *create_node(table_type_t node_type, char *name, type_t type) {
   node->method_start = NULL;
 
   return node;
+}
+
+sym_t* create_variable_node(node_t *cur_node) {
+  int n_pointers = 0;
+
+  int cur_pointer = 1;
+  while (cur_node->childs[cur_pointer]->type == NODE_POINTER) {
+    n_pointers++;
+    cur_pointer++;
+  }
+
+  sym_t *new_node = create_node(VARIABLE, cur_node->childs[n_pointers + 1]->value, node_type_to_sym_type(cur_node->childs[0]->type));
+  new_node->n_pointers = n_pointers;
+
+  return new_node;
 }
 
 sym_t* st_analyze_ast(node_t *root) {
@@ -41,7 +57,7 @@ sym_t* st_analyze_ast(node_t *root) {
     sym_t* new_node;
 
     if (cur_node->type == NODE_DECLARATION) {
-      new_node = create_node(VARIABLE, cur_node->childs[1]->value, node_type_to_sym_type(cur_node->childs[0]->type));
+      new_node = create_variable_node(cur_node);
 
       last->next = new_node;
       last = new_node;
@@ -69,14 +85,29 @@ sym_t* st_analyze_ast(node_t *root) {
       for (int i = 0; i < param_list->n_childs; i++) {
         node_t* param_declaration = param_list->childs[i];
 
-        new_node = create_node(VARIABLE, param_declaration->childs[1]->value, node_type_to_sym_type(param_declaration->childs[0]->type));
+        //new_node = create_node(VARIABLE, param_declaration->childs[1]->value, node_type_to_sym_type(param_declaration->childs[0]->type));
+        new_node = create_variable_node(param_declaration);
         new_node->is_parameter = 1;
         last->next = new_node;
         last = new_node;
       }
 
       node_t *func_body = cur_node->childs[cur_node->n_childs - 1];
-      // todo body
+
+      for (int i = 0; i < func_body->n_childs - 1; i++) {
+        node_t *func_body_decl = func_body->childs[i];
+
+        if (func_body_decl->type == NODE_DECLARATION) {
+          new_node = create_variable_node(func_body_decl);
+
+          last->next = new_node;
+          last = new_node;
+        } else if (func_body_decl->type == NODE_ARRAYDECLARATION) {
+
+        } else {
+          break;
+        }
+      }
     }
 
     cur++;
@@ -84,6 +115,13 @@ sym_t* st_analyze_ast(node_t *root) {
   }
 
   return st;
+}
+
+void print_asterisks(int n_pointers) {
+  int i;
+  for (i = 0; i < n_pointers; i++) {
+    printf("*");
+  }
 }
 
 void st_print_table_element(sym_t* element) {
@@ -94,9 +132,21 @@ void st_print_table_element(sym_t* element) {
     printf("puts\tint(char*)\n");
   } else if (element->node_type == VARIABLE) {
     if (element->is_parameter) {
-      printf("%s\t%s\tparam\n", element->id, type_str[element->type]);
+      if (element->n_pointers == 0) {
+        printf("%s\t%s\tparam\n", element->id, type_str[element->type]);
+      } else {
+        printf("%s\t%s", element->id, type_str[element->type]);
+        print_asterisks(element->n_pointers);
+        printf("\tparam\n");
+      }
     } else {
-      printf("%s\t%s\n", element->id, type_str[element->type]);
+      if (element->n_pointers == 0) {
+        printf("%s\t%s\n", element->id, type_str[element->type]);
+      } else {
+        printf("%s\t%s", element->id, type_str[element->type]);
+        print_asterisks(element->n_pointers);
+        printf("\n");
+      }
     }
   } else if (element->node_type == ARRAY) {
     printf("%s\t%s[%d]\n", element->id, type_str[element->type], element->array_size);

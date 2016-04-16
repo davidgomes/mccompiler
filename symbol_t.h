@@ -22,10 +22,14 @@ typedef struct sym_t {
 	/*Name of the element (main, x, etc)*/
 	char* id;
 
+  /* size of the array */
   int array_size;
 
 	/*The type of the element - String[]; int[]; etc*/
 	type_t type;
+
+  /* number of asterisks to show after type */
+  int n_pointers;
 
 	/*In case the current table corresponds to a method, then this field tells us if the element is a parameter or not*/
 	int is_parameter;
