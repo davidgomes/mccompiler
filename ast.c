@@ -341,7 +341,7 @@ void ast_set_function_type(sym_t *st, node_t *call_node) {
 }
 
 void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
-  if (where->type == NODE_ARRAYDECLARATION || where->type == FUNC_DECLARATION ||
+  if (where->type == NODE_ARRAYDECLARATION || where->type == NODE_FUNCDECLARATION ||
       where->type == NODE_DECLARATION) {
     return;
   }
