@@ -234,6 +234,8 @@ type_t ast_find_type_in_st(sym_t *st, node_t *node_id, char* func_name) { // ler
     }
   }
 
+  cur_st_node = st->next;
+
   while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
     if (!strcmp(cur_st_node->id, node_id->value)) {
       return cur_st_node->type;
@@ -246,7 +248,9 @@ type_t ast_find_type_in_st(sym_t *st, node_t *node_id, char* func_name) { // ler
 
   while (cur_st_node != NULL) {
     if (cur_st_node->id != NULL) {
-      if (!strcmp(cur_st_node->id, func_name)) {
+      if (!strcmp(cur_st_node->id, func_name) && cur_st_node->node_type == FUNC_TABLE) {
+        cur_st_node = cur_st_node->next;
+
         while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
           if (cur_st_node->id != NULL) {
             if (!strcmp(cur_st_node->id, node_id->value)) {
@@ -309,8 +313,14 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
     }
   }
 
-  if (where->type == NODE_STORE) {
-    // TODO
+  if (where->type == NODE_EQ || where->type == NODE_GT) {
+    int i;
+
+    for (i = 0; i < where->n_childs; i++) {
+      if (where->childs[i]->an_type != TYPE_UNKNOWN) {
+        where->an_type = where->childs[i]->an_type;
+      }
+    }
   }
 }
 
