@@ -228,8 +228,6 @@ void ast_set_type_from_st(sym_t *st, node_t *node_id, char* func_name) { // ler 
     while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
       if (cur_st_node->node_type == FUNC_DECLARATION) {
         if (!strcmp(cur_st_node->id, node_id->value)) {
-          printf("it's a function!\n");
-
           node_id->an_type = cur_st_node->type;
           node_id->an_n_pointers = cur_st_node->n_pointers;
           node_id->an_params = cur_st_node->params;
