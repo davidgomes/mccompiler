@@ -23,9 +23,9 @@ sym_t *create_node(table_type_t node_type, char *name, type_t type) {
   node->id = name;
   node->array_size = -1;
   node->next = NULL;
-  node->table_method = NULL;
+  node->n_params = 0;
+  node->params = (sym_t**) malloc(sizeof(sym_t*));
   node->node_type = node_type;
-  node->method_start = NULL;
 
   return node;
 }
@@ -82,7 +82,24 @@ sym_t* st_analyze_ast(node_t *root) {
       last->next = new_node;
       last = new_node;
     } else if (cur_node->type == NODE_FUNCDECLARATION) {
+      new_node = create_node(FUNC_DECLARATION, cur_node->childs[1]->value, node_type_to_sym_type(cur_node->childs[0]->type));
+      last->next = new_node;
+      last = new_node;
 
+      node_t* param_list = cur_node->childs[2];
+
+      int i;
+      for (i = 0; i < param_list->n_childs; i++) {
+        node_t* param_declaration = param_list->childs[i];
+
+        if (param_declaration->n_childs == 1) { // int main(void); for instance
+          break;
+        }
+
+        new_node = create_variable_node(param_declaration);
+        new_node->is_parameter = 1;
+        last->params[last->n_params++] = new_node;
+      }
     } else if (cur_node->type == NODE_FUNCDEFINITION) {
       new_node = create_node(FUNC_TABLE, cur_node->childs[1]->value, node_type_to_sym_type(cur_node->childs[0]->type));
       last->next = new_node;
@@ -92,14 +109,13 @@ sym_t* st_analyze_ast(node_t *root) {
       last->next = new_node;
       last = new_node;
 
-      // todo paramlist
       node_t* param_list = cur_node->childs[2];
 
       int i;
-      for (int i = 0; i < param_list->n_childs; i++) {
+      for (i = 0; i < param_list->n_childs; i++) {
         node_t* param_declaration = param_list->childs[i];
 
-        if (param_declaration->n_childs == 1) { // int main(void) for instance
+        if (param_declaration->n_childs == 1) { // int main(void) { for instance
           break;
         }
 
@@ -174,7 +190,25 @@ void st_print_table_element(sym_t* element) {
       printf("[%d]\n", element->array_size);
     }
   } else if (element->node_type == FUNC_DECLARATION) {
+    printf("%s\t%s(", element->id, type_str[element->type]);
 
+    int i;
+    for (i = 0; i < element->n_params; i++) {
+      sym_t *arg = element->params[i];
+
+      if (arg->n_pointers == 0) {
+        printf("%s", type_str[arg->type]);
+      } else {
+        printf("%s", type_str[arg->type]);
+        print_asterisks(arg->n_pointers);
+      }
+
+      if (i != element->n_params - 1) {
+        printf(",");
+      }
+    }
+
+    printf(")\n");
   } else if (element->node_type == FUNC_TABLE) {
     printf("\n===== Function %s Symbol Table =====\n", element->id);
   } else if (element->node_type == RETURN_NODE) {

@@ -31,19 +31,15 @@ typedef struct sym_t {
   /* number of asterisks to show after type */
   int n_pointers;
 
+  /* function definitions need this */
+  int n_params;
+  struct sym_t** params;
+
 	/*In case the current table corresponds to a method, then this field tells us if the element is a parameter or not*/
 	int is_parameter;
 
 	/*Points to the next item on the table*/
 	struct sym_t* next;
-
-	/*In case we have a method point to the method symbolic table*/
-	struct sym_t* table_method;
-
-	/* Pointer to the node which contains the first statements of this method,
-	this is used later on for error checking, and might be used later on for code generation.
-	It should thus point to a MethodBody node, or NULL */
-	node_t* method_start;
 } sym_t;
 
 sym_t* st;
