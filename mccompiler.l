@@ -197,8 +197,14 @@ int main(int argc, char **argv) {
     } else if (!strcmp(argv[1], "-1")) {
       flag_errors = 1;
       BEGIN ERRORS;
-      while(flag_errors)
+
+      while (flag_errors) {
         yylex();
+      }
+    } else if (!strcmp(argv[1], "-2")) {
+      flag_errors = 1;
+      BEGIN ERRORS;
+      yyparse();
     } else if (!strcmp(argv[1], "-t")) {
       flag_errors = 1;
       BEGIN ERRORS;
@@ -214,7 +220,7 @@ int main(int argc, char **argv) {
       BEGIN ERRORS;
       yyparse();
 
-      if (!where_there_errors) {
+      if (!where_there_errors) { // todo verificar q nao houve erros semanticos tambem
         st = st_analyze_ast(ast);
         st_print_table(st);
       }
@@ -223,6 +229,7 @@ int main(int argc, char **argv) {
     flag_errors = 1;
     BEGIN ERRORS;
     yyparse();
+    // erros_semanticos ();
   }
 
   return 0;
