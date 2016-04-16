@@ -216,6 +216,24 @@ void ast_print_tree(node_t* n, int d) {
 type_t ast_find_type_in_st(sym_t *st, node_t *node_id, char* func_name) { // ler também nas declarations para chamada de funcoes nao definidas
   sym_t *cur_st_node = st->next;
 
+  if (func_name != NULL) { // find declaration
+    while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
+      if (cur_st_node->node_type == FUNC_DECLARATION) {
+        if (!strcmp(cur_st_node->id, func_name)) {
+          int i;
+
+          for (i = 0; i < cur_st_node->n_params; i++) {
+            if (!strcmp(cur_st_node->params[i]->id, node_id->value)) {
+              return cur_st_node->params[i]->type;
+            }
+          }
+        }
+      }
+
+      cur_st_node = cur_st_node->next;
+    }
+  }
+
   while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
     if (!strcmp(cur_st_node->id, node_id->value)) {
       return cur_st_node->type;
@@ -289,6 +307,10 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
     for (i = 0; i < where->n_childs; i++) {
       ast_an_tree(where->childs[i], st, func_name);
     }
+  }
+
+  if (where->type == NODE_STORE) {
+    // TODO
   }
 }
 

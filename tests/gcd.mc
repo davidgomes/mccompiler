@@ -1,13 +1,4 @@
-char a;
-
-int main(void) {
+int main(int d) {
   int c;
-
-  if (a) {
-
-  }
-
-  if (5) {
-
-  }
+  c = d;
 }
