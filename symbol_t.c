@@ -140,6 +140,26 @@ sym_t* st_analyze_ast(node_t *root) {
   sym_t* st = create_node(GLOBAL, "Global", TYPE_UNKNOWN);
   sym_t* last = st;
 
+  last->next = create_node(FUNC_DECLARATION, "atoi", TYPE_INT);
+  last->next->n_params = 1;
+  last->next->params[0] = create_node(VARIABLE, NULL, TYPE_CHAR);
+  last->next->params[0]->n_pointers = 1;
+  last = last->next;
+
+  last->next = create_node(FUNC_DECLARATION, "itoa", TYPE_CHAR);
+  last->next->n_pointers = 1;
+  last->next->n_params = 2;
+  last->next->params[0] = create_node(VARIABLE, NULL, TYPE_INT);
+  last->next->params[1] = create_node(VARIABLE, NULL, TYPE_CHAR);
+  last->next->params[1]->n_pointers = 1;
+  last = last->next;
+
+  last->next = create_node(FUNC_DECLARATION, "puts", TYPE_INT);
+  last->next->n_params = 1;
+  last->next->params[0] = create_node(VARIABLE, NULL, TYPE_CHAR);
+  last->next->params[0]->n_pointers = 1;
+  last = last->next;
+
   while (cur < root->n_childs) {
     if (cur_node->type == NODE_DECLARATION) {
       sym_t *new_node = create_variable_node(cur_node);
@@ -233,9 +253,6 @@ void print_asterisks(int n_pointers) {
 void st_print_table_element(sym_t* element) {
   if (element->node_type == GLOBAL) {
     printf("===== Global Symbol Table =====\n");
-    printf("atoi\tint(char*)\n");
-    printf("itoa\tchar*(int,char*)\n");
-    printf("puts\tint(char*)\n");
   } else if (element->node_type == VARIABLE) {
     if (element->is_parameter) {
       if (element->n_pointers == 0) {

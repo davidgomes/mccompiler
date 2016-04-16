@@ -281,6 +281,21 @@ char *ast_get_function_name(node_t *definition_node) {
   return definition_node->childs[cur_pointer]->value;
 }
 
+type_t ast_get_function_type(sym_t *st, node_t *call_node) {
+  sym_t *cur_st_node = st->next;
+  char *func_name = call_node->childs[0]->value;
+
+  while (cur_st_node != NULL & cur_st_node->node_type != FUNC_TABLE) {
+    if (!strcmp(cur_st_node->id, func_name)) {
+      return cur_st_node->type;
+    }
+
+    cur_st_node = cur_st_node->next;
+  }
+
+  return TYPE_UNKNOWN;
+}
+
 void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
   if (where->type == NODE_ARRAYDECLARATION || where->type == FUNC_DECLARATION ||
       where->type == NODE_DECLARATION) {
@@ -313,7 +328,7 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
     }
   }
 
-  if (where->type == NODE_EQ || where->type == NODE_GT || where->type == NODE_SUB) {
+  if (where->type == NODE_EQ || where->type == NODE_GT || where->type == NODE_SUB || where->type == NODE_ADD) {
     int i;
 
     for (i = 0; i < where->n_childs; i++) {
@@ -329,6 +344,8 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
         where->an_type = where->childs[i]->an_type;
       }
     }
+  } else if (where->type == NODE_CALL) {
+    where->an_type = ast_get_function_type(st, where);
   }
 }
 
