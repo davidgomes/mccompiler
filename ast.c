@@ -251,6 +251,16 @@ type_t ast_find_type_in_st(sym_t *st, node_t *node_id, char* func_name) { // ler
   return TYPE_UNKNOWN;
 }
 
+char *ast_get_function_name(node_t *definition_node) {
+  int cur_pointer = 1;
+
+  while (definition_node->childs[cur_pointer]->type == NODE_POINTER) {
+    cur_pointer++;
+  }
+
+  return definition_node->childs[cur_pointer]->value;
+}
+
 void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
   if (where->type == NODE_ARRAYDECLARATION || where->type == FUNC_DECLARATION ||
       where->type == NODE_DECLARATION) {
@@ -267,7 +277,7 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
 
   int i;
   if (where->type == NODE_FUNCDEFINITION) {
-    func_name = where->value;
+    func_name = (char *) strdup(ast_get_function_name(where));
 
     int i;
 
