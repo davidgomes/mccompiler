@@ -1,1 +1,1 @@
-int main(int b, int **c);
+int **main(int b, int **c);
