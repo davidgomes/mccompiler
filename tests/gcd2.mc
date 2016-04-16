@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
     b = atoi(argv[2]);
     puts(itoa(gcd(a, b), buffer));
   } else
-    puts("Error: two parameters required");
+    puts("Error: two parameters required.");
 
   return 0;
 }

@@ -94,6 +94,6 @@ Program
 ..............Id(buffer) - char[20]
 ........Call - int
 ..........Id(puts) - int(char*)
-..........StrLit("Error: two parameters required.") - char[32]
+..........StrLit("Error: two parameters required.") - char[33]
 ......Return
 ........IntLit(0) - int
