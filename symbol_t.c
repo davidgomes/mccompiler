@@ -199,7 +199,10 @@ sym_t* st_analyze_ast(node_t *root) {
           last->next = new_node;
           last = new_node;
         } else if (func_body_decl->type == NODE_ARRAYDECLARATION) {
+          new_node = create_array_node(func_body_decl);
 
+          last->next = new_node;
+          last = new_node;
         } else {
           break;
         }
