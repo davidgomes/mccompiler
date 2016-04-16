@@ -136,7 +136,10 @@ node_t* ast_create_node(nodetype_t nodetype, int to_use) {
   self->to_use = to_use;
   self->n_childs = 0;
   self->childs = NULL;
+
   self->an_type = TYPE_UNKNOWN;
+  self->an_n_pointers = 0;
+  self->an_array_size = -1;
   return self;
 }
 
@@ -213,7 +216,7 @@ void ast_print_tree(node_t* n, int d) {
   }
 }
 
-type_t ast_find_type_in_st(sym_t *st, node_t *node_id, char* func_name) { // ler também nas declarations para chamada de funcoes nao definidas
+type_t ast_set_type_from_st(sym_t *st, node_t *node_id, char* func_name) { // ler também nas declarations para chamada de funcoes nao definidas
   sym_t *cur_st_node = st->next;
 
   if (func_name != NULL) { // find declaration
@@ -224,7 +227,9 @@ type_t ast_find_type_in_st(sym_t *st, node_t *node_id, char* func_name) { // ler
 
           for (i = 0; i < cur_st_node->n_params; i++) {
             if (!strcmp(cur_st_node->params[i]->id, node_id->value)) {
-              return cur_st_node->params[i]->type;
+              node_id->an_type = cur_st_node->params[i]->type;
+              node_id->an_n_pointers = cur_st_node->n_pointers;
+              node_id->an_array_size = cur_st_node->array_size;
             }
           }
         }
@@ -238,7 +243,9 @@ type_t ast_find_type_in_st(sym_t *st, node_t *node_id, char* func_name) { // ler
 
   while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
     if (!strcmp(cur_st_node->id, node_id->value)) {
-      return cur_st_node->type;
+      node_id->an_type = cur_st_node->type;
+      node_id->an_n_pointers = cur_st_node->n_pointers;
+      node_id->an_array_size = cur_st_node->array_size;
     }
 
     cur_st_node = cur_st_node->next;
@@ -254,7 +261,9 @@ type_t ast_find_type_in_st(sym_t *st, node_t *node_id, char* func_name) { // ler
         while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
           if (cur_st_node->id != NULL) {
             if (!strcmp(cur_st_node->id, node_id->value)) {
-              return cur_st_node->type;
+              node_id->an_type = cur_st_node->type;
+              node_id->an_n_pointers = cur_st_node->n_pointers;
+              node_id->an_array_size = cur_st_node->array_size;
             }
           }
 
@@ -281,19 +290,18 @@ char *ast_get_function_name(node_t *definition_node) {
   return definition_node->childs[cur_pointer]->value;
 }
 
-type_t ast_get_function_type(sym_t *st, node_t *call_node) {
+void ast_set_function_type(sym_t *st, node_t *call_node) {
   sym_t *cur_st_node = st->next;
   char *func_name = call_node->childs[0]->value;
 
   while (cur_st_node != NULL & cur_st_node->node_type != FUNC_TABLE) {
     if (!strcmp(cur_st_node->id, func_name)) {
-      return cur_st_node->type;
+      call_node->an_type = cur_st_node->type;
+      call_node->an_n_pointers = cur_st_node->n_pointers;
     }
 
     cur_st_node = cur_st_node->next;
   }
-
-  return TYPE_UNKNOWN;
 }
 
 void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
@@ -307,7 +315,7 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
   }
 
   if (where->type == NODE_ID) {
-    where->an_type = ast_find_type_in_st(st, where, func_name);
+    ast_set_type_from_st(st, where, func_name);
   }
 
   int i;
@@ -345,7 +353,15 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
       }
     }
   } else if (where->type == NODE_CALL) {
-    where->an_type = ast_get_function_type(st, where);
+    ast_set_function_type(st, where);
+  }
+}
+
+void print_asterisks2(int n_pointers) {
+  int i;
+
+  for (i = 0; i < n_pointers; i++) {
+    printf("*");
   }
 }
 
@@ -354,13 +370,17 @@ void ast_print_an_node(node_t* n) {
     if (n->an_type == TYPE_UNKNOWN) {
       printf("%s(%s)\n", node_types[n->type], n->value);
     } else {
-      printf("%s(%s) - %s\n", node_types[n->type], n->value, type_str[n->an_type]);
+      printf("%s(%s) - %s", node_types[n->type], n->value, type_str[n->an_type]);
+      print_asterisks2(n->an_n_pointers);
+      printf("\n");
     }
   } else {
     if (n->an_type == TYPE_UNKNOWN) {
       printf("%s\n", node_types[n->type]);
     } else {
-      printf("%s - %s\n", node_types[n->type], type_str[n->an_type]);
+      printf("%s - %s", node_types[n->type], type_str[n->an_type]);
+      print_asterisks2(n->an_n_pointers);
+      printf("\n");
     }
   }
 }
