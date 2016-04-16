@@ -6,6 +6,8 @@
 typedef enum {
   GLOBAL,
 	FUNC_TABLE,
+  FUNC_DEFINITION,
+  ARRAY,
   VARIABLE,
   RETURN_NODE
 } table_type_t;
@@ -19,6 +21,8 @@ typedef struct sym_t {
 
 	/*Name of the element (main, x, etc)*/
 	char* id;
+
+  int array_size;
 
 	/*The type of the element - String[]; int[]; etc*/
 	type_t type;
