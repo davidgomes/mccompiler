@@ -314,6 +314,11 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
     where->an_type = node_type_to_sym_type(where->type);
   }
 
+  if (where->type == NODE_STRLIT) {
+    where->an_type = TYPE_CHAR;
+    where->an_array_size = strlen(where->value);
+  }
+
   if (where->type == NODE_ID) {
     ast_set_type_from_st(st, where, func_name);
   }
@@ -372,6 +377,11 @@ void ast_print_an_node(node_t* n) {
     } else {
       printf("%s(%s) - %s", node_types[n->type], n->value, type_str[n->an_type]);
       print_asterisks2(n->an_n_pointers);
+
+      if (n->an_array_size > 0) {
+        printf("[%d]", n->an_array_size);
+      }
+
       printf("\n");
     }
   } else {
@@ -380,6 +390,11 @@ void ast_print_an_node(node_t* n) {
     } else {
       printf("%s - %s", node_types[n->type], type_str[n->an_type]);
       print_asterisks2(n->an_n_pointers);
+
+      if (n->an_array_size > 0) {
+        printf("[%d]", n->an_array_size);
+      }
+
       printf("\n");
     }
   }
