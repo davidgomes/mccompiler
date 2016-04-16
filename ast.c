@@ -213,12 +213,14 @@ void ast_print_tree(node_t* n, int d) {
   }
 }
 
-type_t ast_find_type_in_st(sym_t *st, node_t *node_id) {
+type_t ast_find_type_in_st(sym_t *st, node_t *node_id, char* func_name) {
   sym_t *cur_st_node = st;
 
   while (cur_st_node != NULL) {
-    if (!strcmp(cur_st_node->id, node_id->value)) {
-      return cur_st_node->type;
+    if (cur_st_node->id != NULL) {
+      if (!strcmp(cur_st_node->id, node_id->value)) {
+        return cur_st_node->type;
+      }
     }
 
     cur_st_node = cur_st_node->next;
@@ -238,7 +240,7 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
   }
 
   if (where->type == NODE_ID) {
-    where->an_type = ast_find_type_in_st(st, where);
+    where->an_type = ast_find_type_in_st(st, where, func_name);
   }
 
   int i;
