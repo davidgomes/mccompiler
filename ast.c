@@ -71,6 +71,18 @@ char *type_str[] = {
   "unknown"
 };
 
+type_t node_type_to_sym_type(nodetype_t type) {
+  if (type == NODE_INT || type == NODE_INTLIT) {
+    return TYPE_INT;
+  } else if (type == NODE_CHAR || type == NODE_CHRLIT) {
+    return TYPE_CHAR;
+  } else if (type == NODE_VOID) {
+    return TYPE_VOID;
+  }
+
+  return TYPE_UNKNOWN;
+}
+
 node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...) {
   //printf("Inserting new node: %s\n", node_types[nodetype]);
   node_t *new_node, **tmp;
@@ -124,6 +136,7 @@ node_t* ast_create_node(nodetype_t nodetype, int to_use) {
   self->to_use = to_use;
   self->n_childs = 0;
   self->childs = NULL;
+  self->an_type = TYPE_UNKNOWN;
   return self;
 }
 
@@ -200,9 +213,25 @@ void ast_print_tree(node_t* n, int d) {
   }
 }
 
+void ast_an_tree(node_t *where) {
+  if (where->type == NODE_INTLIT || where->type == NODE_CHRLIT) {
+    where->an_type = node_type_to_sym_type(where->type);
+  }
+
+  int i;
+
+  for (i = 0; i < where->n_childs; i++) {
+    ast_an_tree(where->childs[i]);
+  }
+}
+
 void ast_print_an_node(node_t* n) {
   if (n->type == NODE_ID || n->type == NODE_CHRLIT || n->type == NODE_INTLIT || n->type == NODE_STRLIT) {
-    printf("%s(%s) - %s\n", node_types[n->type], n->value, "int");
+    if (n->an_type == TYPE_UNKNOWN) {
+      printf("%s(%s)\n", node_types[n->type], n->value);
+    } else {
+      printf("%s(%s) - %s\n", node_types[n->type], n->value, type_str[n->an_type]);
+    }
   } else {
     printf("%s\n", node_types[n->type]);
   }

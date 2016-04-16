@@ -44,7 +44,6 @@ typedef struct sym_t {
 
 sym_t* st;
 
-type_t node_type_to_sym_type(nodetype_t type);
 sym_t* st_analyze_ast(node_t *root);
 void st_print_table_element(sym_t* element);
 void st_print_table(sym_t* table);

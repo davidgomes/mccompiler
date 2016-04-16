@@ -1,17 +1,5 @@
 #include "symbol_t.h"
 
-type_t node_type_to_sym_type(nodetype_t type) {
-  if (type == NODE_INT) {
-    return TYPE_INT;
-  } else if (type == NODE_CHAR) {
-    return TYPE_CHAR;
-  } else if (type == NODE_VOID) {
-    return TYPE_VOID;
-  }
-
-  return TYPE_UNKNOWN;
-}
-
 sym_t *create_node(table_type_t node_type, char *name, type_t type) {
   sym_t* node = (sym_t*) malloc(sizeof(sym_t));
 

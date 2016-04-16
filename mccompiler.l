@@ -224,6 +224,7 @@ int main(int argc, char **argv) {
         st = st_analyze_ast(ast);
         st_print_table(st);
         printf("\n");
+        ast_an_tree(ast);
         ast_print_an_tree(ast, 0);
       }
     }
