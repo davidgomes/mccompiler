@@ -1,4 +1,7 @@
 int main(int d) {
-  int ***c;
-  *c = 5;
+  int *c;
+  int e;
+
+  *c = &d;
+  e = 7;
 }
