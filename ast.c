@@ -199,3 +199,23 @@ void ast_print_tree(node_t* n, int d) {
     ast_print_tree(n->childs[i], d+1);
   }
 }
+
+void ast_print_an_node(node_t* n) {
+  if (n->type == NODE_ID || n->type == NODE_CHRLIT || n->type == NODE_INTLIT || n->type == NODE_STRLIT) {
+    printf("%s(%s) - %s\n", node_types[n->type], n->value, "int");
+  } else {
+    printf("%s\n", node_types[n->type]);
+  }
+}
+
+void ast_print_an_tree(node_t* n, int d) {
+  int i, k;
+  for (k = 0; k < d; k++)
+    printf("..");
+
+  ast_print_an_node(n);
+
+  for (i = 0; i < n->n_childs; i++) {
+    ast_print_an_tree(n->childs[i], d+1);
+  }
+}

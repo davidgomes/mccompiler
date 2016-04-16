@@ -223,6 +223,8 @@ int main(int argc, char **argv) {
       if (!where_there_errors) { // todo verificar q nao houve erros semanticos tambem
         st = st_analyze_ast(ast);
         st_print_table(st);
+        printf("\n");
+        ast_print_an_tree(ast, 0);
       }
     }
   } else {
