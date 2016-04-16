@@ -313,11 +313,19 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
     }
   }
 
-  if (where->type == NODE_EQ || where->type == NODE_GT) {
+  if (where->type == NODE_EQ || where->type == NODE_GT || where->type == NODE_SUB) {
     int i;
 
     for (i = 0; i < where->n_childs; i++) {
       if (where->childs[i]->an_type != TYPE_UNKNOWN) {
+        where->an_type = where->childs[i]->an_type;
+      }
+    }
+  } else if (where->type == NODE_STORE) {
+    int i;
+
+    for (i = 0; i < where->n_childs; i++) {
+      if (where->childs[i]->type == NODE_ID) {
         where->an_type = where->childs[i]->an_type;
       }
     }
@@ -332,7 +340,11 @@ void ast_print_an_node(node_t* n) {
       printf("%s(%s) - %s\n", node_types[n->type], n->value, type_str[n->an_type]);
     }
   } else {
-    printf("%s\n", node_types[n->type]);
+    if (n->an_type == TYPE_UNKNOWN) {
+      printf("%s\n", node_types[n->type]);
+    } else {
+      printf("%s - %s\n", node_types[n->type], type_str[n->an_type]);
+    }
   }
 }
 
