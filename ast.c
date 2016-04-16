@@ -213,15 +213,49 @@ void ast_print_tree(node_t* n, int d) {
   }
 }
 
-void ast_an_tree(node_t *where) {
+type_t ast_find_type_in_st(sym_t *st, node_t *node_id) {
+  sym_t *cur_st_node = st;
+
+  while (cur_st_node != NULL) {
+    if (!strcmp(cur_st_node->id, node_id->value)) {
+      return cur_st_node->type;
+    }
+
+    cur_st_node = cur_st_node->next;
+  }
+
+  return TYPE_UNKNOWN;
+}
+
+void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
+  if (where->type == NODE_ARRAYDECLARATION || where->type == FUNC_DECLARATION ||
+      where->type == NODE_DECLARATION) {
+    return;
+  }
+
   if (where->type == NODE_INTLIT || where->type == NODE_CHRLIT) {
     where->an_type = node_type_to_sym_type(where->type);
   }
 
-  int i;
+  if (where->type == NODE_ID) {
+    where->an_type = ast_find_type_in_st(st, where);
+  }
 
-  for (i = 0; i < where->n_childs; i++) {
-    ast_an_tree(where->childs[i]);
+  int i;
+  if (where->type == NODE_FUNCDEFINITION) {
+    func_name = where->value;
+
+    int i;
+
+    for (i = 0; i < where->n_childs; i++) {
+      if (where->childs[i]->type == NODE_FUNCBODY) {
+        ast_an_tree(where->childs[i], st, func_name);
+      }
+    }
+  } else {
+    for (i = 0; i < where->n_childs; i++) {
+      ast_an_tree(where->childs[i], st, func_name);
+    }
   }
 }
 
