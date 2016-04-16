@@ -216,17 +216,15 @@ void ast_print_tree(node_t* n, int d) {
 type_t ast_find_type_in_st(sym_t *st, node_t *node_id, char* func_name) { // ler também nas declarations para chamada de funcoes nao definidas
   sym_t *cur_st_node = st->next;
 
-  if (func_name == NULL) {
-    while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
-      if (!strcmp(cur_st_node->id, node_id->value)) {
-        return cur_st_node->type;
-      }
-
-      cur_st_node = cur_st_node->next;
+  while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
+    if (!strcmp(cur_st_node->id, node_id->value)) {
+      return cur_st_node->type;
     }
 
-    return TYPE_UNKNOWN;
+    cur_st_node = cur_st_node->next;
   }
+
+  cur_st_node = st->next;
 
   while (cur_st_node != NULL) {
     if (cur_st_node->id != NULL) {
