@@ -74,6 +74,24 @@ sym_t* create_declaration_node(node_t *cur_node) {
   return new_node;
 }
 
+sym_t* create_func_table_node(node_t *cur_node) {
+  int n_pointers = 0;
+
+  int cur_pointer = 1;
+  while (cur_node->childs[cur_pointer]->type == NODE_POINTER) {
+    n_pointers++;
+    cur_pointer++;
+  }
+
+  sym_t *new_node = create_node(FUNC_TABLE, cur_node->childs[n_pointers + 1]->value, node_type_to_sym_type(cur_node->childs[0]->type));
+  new_node->n_pointers = n_pointers;
+  return new_node;
+}
+
+void add_declaration_to_top(sym_t *definition) {
+
+}
+
 sym_t* st_analyze_ast(node_t *root) {
   if (!root) { return NULL; }
 
@@ -115,15 +133,18 @@ sym_t* st_analyze_ast(node_t *root) {
         last->params[last->n_params++] = new_node;
       }
     } else if (cur_node->type == NODE_FUNCDEFINITION) {
-      new_node = create_node(FUNC_TABLE, cur_node->childs[1]->value, node_type_to_sym_type(cur_node->childs[0]->type));
+      new_node = create_func_table_node(cur_node);
       last->next = new_node;
       last = new_node;
+
+      int func_pointers = new_node->n_pointers;
 
       new_node = create_node(RETURN_NODE, NULL, node_type_to_sym_type(cur_node->childs[0]->type));
+      new_node->n_pointers = func_pointers;
       last->next = new_node;
       last = new_node;
 
-      node_t* param_list = cur_node->childs[2];
+      node_t* param_list = cur_node->childs[new_node->n_pointers + 2];
 
       int i;
       for (i = 0; i < param_list->n_childs; i++) {
@@ -232,7 +253,9 @@ void st_print_table_element(sym_t* element) {
   } else if (element->node_type == FUNC_TABLE) {
     printf("\n===== Function %s Symbol Table =====\n", element->id);
   } else if (element->node_type == RETURN_NODE) {
-    printf("return\t%s\n", type_str[element->type]);
+    printf("return\t%s", type_str[element->type]);
+    print_asterisks(element->n_pointers);
+    printf("\n");
   }
 }
 
