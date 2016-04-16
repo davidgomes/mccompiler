@@ -1,7 +1,5 @@
-int main(int d) {
-  int *c;
-  int e;
+int f(int a);
 
-  *c = &d;
-  e = 7;
+int main(int d) {
+  f(d);
 }

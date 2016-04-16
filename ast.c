@@ -250,6 +250,7 @@ void ast_set_type_from_st(sym_t *st, node_t *node_id, char* func_name) { // ler 
   }
 
   // if we got here, then it's not a function but yes a variable
+  cur_st_node = st->next;
 
   if (func_name != NULL) { // find declaration
     while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
@@ -376,7 +377,10 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
     }
   }
 
-  if (where->type == NODE_EQ || where->type == NODE_GT || where->type == NODE_SUB || where->type == NODE_ADD) {
+  if (where->type == NODE_EQ || where->type == NODE_GT || where->type == NODE_SUB || where->type == NODE_ADD ||
+      where->type == NODE_AND || where->type == NODE_NE || where->type == NODE_LT || where->type == NODE_GE ||
+      where->type == NODE_LE || where->type == NODE_MUL || where->type == NODE_DIV || where->type == NODE_MOD ||
+      where->type == NODE_NOT) {
     int i;
 
     for (i = 0; i < where->n_childs; i++) {
