@@ -5,6 +5,8 @@ type_t node_type_to_sym_type(nodetype_t type) {
     return TYPE_INT;
   } else if (type == NODE_CHAR) {
     return TYPE_CHAR;
+  } else if (type == NODE_VOID) {
+    return TYPE_VOID;
   }
 
   return TYPE_UNKNOWN;
@@ -40,9 +42,15 @@ sym_t* st_analyze_ast(node_t *root) {
 
     if (cur_node->type == NODE_DECLARATION) {
       new_node = create_node(VARIABLE, cur_node->childs[1]->value, node_type_to_sym_type(cur_node->childs[0]->type));
+
+      last->next = new_node;
+      last = new_node;
     } else if (cur_node->type == NODE_ARRAYDECLARATION) {
       new_node = create_node(ARRAY, cur_node->childs[1]->value, node_type_to_sym_type(cur_node->childs[0]->type));
       new_node->array_size = atoi(cur_node->childs[2]->value);
+
+      last->next = new_node;
+      last = new_node;
     } else if (cur_node->type == NODE_FUNCDECLARATION) {
 
     } else if (cur_node->type == NODE_FUNCDEFINITION) {
@@ -51,17 +59,28 @@ sym_t* st_analyze_ast(node_t *root) {
       last = new_node;
 
       new_node = create_node(RETURN_NODE, NULL, node_type_to_sym_type(cur_node->childs[0]->type));
+      last->next = new_node;
+      last = new_node;
 
       // todo paramlist
-      node_t *param_list = cur_node->childs[2];
+      node_t* param_list = cur_node->childs[2];
+
+      int i;
+      for (int i = 0; i < param_list->n_childs; i++) {
+        node_t* param_declaration = param_list->childs[i];
+
+        new_node = create_node(VARIABLE, param_declaration->childs[1]->value, node_type_to_sym_type(param_declaration->childs[0]->type));
+        new_node->is_parameter = 1;
+        last->next = new_node;
+        last = new_node;
+      }
 
       node_t *func_body = cur_node->childs[cur_node->n_childs - 1];
       // todo body
     }
 
-    last->next = new_node;
-    last = new_node;
-    cur_node = root->childs[++cur];
+    cur++;
+    cur_node = root->childs[cur];
   }
 
   return st;
@@ -74,7 +93,11 @@ void st_print_table_element(sym_t* element) {
     printf("itoa\tchar*(int,char*)\n");
     printf("puts\tint(char*)\n");
   } else if (element->node_type == VARIABLE) {
-    printf("%s\t%s\n", element->id, type_str[element->type]);
+    if (element->is_parameter) {
+      printf("%s\t%s\tparam\n", element->id, type_str[element->type]);
+    } else {
+      printf("%s\t%s\n", element->id, type_str[element->type]);
+    }
   } else if (element->node_type == ARRAY) {
     printf("%s\t%s[%d]\n", element->id, type_str[element->type], element->array_size);
   } else if (element->node_type == FUNC_DEFINITION) {
