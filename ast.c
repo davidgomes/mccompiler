@@ -316,7 +316,7 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
 
   if (where->type == NODE_STRLIT) {
     where->an_type = TYPE_CHAR;
-    where->an_array_size = strlen(where->value);
+    where->an_array_size = strlen(where->value) - 2 + 1; // remove the two quotes ("") and add the null byte
   }
 
   if (where->type == NODE_ID) {
