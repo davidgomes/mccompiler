@@ -140,6 +140,10 @@ node_t* ast_create_node(nodetype_t nodetype, int to_use) {
   self->an_type = TYPE_UNKNOWN;
   self->an_n_pointers = 0;
   self->an_array_size = -1;
+
+  self->an_n_params = 0;
+  self->an_params = (sym_t**) malloc(sizeof(sym_t*));
+
   return self;
 }
 
@@ -216,8 +220,38 @@ void ast_print_tree(node_t* n, int d) {
   }
 }
 
-type_t ast_set_type_from_st(sym_t *st, node_t *node_id, char* func_name) { // ler também nas declarations para chamada de funcoes nao definidas
+void ast_set_type_from_st(sym_t *st, node_t *node_id, char* func_name) { // ler também nas declarations para chamada de funcoes nao definidas, no fim.
   sym_t *cur_st_node = st->next;
+
+  // first thing to do is verify if node_id corresponds to a function
+  if (func_name != NULL) { // find declaration
+    while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
+      if (cur_st_node->node_type == FUNC_DECLARATION) {
+        if (!strcmp(cur_st_node->id, node_id->value)) {
+          printf("it's a function!\n");
+
+          node_id->an_type = cur_st_node->type;
+          node_id->an_n_pointers = cur_st_node->n_pointers;
+          node_id->an_params = cur_st_node->params;
+          node_id->an_n_params = cur_st_node->n_params;
+
+          int i;
+          for (i = 0; i < cur_st_node->n_params; i++) {
+            sym_t *param = (sym_t*) malloc(sizeof(sym_t));
+            param->type = cur_st_node->params[i]->type;
+            param->n_pointers = cur_st_node->params[i]->n_pointers;
+            node_id->an_params[i] = param;
+          }
+
+          return;
+        }
+      }
+
+      cur_st_node = cur_st_node->next;
+    }
+  }
+
+  // if we got here, then it's not a function but yes a variable
 
   if (func_name != NULL) { // find declaration
     while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
@@ -230,6 +264,7 @@ type_t ast_set_type_from_st(sym_t *st, node_t *node_id, char* func_name) { // le
               node_id->an_type = cur_st_node->params[i]->type;
               node_id->an_n_pointers = cur_st_node->n_pointers;
               node_id->an_array_size = cur_st_node->array_size;
+              return;
             }
           }
         }
@@ -246,6 +281,7 @@ type_t ast_set_type_from_st(sym_t *st, node_t *node_id, char* func_name) { // le
       node_id->an_type = cur_st_node->type;
       node_id->an_n_pointers = cur_st_node->n_pointers;
       node_id->an_array_size = cur_st_node->array_size;
+      return;
     }
 
     cur_st_node = cur_st_node->next;
@@ -264,20 +300,21 @@ type_t ast_set_type_from_st(sym_t *st, node_t *node_id, char* func_name) { // le
               node_id->an_type = cur_st_node->type;
               node_id->an_n_pointers = cur_st_node->n_pointers;
               node_id->an_array_size = cur_st_node->array_size;
+              return;
             }
           }
 
           cur_st_node = cur_st_node->next;
         }
 
-        return TYPE_UNKNOWN;
+        return;
       }
     }
 
     cur_st_node = cur_st_node->next;
   }
 
-  return TYPE_UNKNOWN;
+  node_id->an_type = TYPE_UNKNOWN;
 }
 
 char *ast_get_function_name(node_t *definition_node) {
@@ -374,6 +411,23 @@ void ast_print_an_node(node_t* n) {
   if (n->type == NODE_ID || n->type == NODE_CHRLIT || n->type == NODE_INTLIT || n->type == NODE_STRLIT) {
     if (n->an_type == TYPE_UNKNOWN) {
       printf("%s(%s)\n", node_types[n->type], n->value);
+    } else if (n->an_n_params > 0) {
+      printf("%s(%s) - %s", node_types[n->type], n->value, type_str[n->an_type]);
+      print_asterisks2(n->an_n_pointers);
+      printf("(");
+
+      int i;
+
+      for (i = 0; i < n->an_n_params; i++) {
+        sym_t *arg = n->an_params[i];
+
+        printf("%s", type_str[arg->type]);
+        print_asterisks2(arg->n_pointers);
+
+        if (i != n->an_n_params - 1) printf(",");
+      }
+
+      printf(")\n");
     } else {
       printf("%s(%s) - %s", node_types[n->type], n->value, type_str[n->an_type]);
       print_asterisks2(n->an_n_pointers);
