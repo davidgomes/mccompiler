@@ -282,6 +282,7 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
     for (i = 0; i < where->n_childs; i++) {
       if (where->childs[i]->type == NODE_FUNCBODY) {
         ast_an_tree(where->childs[i], st, func_name);
+        break;
       }
     }
   } else {
