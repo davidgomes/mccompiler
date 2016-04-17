@@ -215,7 +215,9 @@ sym_t* st_analyze_ast(node_t *root) {
 
       node_t *func_body = cur_node->childs[cur_node->n_childs - 1];
 
-      for (int i = 0; i < func_body->n_childs - 1; i++) {
+      for (int i = 0; i < func_body->n_childs; i++) {
+        if (func_body->childs[i]->type == NODE_RETURN) break;
+
         node_t *func_body_decl = func_body->childs[i];
 
         if (func_body_decl->type == NODE_DECLARATION) {
