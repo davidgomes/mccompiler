@@ -68,7 +68,8 @@ char *type_str[] = {
   "char",
   "int",
 
-  "unknown"
+  "unknown",
+  "undef"
 };
 
 type_t node_type_to_sym_type(nodetype_t type) {
@@ -417,6 +418,15 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
       where->an_n_pointers = where->childs[0]->an_n_pointers - 1;
       where->an_array_size = where->childs[0]->an_array_size;
     }
+  }
+
+  if (where->type == NODE_FUNCDEFINITION || where->type == NODE_PROGRAM || where->type == NODE_FUNCBODY ||
+      where->type == NODE_FOR || where->type == NODE_RETURN || where->type == NODE_STATLIST || where->type == NODE_IF) {
+    return;
+  }
+
+  if (where->an_type == TYPE_UNKNOWN) {
+    where->an_type = TYPE_UNDEF;
   }
 }
 

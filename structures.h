@@ -20,7 +20,8 @@ typedef enum {
   TYPE_CHARRAY,
   TYPE_INTARRAY,
 
-  TYPE_UNKNOWN /* Used internally */
+  TYPE_UNKNOWN, /* Used internally */
+  TYPE_UNDEF
 } type_t;
 
 typedef struct node {
