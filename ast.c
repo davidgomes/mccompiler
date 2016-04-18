@@ -259,12 +259,14 @@ void ast_set_type_from_st(sym_t *st, node_t *node_id, char* func_name) { // ler 
           int i;
 
           for (i = 0; i < cur_st_node->n_params; i++) {
-            if (!strcmp(cur_st_node->params[i]->id, node_id->value)) {
-              node_id->an_type = cur_st_node->params[i]->type;
-              node_id->an_n_pointers = cur_st_node->params[i]->n_pointers;
-              node_id->an_array_size = cur_st_node->params[i]->array_size;
-              return;
-            }
+            if (cur_st_node->params[i]->id != NULL) {
+              if (!strcmp(cur_st_node->params[i]->id, node_id->value)) {
+                node_id->an_type = cur_st_node->params[i]->type;
+                node_id->an_n_pointers = cur_st_node->params[i]->n_pointers;
+                node_id->an_array_size = cur_st_node->params[i]->array_size;
+                return;
+              }
+              }
           }
         }
       }

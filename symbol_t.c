@@ -20,14 +20,20 @@ sym_t *create_node(table_type_t node_type, char *name, type_t type) {
 
 sym_t* create_variable_node(node_t *cur_node) {
   int n_pointers = 0;
-
   int cur_pointer = 1;
-  while (cur_node->childs[cur_pointer]->type == NODE_POINTER) {
-    n_pointers++;
-    cur_pointer++;
+  sym_t *new_node;
+
+  if (cur_node->n_childs > 1) {
+    while (cur_node->childs[cur_pointer]->type == NODE_POINTER) {
+      n_pointers++;
+      cur_pointer++;
+    }
+
+    new_node = create_node(VARIABLE, cur_node->childs[n_pointers + 1]->value, node_type_to_sym_type(cur_node->childs[0]->type));
+  } else {
+    new_node = create_node(VARIABLE, NULL, node_type_to_sym_type(cur_node->childs[0]->type));
   }
 
-  sym_t *new_node = create_node(VARIABLE, cur_node->childs[n_pointers + 1]->value, node_type_to_sym_type(cur_node->childs[0]->type));
   new_node->n_pointers = n_pointers;
 
   return new_node;
@@ -91,6 +97,10 @@ void st_add_declaration_to_top(sym_t *st, sym_t *definition, node_t *param_list)
         node_t* param_declaration = param_list->childs[i];
 
         if (param_declaration->n_childs == 1) { // int main(void); for instance
+          sym_t *new_node = create_node(VARIABLE, NULL, TYPE_VOID);
+          new_node->is_parameter = 1;
+          declaration_node->params[declaration_node->n_params++] = new_node;
+
           break;
         }
 
@@ -176,13 +186,9 @@ sym_t* st_analyze_ast(node_t *root) {
       for (i = 0; i < param_list->n_childs; i++) {
         node_t* param_declaration = param_list->childs[i];
 
-        if (param_declaration->n_childs == 1) { // int main(void); for instance
-          break;
-        }
-
         sym_t *new_node = create_variable_node(param_declaration);
         new_node->is_parameter = 1;
-        last->params[last->n_params++] = new_node;
+        declaration_node->params[declaration_node->n_params++] = new_node;
       }
 
       if (add_to_top(st, declaration_node) == 1) last = declaration_node;

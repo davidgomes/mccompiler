@@ -1,3 +1,5 @@
+int f(int*);
+
 void main(void) {
   int h, *g, **f, a;
 
