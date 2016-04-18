@@ -267,7 +267,7 @@ void ast_set_type_from_st(sym_t *st, node_t *node_id, char* func_name) { // ler 
                 node_id->an_array_size = cur_st_node->params[i]->array_size;
                 return;
               }
-              }
+            }
           }
         }
       }
