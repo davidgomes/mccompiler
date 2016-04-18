@@ -405,14 +405,14 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
   } else if (where->type == NODE_DEREF) {
     if (where->childs[0]->n_childs > 1) { // deref followed by Add
       where->an_type = where->childs[0]->childs[0]->an_type;
-      where->an_n_pointers = 1;
+      where->an_n_pointers = where->childs[0]->childs[0]->an_n_pointers - 1;
       where->an_array_size = where->childs[0]->childs[0]->an_array_size;
 
       where->childs[0]->an_type = where->childs[0]->childs[0]->an_type;
       where->childs[0]->an_n_pointers = where->childs[0]->childs[0]->an_n_pointers;
     } else {
       where->an_type = where->childs[0]->an_type;
-      where->an_n_pointers = 1;
+      where->an_n_pointers = where->childs[0]->an_n_pointers - 1;
       where->an_array_size = where->childs[0]->an_array_size;
     }
   }
