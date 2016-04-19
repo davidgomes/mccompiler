@@ -421,7 +421,8 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
   }
 
   if (where->type == NODE_FUNCDEFINITION || where->type == NODE_PROGRAM || where->type == NODE_FUNCBODY ||
-      where->type == NODE_FOR || where->type == NODE_RETURN || where->type == NODE_STATLIST || where->type == NODE_IF) {
+      where->type == NODE_FOR || where->type == NODE_RETURN || where->type == NODE_STATLIST || where->type == NODE_IF ||
+      where->type == NODE_NULL) {
     return;
   }
 
