@@ -23,15 +23,15 @@ sym_t* create_variable_node(node_t *cur_node) {
   int cur_pointer = 1;
   sym_t *new_node;
 
-  if (cur_node->n_childs > 1) {
-    while (cur_node->childs[cur_pointer]->type == NODE_POINTER) {
-      n_pointers++;
-      cur_pointer++;
-    }
+  while (cur_pointer < cur_node->n_childs && cur_node->childs[cur_pointer]->type == NODE_POINTER) {
+    n_pointers++;
+    cur_pointer++;
+  }
 
-    new_node = create_node(VARIABLE, cur_node->childs[n_pointers + 1]->value, node_type_to_sym_type(cur_node->childs[0]->type));
-  } else {
+  if (cur_node->childs[n_pointers + 1] == NULL) {
     new_node = create_node(VARIABLE, NULL, node_type_to_sym_type(cur_node->childs[0]->type));
+  } else {
+    new_node = create_node(VARIABLE, cur_node->childs[n_pointers + 1]->value, node_type_to_sym_type(cur_node->childs[0]->type));
   }
 
   new_node->n_pointers = n_pointers;
