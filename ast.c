@@ -343,6 +343,23 @@ void ast_set_function_type(sym_t *st, node_t *call_node) {
   }
 }
 
+void ast_set_add_type(sym_t *st, node_t *add_node) {
+  if (add_node->childs[0]->an_type == add_node->childs[1]->an_type) {
+    add_node->an_type = add_node->childs[0]->an_type;
+  } else if ((((add_node->childs[0]->an_n_pointers >= 1 || add_node->childs[0]->an_array_size >= 1)) ||
+              (add_node->childs[0]->an_n_pointers >= 1 || add_node->childs[0]->an_array_size >= 1))) { // one of them is array/pointer
+    if (add_node->childs[0]->an_n_pointers == 0 && add_node->childs[0]->an_array_size == -1) { // first is not pointer
+      add_node->an_type = add_node->childs[1]->an_type;
+      add_node->an_n_pointers = add_node->childs[1]->an_n_pointers >= 1 ? add_node->childs[1]->an_n_pointers : 1;
+    } else if (add_node->childs[1]->an_n_pointers == 0 && add_node->childs[1]->an_array_size == -1) {// second is not pointer
+      add_node->an_type = add_node->childs[0]->an_type;
+      add_node->an_n_pointers = add_node->childs[0]->an_n_pointers >= 1 ? add_node->childs[0]->an_n_pointers : 1;
+    } else { // they are both pointers can not add
+      printf("waat\n");
+    }
+  }
+}
+
 void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
   if (where->type == NODE_ARRAYDECLARATION || where->type == NODE_FUNCDECLARATION ||
       where->type == NODE_DECLARATION) {
@@ -380,12 +397,12 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
     }
   }
 
-  if (where->type == NODE_EQ || where->type == NODE_GT || where->type == NODE_SUB || where->type == NODE_ADD ||
+  if (where->type == NODE_ADD) {
+    ast_set_add_type(st, where);
+  } else if (where->type == NODE_EQ || where->type == NODE_GT || where->type == NODE_SUB ||
       where->type == NODE_AND || where->type == NODE_NE || where->type == NODE_LT || where->type == NODE_GE ||
       where->type == NODE_LE || where->type == NODE_MUL || where->type == NODE_DIV || where->type == NODE_MOD ||
       where->type == NODE_NOT || where->type == NODE_ADDR) {
-    int i;
-
     for (i = 0; i < where->n_childs; i++) {
       if (where->childs[i]->an_type != TYPE_UNKNOWN) {
         where->an_type = where->childs[i]->an_type;
@@ -406,18 +423,9 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
   } else if (where->type == NODE_CALL) {
     ast_set_function_type(st, where);
   } else if (where->type == NODE_DEREF) {
-    if (where->childs[0]->n_childs > 1) { // deref followed by Add
-      where->an_type = where->childs[0]->childs[0]->an_type;
-      where->an_n_pointers = where->childs[0]->childs[0]->an_n_pointers - 1;
-      where->an_array_size = where->childs[0]->childs[0]->an_array_size;
-
-      where->childs[0]->an_type = where->childs[0]->childs[0]->an_type;
-      where->childs[0]->an_n_pointers = where->childs[0]->childs[0]->an_n_pointers;
-    } else {
-      where->an_type = where->childs[0]->an_type;
-      where->an_n_pointers = where->childs[0]->an_n_pointers - 1;
-      where->an_array_size = where->childs[0]->an_array_size;
-    }
+    where->an_type = where->childs[0]->an_type;
+    where->an_n_pointers = where->childs[0]->an_n_pointers - 1;
+    where->an_array_size = where->childs[0]->an_array_size;
   }
 
   if (where->type == NODE_FUNCDEFINITION || where->type == NODE_PROGRAM || where->type == NODE_FUNCBODY ||
