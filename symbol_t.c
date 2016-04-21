@@ -123,6 +123,57 @@ void st_add_declaration_to_top(sym_t *st, sym_t *definition, node_t *param_list)
   }
 }
 
+sym_t *st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *last) {
+  sym_t *new_node;
+  last->next = table_node;
+  last = table_node;
+
+  new_node = create_node(RETURN_NODE, NULL, node_type_to_sym_type(cur_node->childs[0]->type));
+  new_node->n_pointers = table_node->n_pointers;
+  last->next = new_node;
+  last = new_node;
+
+  node_t* param_list = cur_node->childs[new_node->n_pointers + 2];
+
+  int i;
+  for (i = 0; i < param_list->n_childs; i++) {
+    node_t* param_declaration = param_list->childs[i];
+
+    if (param_declaration->n_childs == 1) { // int main(void) { for instance
+      break;
+    }
+
+    new_node = create_variable_node(param_declaration);
+    new_node->is_parameter = 1;
+    last->next = new_node;
+    last = new_node;
+  }
+
+  node_t *func_body = cur_node->childs[cur_node->n_childs - 1];
+
+  for (int i = 0; i < func_body->n_childs; i++) {
+    if (func_body->childs[i]->type == NODE_RETURN) break;
+
+    node_t *func_body_decl = func_body->childs[i];
+
+    if (func_body_decl->type == NODE_DECLARATION) {
+      new_node = create_variable_node(func_body_decl);
+
+      last->next = new_node;
+      last = new_node;
+    } else if (func_body_decl->type == NODE_ARRAYDECLARATION) {
+      new_node = create_array_node(func_body_decl);
+
+      last->next = new_node;
+      last = new_node;
+    } else {
+      break;
+    }
+  }
+
+  return last;
+}
+
 int add_to_top(sym_t *st, sym_t *node) { // returns 1 if last has to be changed
   if (st->next == NULL) {
     st->next = node;
@@ -181,10 +232,16 @@ sym_t* st_analyze_ast(node_t *root) {
   while (cur < root->n_childs) {
     if (cur_node->type == NODE_DECLARATION) {
       sym_t *new_node = create_variable_node(cur_node);
-      if (add_to_top(st, new_node) == 1) last = new_node;
+
+      if (add_to_top(st, new_node) == 1) {
+        last = new_node;
+      }
     } else if (cur_node->type == NODE_ARRAYDECLARATION) {
       sym_t *new_node = create_array_node(cur_node);
-      if (add_to_top(st, new_node) == 1) last = new_node;
+
+      if (add_to_top(st, new_node) == 1) {
+        last = new_node;
+      }
     } else if (cur_node->type == NODE_FUNCDECLARATION) {
       sym_t *declaration_node = create_declaration_node(cur_node);
 
@@ -199,57 +256,13 @@ sym_t* st_analyze_ast(node_t *root) {
         declaration_node->params[declaration_node->n_params++] = new_node;
       }
 
-      if (add_to_top(st, declaration_node) == 1) last = declaration_node;
+      if (add_to_top(st, declaration_node) == 1) {
+        last = declaration_node;
+      }
     } else if (cur_node->type == NODE_FUNCDEFINITION) {
-      sym_t *new_node = create_func_table_node(cur_node);
-      sym_t *definition_node = new_node;
-      last->next = new_node;
-      last = new_node;
-
-      new_node = create_node(RETURN_NODE, NULL, node_type_to_sym_type(cur_node->childs[0]->type));
-      new_node->n_pointers = definition_node->n_pointers;
-      last->next = new_node;
-      last = new_node;
-
-      node_t* param_list = cur_node->childs[new_node->n_pointers + 2];
-
-      int i;
-      for (i = 0; i < param_list->n_childs; i++) {
-        node_t* param_declaration = param_list->childs[i];
-
-        if (param_declaration->n_childs == 1) { // int main(void) { for instance
-          break;
-        }
-
-        new_node = create_variable_node(param_declaration);
-        new_node->is_parameter = 1;
-        last->next = new_node;
-        last = new_node;
-      }
-
-      node_t *func_body = cur_node->childs[cur_node->n_childs - 1];
-
-      for (int i = 0; i < func_body->n_childs; i++) {
-        if (func_body->childs[i]->type == NODE_RETURN) break;
-
-        node_t *func_body_decl = func_body->childs[i];
-
-        if (func_body_decl->type == NODE_DECLARATION) {
-          new_node = create_variable_node(func_body_decl);
-
-          last->next = new_node;
-          last = new_node;
-        } else if (func_body_decl->type == NODE_ARRAYDECLARATION) {
-          new_node = create_array_node(func_body_decl);
-
-          last->next = new_node;
-          last = new_node;
-        } else {
-          break;
-        }
-      }
-
-      st_add_declaration_to_top(st, definition_node, param_list);
+      sym_t *table_node = create_func_table_node(cur_node);
+      sym_t *definition_last_node = st_add_definition(st, table_node, cur_node, last);
+      last = definition_last_node;
     }
 
     cur++;
