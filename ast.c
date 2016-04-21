@@ -360,6 +360,12 @@ void ast_set_add_type(sym_t *st, node_t *add_node) {
   }
 }
 
+void ast_set_sub_type(sym_t *st, node_t *sub_node) {
+  if (sub_node->childs[0]->an_type == sub_node->childs[1]->an_type) {
+    sub_node->an_type = sub_node->childs[0]->an_type;
+  }
+}
+
 void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
   if (where->type == NODE_ARRAYDECLARATION || where->type == NODE_FUNCDECLARATION ||
       where->type == NODE_DECLARATION) {
@@ -399,6 +405,8 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
 
   if (where->type == NODE_ADD) {
     ast_set_add_type(st, where);
+  } else if (where->type == NODE_SUB) {
+    ast_set_sub_type(st, where);
   } else if (where->type == NODE_EQ || where->type == NODE_GT || where->type == NODE_SUB ||
       where->type == NODE_AND || where->type == NODE_NE || where->type == NODE_LT || where->type == NODE_GE ||
       where->type == NODE_LE || where->type == NODE_MUL || where->type == NODE_DIV || where->type == NODE_MOD ||
