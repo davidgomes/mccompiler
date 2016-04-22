@@ -276,6 +276,8 @@ void ast_set_type_from_st(sym_t *st, node_t *node_id, char* func_name) { // ler 
     }
   }
 
+  // check global variables
+
   cur_st_node = st->next;
 
   while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
@@ -293,8 +295,8 @@ void ast_set_type_from_st(sym_t *st, node_t *node_id, char* func_name) { // ler 
 
   while (cur_st_node != NULL) {
     if (cur_st_node->id != NULL) {
-      if (!strcmp(cur_st_node->id, func_name) && cur_st_node->node_type == FUNC_TABLE) {
-        cur_st_node = cur_st_node->next;
+      if (!strcmp(cur_st_node->id, func_name) && cur_st_node->node_type == FUNC_DECLARATION) {
+        cur_st_node = cur_st_node->definition->next;
 
         while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
           if (cur_st_node->id != NULL) {
