@@ -1,10 +1,13 @@
+int a[5], ***b, **b[10];
+
+
 void main(void)
 {
     printf("Hello World\n");
     return 0;
 }
 
-int main(int a, int b, int *c)
+int main2(int a, int b, int *c)
 {
    int number;
 
@@ -16,7 +19,7 @@ int main(int a, int b, int *c)
    return 0;
 }
 
-int main(void)
+int main3(void)
 {
    int x;
    x = 1;
@@ -30,7 +33,7 @@ int main(void)
 }
 
 
-int main(void)
+int main4(void)
 {
    int n, c;
 
@@ -54,7 +57,7 @@ int main(void)
    return 0;
 }
 
-int main(int argc, char **argv)
+int main5(int argc, char **argv)
 {
    int c;
 
@@ -66,7 +69,7 @@ int main(int argc, char **argv)
    return 0;
 }
 
-int main(void)
+int main6(void)
 {
     int array[100], n, c;
 
@@ -88,7 +91,7 @@ int main(void)
 
 void* my_function(void);
 
-int** main(void)
+int** main7(void)
 {
    printf("Main function.\n");
 
@@ -99,12 +102,12 @@ int** main(void)
    return 0;
 }
 
-void my_function(void)
+void *my_function(void)
 {
    printf("Welcome to my function. Feel at home.\n");
 }
 
-int main(void) {
+int main8(void) {
 
    printf("Writing comments is very useful.\n");
 
@@ -119,12 +122,11 @@ int main(void) {
    return 0;
 }
 
-void main(void) {
+void main9(void) {
 	int a;
 }
 
-int a[5], ***b, **b[10];
-int** main(int a, int ***b) {
+int** main10(int a, int ***b) {
 	int b;
 	return ******c;
 }

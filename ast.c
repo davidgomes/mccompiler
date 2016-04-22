@@ -333,7 +333,7 @@ void ast_set_function_type(sym_t *st, node_t *call_node) {
   sym_t *cur_st_node = st->next;
   char *func_name = call_node->childs[0]->value;
 
-  while (cur_st_node != NULL & cur_st_node->node_type != FUNC_TABLE) {
+  while (cur_st_node != NULL) {
     if (!strcmp(cur_st_node->id, func_name)) {
       call_node->an_type = cur_st_node->type;
       call_node->an_n_pointers = cur_st_node->n_pointers;

@@ -13,3 +13,4 @@ sym_t* st;
 sym_t* st_analyze_ast(node_t *root);
 void st_print_table_element(sym_t* element);
 void st_print_table(sym_t* table);
+int add_to_top(sym_t *st, sym_t *node);
