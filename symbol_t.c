@@ -28,7 +28,7 @@ sym_t *create_node(table_type_t node_type, char *name, type_t type) {
   for (i = 0; i < 100; i++) {
     node->params[i] = NULL;
   }
-  
+
   node->node_type = node_type;
 
   return node;
