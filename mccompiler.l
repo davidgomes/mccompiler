@@ -223,9 +223,10 @@ int main(int argc, char **argv) {
 
       if (!where_there_errors) {
         st = st_analyze_ast(ast);
+        an_tree(ast, st, NULL);
+
         st_print_table(st);
         printf("\n");
-        an_tree(ast, st, NULL);
         print_an_tree(ast, 0);
       }
     }

@@ -8,6 +8,77 @@ void print_asterisks2(int n_pointers) {
   }
 }
 
+void print_an_node(node_t* n) {
+  if (n->type == NODE_ID || n->type == NODE_CHRLIT || n->type == NODE_INTLIT || n->type == NODE_STRLIT) {
+    if (n->an_type == TYPE_UNKNOWN) {
+      printf("%s(%s)\n", node_types[n->type], n->value);
+    } else if (n->an_n_params > 0) {
+      printf("%s(%s) - %s", node_types[n->type], n->value, type_str[n->an_type]);
+      print_asterisks2(n->an_n_pointers);
+      printf("(");
+
+      int i;
+
+      for (i = 0; i < n->an_n_params; i++) {
+        sym_t *arg = n->an_params[i];
+
+        printf("%s", type_str[arg->type]);
+        print_asterisks2(arg->n_pointers);
+
+        if (i != n->an_n_params - 1) printf(",");
+      }
+
+      printf(")\n");
+    } else {
+      printf("%s(%s) - %s", node_types[n->type], n->value, type_str[n->an_type]);
+      print_asterisks2(n->an_n_pointers);
+
+      if (n->an_array_size > 0) {
+        printf("[%d]", n->an_array_size);
+      }
+
+      printf("\n");
+    }
+  } else {
+    if (n->an_type == TYPE_UNKNOWN) {
+      printf("%s\n", node_types[n->type]);
+    } else {
+      printf("%s - %s", node_types[n->type], type_str[n->an_type]);
+      print_asterisks2(n->an_n_pointers);
+
+      if (n->an_array_size > 0) {
+        printf("[%d]", n->an_array_size);
+      }
+
+      printf("\n");
+    }
+  }
+}
+
+void print_an_tree(node_t* n, int d) {
+  int i, k;
+  for (k = 0; k < d; k++)
+    printf("..");
+
+  print_an_node(n);
+
+  for (i = 0; i < n->n_childs; i++) {
+    print_an_tree(n->childs[i], d + 1);
+  }
+}
+
+type_t node_type_to_sym_type(nodetype_t type) {
+  if (type == NODE_INT || type == NODE_INTLIT) {
+    return TYPE_INT;
+  } else if (type == NODE_CHAR || type == NODE_CHRLIT) {
+    return TYPE_CHAR;
+  } else if (type == NODE_VOID) {
+    return TYPE_VOID;
+  }
+
+  return TYPE_UNKNOWN;
+}
+
 void print_node(node_t *which) {
   printf("%s", type_str[which->an_type]);
   print_asterisks2(which->an_n_pointers);
@@ -246,75 +317,4 @@ void an_tree(node_t *where, sym_t *st, char *func_name) {
   if (where->an_type == TYPE_UNKNOWN) {
     where->an_type = TYPE_UNDEF;
   }
-}
-
-void print_an_node(node_t* n) {
-  if (n->type == NODE_ID || n->type == NODE_CHRLIT || n->type == NODE_INTLIT || n->type == NODE_STRLIT) {
-    if (n->an_type == TYPE_UNKNOWN) {
-      printf("%s(%s)\n", node_types[n->type], n->value);
-    } else if (n->an_n_params > 0) {
-      printf("%s(%s) - %s", node_types[n->type], n->value, type_str[n->an_type]);
-      print_asterisks2(n->an_n_pointers);
-      printf("(");
-
-      int i;
-
-      for (i = 0; i < n->an_n_params; i++) {
-        sym_t *arg = n->an_params[i];
-
-        printf("%s", type_str[arg->type]);
-        print_asterisks2(arg->n_pointers);
-
-        if (i != n->an_n_params - 1) printf(",");
-      }
-
-      printf(")\n");
-    } else {
-      printf("%s(%s) - %s", node_types[n->type], n->value, type_str[n->an_type]);
-      print_asterisks2(n->an_n_pointers);
-
-      if (n->an_array_size > 0) {
-        printf("[%d]", n->an_array_size);
-      }
-
-      printf("\n");
-    }
-  } else {
-    if (n->an_type == TYPE_UNKNOWN) {
-      printf("%s\n", node_types[n->type]);
-    } else {
-      printf("%s - %s", node_types[n->type], type_str[n->an_type]);
-      print_asterisks2(n->an_n_pointers);
-
-      if (n->an_array_size > 0) {
-        printf("[%d]", n->an_array_size);
-      }
-
-      printf("\n");
-    }
-  }
-}
-
-void print_an_tree(node_t* n, int d) {
-  int i, k;
-  for (k = 0; k < d; k++)
-    printf("..");
-
-  print_an_node(n);
-
-  for (i = 0; i < n->n_childs; i++) {
-    print_an_tree(n->childs[i], d + 1);
-  }
-}
-
-type_t node_type_to_sym_type(nodetype_t type) {
-  if (type == NODE_INT || type == NODE_INTLIT) {
-    return TYPE_INT;
-  } else if (type == NODE_CHAR || type == NODE_CHRLIT) {
-    return TYPE_CHAR;
-  } else if (type == NODE_VOID) {
-    return TYPE_VOID;
-  }
-
-  return TYPE_UNKNOWN;
 }
