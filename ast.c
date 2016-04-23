@@ -428,14 +428,6 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
     where->an_type = where->childs[0]->an_type;
     where->an_n_pointers = where->childs[0]->an_n_pointers;
     where->an_array_size = where->childs[0]->an_array_size;
-  } else if (where->type == NODE_ADD) {
-    int i;
-
-    for (i = 0; i < where->n_childs; i++) {
-      if (where->childs[i]->type == NODE_ID) {
-        where->an_type = where->childs[i]->an_type;
-      }
-    }
   } else if (where->type == NODE_CALL) {
     ast_set_function_type(st, where);
   } else if (where->type == NODE_DEREF) {
