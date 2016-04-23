@@ -220,7 +220,7 @@ int main(int argc, char **argv) {
       BEGIN ERRORS;
       yyparse();
 
-      if (!where_there_errors) { // todo verificar q nao houve erros semanticos tambem
+      if (!where_there_errors) {
         st = st_analyze_ast(ast);
         st_print_table(st);
         printf("\n");
@@ -232,7 +232,7 @@ int main(int argc, char **argv) {
     flag_errors = 1;
     BEGIN ERRORS;
     yyparse();
-    // erros_semanticos ();
+    st = st_analyze_ast(ast);
   }
 
   return 0;
