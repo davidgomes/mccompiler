@@ -233,6 +233,7 @@ int main(int argc, char **argv) {
     BEGIN ERRORS;
     yyparse();
     st = st_analyze_ast(ast);
+    ast_an_tree(ast, st, NULL);
   }
 
   return 0;

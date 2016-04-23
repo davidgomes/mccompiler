@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "structures.h"
+#include "errors.h"
 
 node_t *ast;
 int where_there_errors;

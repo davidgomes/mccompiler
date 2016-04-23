@@ -345,20 +345,21 @@ void ast_set_function_type(sym_t *st, node_t *call_node) {
   }
 }
 
-void ast_set_add_type(sym_t *st, node_t *add_node) {
-  if (add_node->childs[0]->an_type == add_node->childs[1]->an_type) {
+void parse_add_node(sym_t *st, node_t *add_node) {
+  if ((((add_node->childs[0]->an_n_pointers >= 1 || add_node->childs[0]->an_array_size >= 1)) ||
+        (add_node->childs[1]->an_n_pointers >= 1 || add_node->childs[1]->an_array_size >= 1))) { // one of them is array/pointer
+
+      if (add_node->childs[0]->an_n_pointers == 0 && add_node->childs[0]->an_array_size == -1) { // first is not pointer
+        add_node->an_type = add_node->childs[1]->an_type;
+        add_node->an_n_pointers = add_node->childs[1]->an_n_pointers >= 1 ? add_node->childs[1]->an_n_pointers : 1;
+      } else if (add_node->childs[1]->an_n_pointers == 0 && add_node->childs[1]->an_array_size == -1) {// second is not pointer
+        add_node->an_type = add_node->childs[0]->an_type;
+        add_node->an_n_pointers = add_node->childs[0]->an_n_pointers >= 1 ? add_node->childs[0]->an_n_pointers : 1;
+      } else { // they are both pointers can not add
+        operator_applied2(add_node->type, add_node->childs[0], add_node->childs[1]);
+      }
+  } else if (add_node->childs[0]->an_type == add_node->childs[1]->an_type) {
     add_node->an_type = add_node->childs[0]->an_type;
-  } else if ((((add_node->childs[0]->an_n_pointers >= 1 || add_node->childs[0]->an_array_size >= 1)) ||
-              (add_node->childs[0]->an_n_pointers >= 1 || add_node->childs[0]->an_array_size >= 1))) { // one of them is array/pointer
-    if (add_node->childs[0]->an_n_pointers == 0 && add_node->childs[0]->an_array_size == -1) { // first is not pointer
-      add_node->an_type = add_node->childs[1]->an_type;
-      add_node->an_n_pointers = add_node->childs[1]->an_n_pointers >= 1 ? add_node->childs[1]->an_n_pointers : 1;
-    } else if (add_node->childs[1]->an_n_pointers == 0 && add_node->childs[1]->an_array_size == -1) {// second is not pointer
-      add_node->an_type = add_node->childs[0]->an_type;
-      add_node->an_n_pointers = add_node->childs[0]->an_n_pointers >= 1 ? add_node->childs[0]->an_n_pointers : 1;
-    } else { // they are both pointers can not add
-      printf("waat\n");
-    }
   }
 }
 
@@ -406,7 +407,7 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
   }
 
   if (where->type == NODE_ADD) {
-    ast_set_add_type(st, where);
+    parse_add_node(st, where);
   } else if (where->type == NODE_SUB) {
     ast_set_sub_type(st, where);
   } else if (where->type == NODE_COMMA) { // comma gets last child's value
