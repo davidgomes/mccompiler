@@ -409,6 +409,12 @@ void ast_an_tree(node_t *where, sym_t *st, char *func_name) {
     ast_set_add_type(st, where);
   } else if (where->type == NODE_SUB) {
     ast_set_sub_type(st, where);
+  } else if (where->type == NODE_COMMA) { // comma gets last child's value
+    for (i = 0; i < where->n_childs; i++) {
+      if (where->childs[i]->an_type != TYPE_UNKNOWN) {
+        where->an_type = where->childs[i]->an_type;
+      }
+    }
   } else if (where->type == NODE_EQ || where->type == NODE_GT || where->type == NODE_SUB ||
       where->type == NODE_AND || where->type == NODE_NE || where->type == NODE_LT || where->type == NODE_GE ||
       where->type == NODE_LE || where->type == NODE_MUL || where->type == NODE_DIV || where->type == NODE_MOD ||
