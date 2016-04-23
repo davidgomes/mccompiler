@@ -246,19 +246,6 @@ void an_tree(node_t *where, sym_t *st, char *func_name) {
     return;
   }
 
-  if (where->type == NODE_INTLIT || where->type == NODE_CHRLIT) {
-    where->an_type = node_type_to_sym_type(where->type);
-  }
-
-  if (where->type == NODE_STRLIT) {
-    where->an_type = TYPE_CHAR;
-    where->an_array_size = strlen(where->value) - 2 + 1; // remove the two quotes ("") and add the null byte
-  }
-
-  if (where->type == NODE_ID) {
-    set_type_from_st(st, where, func_name);
-  }
-
   int i;
   if (where->type == NODE_FUNCDEFINITION) {
     func_name = (char *) strdup(get_function_name(where));
@@ -277,7 +264,14 @@ void an_tree(node_t *where, sym_t *st, char *func_name) {
     }
   }
 
-  if (where->type == NODE_ADD) {
+  if (where->type == NODE_INTLIT || where->type == NODE_CHRLIT) {
+    where->an_type = node_type_to_sym_type(where->type);
+  } else if (where->type == NODE_STRLIT) {
+    where->an_type = TYPE_CHAR;
+    where->an_array_size = strlen(where->value) - 2 + 1; // remove the two quotes ("") and add the null byte
+  } else if (where->type == NODE_ID) {
+    set_type_from_st(st, where, func_name);
+  } else if (where->type == NODE_ADD) {
     parse_add_node(st, where);
   } else if (where->type == NODE_SUB) {
     parse_sub_node(st, where);
