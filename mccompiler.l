@@ -11,6 +11,7 @@
 
   #include "ast.h"
   #include "symbol_t.h"
+  #include "semantics.h"
 
   int col = 1, comment_start_col, comment_start_line;
   int flag_yylex = 0;
@@ -224,8 +225,8 @@ int main(int argc, char **argv) {
         st = st_analyze_ast(ast);
         st_print_table(st);
         printf("\n");
-        ast_an_tree(ast, st, NULL);
-        ast_print_an_tree(ast, 0);
+        an_tree(ast, st, NULL);
+        print_an_tree(ast, 0);
       }
     }
   } else {
@@ -233,7 +234,7 @@ int main(int argc, char **argv) {
     BEGIN ERRORS;
     yyparse();
     st = st_analyze_ast(ast);
-    ast_an_tree(ast, st, NULL);
+    an_tree(ast, st, NULL);
   }
 
   return 0;

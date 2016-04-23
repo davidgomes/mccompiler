@@ -6,7 +6,7 @@
 #include <string.h>
 
 #include "structures.h"
-#include "errors.h"
+#include "semantics.h"
 
 node_t *ast;
 int where_there_errors;
@@ -17,8 +17,6 @@ node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...)
 node_t* ast_insert_terminal(nodetype_t nodetype, char* s);
 void ast_destroy(node_t *where);
 void ast_print_tree(node_t* n, int d);
-void ast_print_an_tree(node_t *n, int d);
-void ast_an_tree(node_t *where, sym_t *st, char *func_name);
 void ast_print_node(node_t* n);
 void ast_print_an_node(node_t* n);
 node_t *ast_fix_to_null(node_t *which);

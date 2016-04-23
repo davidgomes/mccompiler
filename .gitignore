@@ -12,5 +12,5 @@ mccompiler.output
 mccompiler.tab.c
 mccompiler.tab.h
 symbol_t
-errors
+semantics
 mccompiler.dSYM/
