@@ -92,6 +92,14 @@ void operator_applied2(nodetype_t operator, node_t *node1, node_t *node2) {
   printf("\n");
 }
 
+void conflicting_types(node_t *node1, node_t *node2) {
+  printf("Conflicting types (got ");
+  print_node(node1);
+  printf(", expected ");
+  print_node(node2);
+  printf(")\n");
+}
+
 void set_type_from_st(sym_t *st, node_t *node_id, char* func_name) { // ler também nas declarations para chamada de funcoes nao definidas, no fim.
   sym_t *cur_st_node = st->next;
 
@@ -240,6 +248,16 @@ void parse_add_node(sym_t *st, node_t *add_node) {
   }
 }
 
+void parse_store_node(sym_t *st, node_t *store_node) {
+  if (store_node->childs[1]->an_type == TYPE_VOID) {
+    conflicting_types(store_node->childs[1], store_node->childs[0]);
+  }
+
+  store_node->an_type = store_node->childs[0]->an_type;
+  store_node->an_n_pointers = store_node->childs[0]->an_n_pointers;
+  store_node->an_array_size = store_node->childs[0]->an_array_size;
+}
+
 void an_tree(node_t *where, sym_t *st, char *func_name) {
   if (where->type == NODE_ARRAYDECLARATION || where->type == NODE_FUNCDECLARATION ||
       where->type == NODE_DECLARATION) {
@@ -291,9 +309,7 @@ void an_tree(node_t *where, sym_t *st, char *func_name) {
       }
     }
   } else if (where->type == NODE_STORE) {
-    where->an_type = where->childs[0]->an_type;
-    where->an_n_pointers = where->childs[0]->an_n_pointers;
-    where->an_array_size = where->childs[0]->an_array_size;
+    parse_store_node(st, where);
   } else if (where->type == NODE_CALL) {
     set_function_type(st, where);
   } else if (where->type == NODE_DEREF) {
