@@ -9,5 +9,5 @@ void main(void) {
   int *a, *b;
   c = a + b;
 
-  c = rekt();
+  c = rekt(2, 3, 4);
 }

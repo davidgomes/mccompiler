@@ -258,6 +258,27 @@ void parse_store_node(sym_t *st, node_t *store_node) {
   store_node->an_array_size = store_node->childs[0]->an_array_size;
 }
 
+void parse_call_node(sym_t *st, node_t *call_node) {
+  set_function_type(st, call_node);
+
+  int args_sent_in = call_node->n_childs - 1;
+  int expected_args;
+
+  sym_t *cur_st_node = st;
+
+  while (cur_st_node != NULL) {
+    if (!strcmp(cur_st_node->id, call_node->childs[0]->value)) {
+      expected_args = cur_st_node->n_params;
+    }
+
+    cur_st_node = cur_st_node->next;
+  }
+
+  if (args_sent_in != expected_args) {
+    printf("Wrong number of arguments to function %s (got %d, required %d)\n", call_node->childs[0]->value, args_sent_in, expected_args);
+  }
+}
+
 void an_tree(node_t *where, sym_t *st, char *func_name) {
   if (where->type == NODE_ARRAYDECLARATION || where->type == NODE_FUNCDECLARATION ||
       where->type == NODE_DECLARATION) {
@@ -311,7 +332,7 @@ void an_tree(node_t *where, sym_t *st, char *func_name) {
   } else if (where->type == NODE_STORE) {
     parse_store_node(st, where);
   } else if (where->type == NODE_CALL) {
-    set_function_type(st, where);
+    parse_call_node(st, where);
   } else if (where->type == NODE_DEREF) {
     where->an_type = where->childs[0]->an_type;
     where->an_n_pointers = where->childs[0]->an_n_pointers - 1;
