@@ -1,3 +1,7 @@
+void k(void) {
+  return 5;
+}
+
 int b(void) {
   return rekt();
 }

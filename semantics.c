@@ -308,6 +308,11 @@ void parse_return_node(sym_t *st, node_t *return_node, char *func_name) {
     cur_st_node = cur_st_node->next;
   }
 
+  if (expected_type == TYPE_VOID && return_node->childs[0]->type != NODE_NULL) {
+    printf("Line %d, col %d: Invalid use of void type in declaration\n", return_node->loc.first_line, return_node->loc.first_column);
+    return;
+  }
+
   if (expected_type != return_node->childs[0]->an_type) { // todo check that return int and return char is same thing
     printf("Line %d, col %d: Conflicting types (got %s, expected ", return_node->loc.first_line, return_node->loc.first_column, type_str[return_node->childs[0]->an_type]);
     printf("%s", type_str[expected_type]);
