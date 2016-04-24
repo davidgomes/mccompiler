@@ -84,8 +84,8 @@ void print_node(node_t *which) {
   print_asterisks2(which->an_n_pointers);
 }
 
-void operator_applied2(nodetype_t operator, node_t *node1, node_t *node2) {
-  printf("Operator %s cannot be applied to types ", node_types[operator]);
+void operator_applied2(node_t *operator, node_t *node1, node_t *node2) {
+  printf("Line %d, col %d: Operator %s cannot be applied to types ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
   print_node(node1);
   printf(", ");
   print_node(node2);
@@ -241,7 +241,7 @@ void parse_add_node(sym_t *st, node_t *add_node) {
         add_node->an_type = add_node->childs[0]->an_type;
         add_node->an_n_pointers = add_node->childs[0]->an_n_pointers >= 1 ? add_node->childs[0]->an_n_pointers : 1;
       } else { // they are both pointers can not add
-        operator_applied2(add_node->type, add_node->childs[0], add_node->childs[1]);
+        operator_applied2(add_node, add_node->childs[0], add_node->childs[1]);
       }
   } else if (add_node->childs[0]->an_type == add_node->childs[1]->an_type) {
     add_node->an_type = add_node->childs[0]->an_type;

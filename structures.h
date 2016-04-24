@@ -42,7 +42,7 @@ typedef struct node {
   int an_n_params;
   sym_t **an_params;
 
-  YYSTYPE loc;
+  YYLTYPE loc;
 } node_t;
 
 typedef enum {

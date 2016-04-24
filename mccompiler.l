@@ -1,6 +1,8 @@
+%option yylineno
+
 %{
   #include "y.tab.h"
-  #define YY_USER_ACTION col+=yyleng; // yylloc.first_line = yylineno; yylloc.first_column = col-(int)yyleng; yylval.str=(char *) strdup(yytext);
+  #define YY_USER_ACTION col+=yyleng; yylloc.first_line = yylineno; yylloc.first_column = col-(int)yyleng; yylval.str=(char *) strdup(yytext);
 
   #include <stdarg.h>
 
@@ -19,8 +21,6 @@
     va_end(args);
   }
 %}
-
-%option yylineno
 
 %X  COMMENT
 %X  ERRORS

@@ -17,8 +17,6 @@
     //printf(__format, args);
     va_end(args);
   }
-
-  node_t *cur_typespec;
 %}
 
 %union{
