@@ -217,9 +217,9 @@ int main(int argc, char **argv) {
       yyparse();
 
       if (!where_there_errors) {
-        st = st_analyze_ast(ast);
-        an_tree(ast, st, NULL, 1);
+        init_st();
 
+        an_tree(ast, st, NULL, 1);
         st_print_table(st);
         printf("\n");
         print_an_tree(ast, 0, 1);
@@ -229,7 +229,7 @@ int main(int argc, char **argv) {
     flag_errors = 1;
     BEGIN ERRORS;
     yyparse();
-    st = st_analyze_ast(ast);
+    init_st();
     an_tree(ast, st, NULL, 1);
   }
 

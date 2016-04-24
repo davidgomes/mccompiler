@@ -7,6 +7,7 @@
 
 #include "structures.h"
 #include "ast.h"
+#include "symbol_t.h"
 
 extern char* node_types[];
 extern char* type_str[];

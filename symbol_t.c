@@ -184,13 +184,9 @@ int add_to_top(sym_t *st, sym_t *node) { // returns 1 if last has to be changed
   return 1;
 }
 
-sym_t* st_analyze_ast(node_t *root) {
-  if (!root) { return NULL; }
-
-  int cur = 0;
-  node_t* cur_node = root->childs[cur];
-  sym_t* st = create_node(GLOBAL, "Global", TYPE_UNKNOWN);
-  sym_t* last = st;
+void init_st() {
+  st = create_node(GLOBAL, "Global", TYPE_UNKNOWN);
+  last = st;
 
   last->next = create_node(FUNC_DECLARATION, "atoi", TYPE_INT);
   last->next->n_params = 1;
@@ -211,7 +207,9 @@ sym_t* st_analyze_ast(node_t *root) {
   last->next->params[0] = create_node(VARIABLE, NULL, TYPE_CHAR);
   last->next->params[0]->n_pointers = 1;
   last = last->next;
+}
 
+/*sym_t* st_analyze_ast(node_t *root) {
   while (cur < root->n_childs) {
     if (cur_node->type == NODE_DECLARATION) {
       sym_t *new_node = create_variable_node(cur_node);
@@ -271,7 +269,7 @@ sym_t* st_analyze_ast(node_t *root) {
   }
 
   return st;
-}
+}*/
 
 void print_asterisks(int n_pointers) {
   int i;

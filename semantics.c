@@ -321,9 +321,66 @@ void parse_return_node(sym_t *st, node_t *return_node, char *func_name) {
 }
 
 void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
+  sym_t *new_node = create_variable_node(decl_node);
+
+  if (add_to_top(st, new_node) == 1) {
+    last = new_node;
+  }
+
   if (decl_node->childs[0]->type == TYPE_VOID) {
     printf("Line %d, col %d: Invalid use of void type in declaration\n", decl_node->loc.first_line, decl_node->loc.first_column);
   }
+}
+
+void parse_array_decl(sym_t *st, node_t *decl_node, char *func_name) {
+  sym_t *new_node = create_array_node(decl_node);
+
+  if (add_to_top(st, new_node) == 1) {
+    last = new_node;
+  }
+}
+
+void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) {
+  sym_t *declaration_node = create_declaration_node(func_decl_node);
+
+  node_t* param_list = func_decl_node->childs[declaration_node->n_pointers + 2];
+
+  int i;
+  for (i = 0; i < param_list->n_childs; i++) {
+    node_t* param_declaration = param_list->childs[i];
+
+    sym_t *new_node = create_variable_node(param_declaration);
+    new_node->is_parameter = 1;
+    declaration_node->params[declaration_node->n_params++] = new_node;
+  }
+
+  if (add_to_top(st, declaration_node) == 1) {
+    last = declaration_node;
+  }
+}
+
+void parse_func_definition(sym_t *st, node_t *func_def_node) {
+  sym_t *table_node = create_func_table_node(func_def_node);
+
+  sym_t *cur_st_node = st->next->next->next->next; // point to "puts->next"
+  sym_t *declaration_node = NULL;
+
+  while (cur_st_node != NULL) {
+    if (!strcmp(cur_st_node->id, table_node->id)) {
+      declaration_node = cur_st_node;
+    }
+
+    cur_st_node = cur_st_node->next;
+  }
+
+  if (declaration_node == NULL) {
+    declaration_node = create_node(FUNC_DECLARATION, table_node->id, table_node->type);
+    declaration_node->n_pointers = table_node->n_pointers;
+    add_to_top(st, declaration_node);
+    last = declaration_node;
+  }
+
+  st_add_definition(st, table_node, func_def_node, declaration_node);
 }
 
 void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
@@ -334,6 +391,8 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
 
   int i;
   if (where->type == NODE_FUNCDEFINITION) {
+    parse_func_definition(st, where);
+
     func_name = (char *) strdup(get_function_name(where));
 
     int i;
@@ -354,8 +413,10 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
   } else if (where->type == NODE_DECLARATION) {
     parse_decl(st, where, func_name);
   } else if (where->type == NODE_FUNCDECLARATION) {
-
+    parse_func_declaration(st, where, func_name);
   } else if (where->type == NODE_ARRAYDECLARATION) {
+    parse_array_decl(st, where, func_name);
+  } else if (where->type == NODE_FUNCDEFINITION) {
 
   } else if (where->type == NODE_INTLIT || where->type == NODE_CHRLIT) {
     if (an) {
