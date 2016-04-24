@@ -10,4 +10,5 @@ void main(void) {
   c = a + b;
 
   c = rekt(2, 3, 4);
+  c = dude();
 }

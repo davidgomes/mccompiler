@@ -274,6 +274,11 @@ void parse_call_node(sym_t *st, node_t *call_node) {
     cur_st_node = cur_st_node->next;
   }
 
+  if (cur_st_node == NULL) {
+    printf("Symbol %s is not a function\n", call_node->childs[0]->value);
+    return;
+  }
+
   if (args_sent_in != expected_args) {
     printf("Wrong number of arguments to function %s (got %d, required %d)\n", call_node->childs[0]->value, args_sent_in, expected_args);
   }
