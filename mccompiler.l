@@ -229,6 +229,7 @@ int main(int argc, char **argv) {
     flag_errors = 1;
     BEGIN ERRORS;
     yyparse();
+
     init_st();
     an_tree(ast, st, NULL, 1);
   }

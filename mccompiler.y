@@ -80,12 +80,12 @@ FunctionBodyStatement: FunctionBodyStatement StatementCanError  { $$ = ast_inser
                      | Statement                                { $$ = ast_insert_node(NODE_FUNCTIONBODYSTATEMENT, 0, 1, $1); }
                      ;
 
-Declaration: TypeSpec DeclarationSecond SEMI  { if ($2 != NULL) { ast_add_typespec($1, $2); $$ = $2; } else { $$ = $2; } }
+Declaration: TypeSpec DeclarationSecond SEMI  { if ($2 != NULL) { ast_add_typespec($1, $2); $$ = $2; } else { $$ = $2; } $$->loc = @2; }
            | error SEMI                       { $$ = NULL; }
            ;
 
-DeclarationSecond: DeclarationSecond COMMA Declarator { $$ = ast_insert_node(NODE_DECLARATION, 0, 2, $1, $3); }
-                 | Declarator                         { $$ = $1; }
+DeclarationSecond: DeclarationSecond COMMA Declarator { $$ = ast_insert_node(NODE_DECLARATION, 0, 2, $1, $3); $$->loc = @1; }
+                 | Declarator                         { $$ = $1; $$->loc = @1; }
                  ;
 
 Declarator: Id                                 { $$ = ast_insert_node(NODE_DECLARATION, 1, 1, $1); }

@@ -111,7 +111,7 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
 
   node_t* param_list = cur_node->childs[new_node->n_pointers + 2];
 
-  if (declaration_node->n_params == 0) {
+  if (declaration_node->n_params == 0) { // TODO Ao ler os parâmetros, detetar parâmetros duplicados
     int i;
     for (i = 0; i < param_list->n_childs; i++) {
       node_t* param_declaration = param_list->childs[i];
@@ -141,12 +141,7 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
 
     node_t *func_body_decl = func_body->childs[i];
 
-    if (func_body_decl->type == NODE_DECLARATION) {
-      new_node = create_variable_node(func_body_decl);
-
-      last_node->next = new_node;
-      last_node = new_node;
-    } else if (func_body_decl->type == NODE_ARRAYDECLARATION) {
+    if (func_body_decl->type == NODE_ARRAYDECLARATION) {
       new_node = create_array_node(func_body_decl);
 
       last_node->next = new_node;

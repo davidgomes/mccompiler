@@ -15,6 +15,7 @@ void rekt(void) {
 void main(void) {
   int c;
   int c;
+  int m;
 
   int *a, *b;
   c = a + b;
