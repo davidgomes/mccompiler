@@ -1,3 +1,5 @@
+void a;
+
 void k(void) {
   return 5;
 }

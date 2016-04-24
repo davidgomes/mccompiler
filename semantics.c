@@ -320,6 +320,12 @@ void parse_return_node(sym_t *st, node_t *return_node, char *func_name) {
   }
 }
 
+void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
+  if (decl_node->childs[0]->type == TYPE_VOID) {
+    printf("Line %d, col %d: Invalid use of void type in declaration\n", decl_node->loc.first_line, decl_node->loc.first_column);
+  }
+}
+
 void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
   if (where->type == NODE_ARRAYDECLARATION || where->type == NODE_FUNCDECLARATION ||
       where->type == NODE_DECLARATION) {
@@ -346,7 +352,7 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
   if (where->type == NODE_RETURN) {
     parse_return_node(st, where, func_name);
   } else if (where->type == NODE_DECLARATION) {
-    //
+    parse_decl(st, where, func_name);
   } else if (where->type == NODE_FUNCDECLARATION) {
 
   } else if (where->type == NODE_ARRAYDECLARATION) {
