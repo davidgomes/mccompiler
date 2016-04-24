@@ -100,7 +100,11 @@ void conflicting_types(node_t *node1, node_t *node2) {
   printf(")\n");
 }
 
-void set_type_from_st(sym_t *st, node_t *node_id, char* func_name) { // ler também nas declarations para chamada de funcoes nao definidas, no fim.
+void parse_id_node(sym_t *st, node_t *node_id, char* func_name, int an) { // ler também nas declarations para chamada de funcoes nao definidas, no fim.
+  if (!an) { // todo: check for duplicate but not annotate
+    return;
+  }
+
   sym_t *cur_st_node = st->next;
 
   // first thing to do is verify if node_id corresponds to a function
@@ -284,10 +288,10 @@ void parse_call_node(sym_t *st, node_t *call_node) {
   }
 }
 
-void an_tree(node_t *where, sym_t *st, char *func_name) {
+void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
   if (where->type == NODE_ARRAYDECLARATION || where->type == NODE_FUNCDECLARATION ||
       where->type == NODE_DECLARATION) {
-    return;
+    an = 0;
   }
 
   int i;
@@ -298,23 +302,29 @@ void an_tree(node_t *where, sym_t *st, char *func_name) {
 
     for (i = 0; i < where->n_childs; i++) {
       if (where->childs[i]->type == NODE_FUNCBODY) {
-        an_tree(where->childs[i], st, func_name);
+        an_tree(where->childs[i], st, func_name, an);
         break;
       }
     }
   } else {
     for (i = 0; i < where->n_childs; i++) {
-      an_tree(where->childs[i], st, func_name);
+      an_tree(where->childs[i], st, func_name, an);
     }
   }
 
-  if (where->type == NODE_INTLIT || where->type == NODE_CHRLIT) {
+  if (where->type == NODE_DECLARATION) {
+    //
+  } else if (where->type == NODE_FUNCDECLARATION) {
+
+  } else if (where->type == NODE_ARRAYDECLARATION) {
+
+  } else if (where->type == NODE_INTLIT || where->type == NODE_CHRLIT) {
     where->an_type = node_type_to_sym_type(where->type);
   } else if (where->type == NODE_STRLIT) {
     where->an_type = TYPE_CHAR;
     where->an_array_size = strlen(where->value) - 2 + 1; // remove the two quotes ("") and add the null byte
   } else if (where->type == NODE_ID) {
-    set_type_from_st(st, where, func_name);
+    parse_id_node(st, where, func_name, an);
   } else if (where->type == NODE_ADD) {
     parse_add_node(st, where);
   } else if (where->type == NODE_SUB) {
@@ -350,7 +360,7 @@ void an_tree(node_t *where, sym_t *st, char *func_name) {
     return;
   }
 
-  if (where->an_type == TYPE_UNKNOWN) {
+  if (where->an_type == TYPE_UNKNOWN && an) {
     where->an_type = TYPE_UNDEF;
   }
 }

@@ -218,7 +218,7 @@ int main(int argc, char **argv) {
 
       if (!where_there_errors) {
         st = st_analyze_ast(ast);
-        an_tree(ast, st, NULL);
+        an_tree(ast, st, NULL, 1);
 
         st_print_table(st);
         printf("\n");
@@ -230,7 +230,7 @@ int main(int argc, char **argv) {
     BEGIN ERRORS;
     yyparse();
     st = st_analyze_ast(ast);
-    an_tree(ast, st, NULL);
+    an_tree(ast, st, NULL, 1);
   }
 
   return 0;
