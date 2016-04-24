@@ -65,10 +65,6 @@ void print_an_tree(node_t* n, int d, int an) {
   for (k = 0; k < d; k++)
     printf("..");
 
-  if (n->type == NODE_RETURN) {
-    an = 0;
-  }
-
   print_an_node(n, an);
 
   for (i = 0; i < n->n_childs; i++) {
@@ -350,10 +346,14 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
   } else if (where->type == NODE_ARRAYDECLARATION) {
 
   } else if (where->type == NODE_INTLIT || where->type == NODE_CHRLIT) {
-    where->an_type = node_type_to_sym_type(where->type);
+    if (an) {
+      where->an_type = node_type_to_sym_type(where->type);
+    }
   } else if (where->type == NODE_STRLIT) {
-    where->an_type = TYPE_CHAR;
-    where->an_array_size = strlen(where->value) - 2 + 1; // remove the two quotes ("") and add the null byte
+    if (an) {
+      where->an_type = TYPE_CHAR;
+      where->an_array_size = strlen(where->value) - 2 + 1; // remove the two quotes ("") and add the null byte
+    }
   } else if (where->type == NODE_ID) {
     parse_id_node(st, where, func_name, an);
   } else if (where->type == NODE_ADD) {
