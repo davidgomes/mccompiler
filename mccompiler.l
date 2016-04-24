@@ -1,11 +1,6 @@
 %{
-  #define YY_USER_ACTION col+=yyleng; //YY_USER_ACTION -  action which is always executed prior to the matched rule's action
-
-  #ifdef __APPLE__
-    #include "mccompiler.tab.h"
-  #else
-    #include "y.tab.h"
-  #endif
+  #include "y.tab.h"
+  #define YY_USER_ACTION col+=yyleng; // yylloc.first_line = yylineno; yylloc.first_column = col-(int)yyleng; yylval.str=(char *) strdup(yytext);
 
   #include <stdarg.h>
 

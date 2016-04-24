@@ -11,4 +11,5 @@ void main(void) {
 
   c = rekt(2, 3, 4);
   c = dude();
+  *c = a;
 }

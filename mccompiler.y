@@ -5,8 +5,6 @@
 
   #include "ast.h"
 
-  #define YYDEBUG 1
-
   int yyerror();
   int yylex();
 
