@@ -133,23 +133,6 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
       last_node = new_node;
     }
   }
-
-  node_t *func_body = cur_node->childs[cur_node->n_childs - 1];
-
-  for (int i = 0; i < func_body->n_childs; i++) {
-    if (func_body->childs[i]->type == NODE_RETURN) break;
-
-    node_t *func_body_decl = func_body->childs[i];
-
-    if (func_body_decl->type == NODE_ARRAYDECLARATION) {
-      new_node = create_array_node(func_body_decl);
-
-      last_node->next = new_node;
-      last_node = new_node;
-    } else {
-      break;
-    }
-  }
 }
 
 int add_to_top(sym_t *st, sym_t *node) { // returns 1 if last has to be changed

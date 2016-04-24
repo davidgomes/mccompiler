@@ -379,10 +379,60 @@ void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
 }
 
 void parse_array_decl(sym_t *st, node_t *decl_node, char *func_name) {
-  sym_t *new_node = create_array_node(decl_node);
+  sym_t *cur_st_node = st;
+  sym_t *func_node;
 
-  if (add_to_top(st, new_node) == 1) {
-    last = new_node;
+  if (func_name != NULL) { // variaveis globais podem ser declaradas duas vezes
+    while (cur_st_node != NULL) {
+      if (!strcmp(cur_st_node->id, func_name)) {
+        func_node = cur_st_node;
+      }
+
+      cur_st_node = cur_st_node->next;
+    }
+
+    cur_st_node = func_node->definition->next;
+
+    while (cur_st_node != NULL) {
+      if (cur_st_node->id != NULL && !strcmp(cur_st_node->id, decl_node->childs[decl_node->n_childs - 2]->value)) {
+        printf("Line %d, col %d: Symbol %s already defined\n", decl_node->loc.first_line, decl_node->loc.first_column, decl_node->childs[decl_node->n_childs - 2]->value);
+
+        break;
+      }
+
+      cur_st_node = cur_st_node->next;
+    }
+  }
+
+  if (!func_name) {
+    sym_t *new_node = create_array_node(decl_node);
+
+    if (add_to_top(st, new_node) == 1) {
+      last = new_node;
+    }
+  } else {
+    sym_t *new_node = create_array_node(decl_node);
+
+    cur_st_node = st;
+
+    while (cur_st_node != NULL) {
+      if (!strcmp(cur_st_node->id, func_name)) {
+        func_node = cur_st_node;
+      }
+
+      cur_st_node = cur_st_node->next;
+    }
+
+    cur_st_node = func_node->definition;
+    while (cur_st_node->next != NULL) {
+      cur_st_node = cur_st_node->next;
+    }
+
+    cur_st_node->next = new_node;
+  }
+
+  if (decl_node->childs[0]->type == TYPE_VOID) {
+    printf("Line %d, col %d: Invalid use of void type in declaration\n", decl_node->loc.first_line, decl_node->loc.first_column);
   }
 }
 

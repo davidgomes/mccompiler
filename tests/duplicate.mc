@@ -17,6 +17,9 @@ void main(void) {
   int c;
   int m;
 
+  int z[20];
+  int z[20];
+
   int *a, *b;
   c = a + b;
 
