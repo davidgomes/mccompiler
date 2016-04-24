@@ -119,7 +119,7 @@ ParameterDeclaration: TypeSpec Asterisk Id { $$ = ast_insert_node(NODE_PARAMDECL
                     | TypeSpec             { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 1, $1); }
                     ;
 
-Id: ID { $$ = ast_insert_terminal(NODE_ID, $1); }
+Id: ID { $$ = ast_insert_terminal(NODE_ID, $1); $$->loc = @1; }
   ;
 
 Asterisk: Asterisk Ast { $$ = ast_insert_node(NODE_POINTER, 0, 2, $1, $2); }
@@ -161,7 +161,7 @@ CommaExpressionTwo: CommaExpressionTwo COMMA CommaExpressionTwo { $$ = ast_inser
                   | Expression                            { $$ = $1; }
                   ;
 
-Expression: Expression ASSIGN Expression         { $$ = ast_insert_node(NODE_STORE, 1, 2, $1, $3); }
+Expression: Expression ASSIGN Expression         { $$ = ast_insert_node(NODE_STORE, 1, 2, $1, $3); $$->loc = @1; }
           | Expression AND Expression            { $$ = ast_insert_node(NODE_AND, 1, 2, $1, $3); }
           | Expression OR Expression             { $$ = ast_insert_node(NODE_OR, 1, 2, $1, $3); }
           | Expression EQ Expression             { $$ = ast_insert_node(NODE_EQ, 1, 2, $1, $3); }

@@ -93,7 +93,7 @@ void operator_applied2(node_t *operator, node_t *node1, node_t *node2) {
 }
 
 void conflicting_types(node_t *node1, node_t *node2) {
-  printf("Conflicting types (got ");
+  printf("Line %d, col %d: Conflicting types (got ", node1->loc.first_line, node2->loc.first_column);
   print_node(node1);
   printf(", expected ");
   print_node(node2);
@@ -275,12 +275,12 @@ void parse_call_node(sym_t *st, node_t *call_node) {
   }
 
   if (cur_st_node == NULL) {
-    printf("Symbol %s is not a function\n", call_node->childs[0]->value);
+    printf("Line %d, col %d: Symbol %s is not a function\n", call_node->loc.first_line, call_node->loc.first_column, call_node->childs[0]->value);
     return;
   }
 
   if (args_sent_in != expected_args) {
-    printf("Wrong number of arguments to function %s (got %d, required %d)\n", call_node->childs[0]->value, args_sent_in, expected_args);
+    printf("Line %d, col %d: Wrong number of arguments to function %s (got %d, required %d)\n", call_node->loc.first_line, call_node->loc.first_column, call_node->childs[0]->value, args_sent_in, expected_args);
   }
 }
 
