@@ -126,7 +126,7 @@ Asterisk: Asterisk Ast { $$ = ast_insert_node(NODE_POINTER, 0, 2, $1, $2); }
         | Ast          { $$ = ast_insert_node(NODE_POINTER, 0, 1, $1); }
         ;
 
-Ast: AST { $$ = ast_insert_terminal(NODE_POINTER, "Pointer"); }
+Ast: AST { $$ = ast_insert_terminal(NODE_POINTER, "Pointer"); $$->loc = @1; }
    ;
 
 StatementCanError: Statement { $$ = $1; }
@@ -162,31 +162,31 @@ CommaExpressionTwo: CommaExpressionTwo COMMA CommaExpressionTwo { $$ = ast_inser
                   ;
 
 Expression: Expression ASSIGN Expression         { $$ = ast_insert_node(NODE_STORE, 1, 2, $1, $3); $$->loc = @1; }
-          | Expression AND Expression            { $$ = ast_insert_node(NODE_AND, 1, 2, $1, $3); }
-          | Expression OR Expression             { $$ = ast_insert_node(NODE_OR, 1, 2, $1, $3); }
-          | Expression EQ Expression             { $$ = ast_insert_node(NODE_EQ, 1, 2, $1, $3); }
-          | Expression NE Expression             { $$ = ast_insert_node(NODE_NE, 1, 2, $1, $3); }
-          | Expression LT Expression             { $$ = ast_insert_node(NODE_LT, 1, 2, $1, $3); }
-          | Expression GT Expression             { $$ = ast_insert_node(NODE_GT, 1, 2, $1, $3); }
-          | Expression LE Expression             { $$ = ast_insert_node(NODE_LE, 1, 2, $1, $3); }
-          | Expression GE Expression             { $$ = ast_insert_node(NODE_GE, 1, 2, $1, $3); }
-          | Expression AST Expression            { $$ = ast_insert_node(NODE_MUL, 1, 2, $1, $3); }
-          | Expression PLUS Expression           { $$ = ast_insert_node(NODE_ADD, 1, 2, $1, $3); }
-          | Expression MINUS Expression          { $$ = ast_insert_node(NODE_SUB, 1, 2, $1, $3); }
-          | Expression DIV Expression            { $$ = ast_insert_node(NODE_DIV, 1, 2, $1, $3); }
-          | Expression MOD Expression            { $$ = ast_insert_node(NODE_MOD, 1, 2, $1, $3); }
-          | AMP Expression                       { $$ = ast_insert_node(NODE_ADDR, 1, 1, $2); }
-          | AST Expression          %prec NOT    { $$ = ast_insert_node(NODE_DEREF, 1, 1, $2); }
-          | PLUS Expression         %prec NOT    { $$ = ast_insert_node(NODE_PLUS, 1, 1, $2); }
-          | MINUS Expression        %prec NOT    { $$ = ast_insert_node(NODE_MINUS, 1, 1, $2); }
-          | NOT Expression                       { $$ = ast_insert_node(NODE_NOT, 1, 1, $2); }
-          | Expression LSQ CommaExpression RSQ   { node_t* add = ast_insert_node(NODE_ADD, 1, 2, $1, $3); $$ = ast_insert_node(NODE_DEREF, 1, 1, add); }
-          | Id LPAR ExpressionList RPAR          { $$ = ast_insert_node(NODE_CALL, 1, 2, $1, $3); }
-          | Id                                   { $$ = ast_insert_node(NODE_EXPRESSION, 0, 1, $1); }
-          | INTLIT                               { $$ = ast_insert_terminal(NODE_INTLIT, $1); }
-          | CHRLIT                               { $$ = ast_insert_terminal(NODE_CHRLIT, $1); }
-          | STRLIT                               { $$ = ast_insert_terminal(NODE_STRLIT, $1); }
-          | LPAR CommaExpression RPAR            { $$ = ast_insert_node(NODE_EXPRESSION, 0, 1, $2); }
+          | Expression AND Expression            { $$ = ast_insert_node(NODE_AND, 1, 2, $1, $3); $$->loc = @1; }
+          | Expression OR Expression             { $$ = ast_insert_node(NODE_OR, 1, 2, $1, $3); $$->loc = @1; }
+          | Expression EQ Expression             { $$ = ast_insert_node(NODE_EQ, 1, 2, $1, $3); $$->loc = @1; }
+          | Expression NE Expression             { $$ = ast_insert_node(NODE_NE, 1, 2, $1, $3); $$->loc = @1; }
+          | Expression LT Expression             { $$ = ast_insert_node(NODE_LT, 1, 2, $1, $3); $$->loc = @1; }
+          | Expression GT Expression             { $$ = ast_insert_node(NODE_GT, 1, 2, $1, $3); $$->loc = @1; }
+          | Expression LE Expression             { $$ = ast_insert_node(NODE_LE, 1, 2, $1, $3); $$->loc = @1; }
+          | Expression GE Expression             { $$ = ast_insert_node(NODE_GE, 1, 2, $1, $3); $$->loc = @1; }
+          | Expression AST Expression            { $$ = ast_insert_node(NODE_MUL, 1, 2, $1, $3); $$->loc = @1; }
+          | Expression PLUS Expression           { $$ = ast_insert_node(NODE_ADD, 1, 2, $1, $3); $$->loc = @1; }
+          | Expression MINUS Expression          { $$ = ast_insert_node(NODE_SUB, 1, 2, $1, $3); $$->loc = @1; }
+          | Expression DIV Expression            { $$ = ast_insert_node(NODE_DIV, 1, 2, $1, $3); $$->loc = @1; }
+          | Expression MOD Expression            { $$ = ast_insert_node(NODE_MOD, 1, 2, $1, $3); $$->loc = @1; }
+          | AMP Expression                       { $$ = ast_insert_node(NODE_ADDR, 1, 1, $2); $$->loc = @2; }
+          | AST Expression          %prec NOT    { $$ = ast_insert_node(NODE_DEREF, 1, 1, $2); $$->loc = @2; }
+          | PLUS Expression         %prec NOT    { $$ = ast_insert_node(NODE_PLUS, 1, 1, $2); $$->loc = @2; }
+          | MINUS Expression        %prec NOT    { $$ = ast_insert_node(NODE_MINUS, 1, 1, $2); $$->loc = @2; }
+          | NOT Expression                       { $$ = ast_insert_node(NODE_NOT, 1, 1, $2); $$->loc = @2; }
+          | Expression LSQ CommaExpression RSQ   { node_t* add = ast_insert_node(NODE_ADD, 1, 2, $1, $3); $$ = ast_insert_node(NODE_DEREF, 1, 1, add); $$->loc = @1; }
+          | Id LPAR ExpressionList RPAR          { $$ = ast_insert_node(NODE_CALL, 1, 2, $1, $3); $$->loc = @1; }
+          | Id                                   { $$ = ast_insert_node(NODE_EXPRESSION, 0, 1, $1); $$->loc = @1; }
+          | INTLIT                               { $$ = ast_insert_terminal(NODE_INTLIT, $1); $$->loc = @1; }
+          | CHRLIT                               { $$ = ast_insert_terminal(NODE_CHRLIT, $1); $$->loc = @1; }
+          | STRLIT                               { $$ = ast_insert_terminal(NODE_STRLIT, $1); $$->loc = @1; }
+          | LPAR CommaExpression RPAR            { $$ = ast_insert_node(NODE_EXPRESSION, 0, 1, $2); $$->loc = @2; }
           | LPAR error RPAR                      { $$ = NULL; }
           | Id LPAR error RPAR                   { $$ = NULL; }
           ;
