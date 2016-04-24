@@ -262,8 +262,10 @@ void parse_store_node(sym_t *st, node_t *store_node) {
   store_node->an_array_size = store_node->childs[0]->an_array_size;
 }
 
-void parse_call_node(sym_t *st, node_t *call_node) {
-  set_function_type(st, call_node);
+void parse_call_node(sym_t *st, node_t *call_node, int an) {
+  if (an) {
+    set_function_type(st, call_node);
+  }
 
   int args_sent_in = call_node->n_childs - 1;
   int expected_args;
@@ -290,7 +292,7 @@ void parse_call_node(sym_t *st, node_t *call_node) {
 
 void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
   if (where->type == NODE_ARRAYDECLARATION || where->type == NODE_FUNCDECLARATION ||
-      where->type == NODE_DECLARATION) {
+      where->type == NODE_DECLARATION || where->type == NODE_RETURN) {
     an = 0;
   }
 
@@ -303,7 +305,6 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
     for (i = 0; i < where->n_childs; i++) {
       if (where->childs[i]->type == NODE_FUNCBODY) {
         an_tree(where->childs[i], st, func_name, an);
-        break;
       }
     }
   } else {
@@ -347,7 +348,7 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
   } else if (where->type == NODE_STORE) {
     parse_store_node(st, where);
   } else if (where->type == NODE_CALL) {
-    parse_call_node(st, where);
+    parse_call_node(st, where, an);
   } else if (where->type == NODE_DEREF) {
     where->an_type = where->childs[0]->an_type;
     where->an_n_pointers = where->childs[0]->an_n_pointers - 1;

@@ -1,3 +1,7 @@
+int b(void) {
+  return rekt();
+}
+
 void rekt(void) {
 
 }
