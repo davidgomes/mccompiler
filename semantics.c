@@ -8,7 +8,12 @@ void print_asterisks2(int n_pointers) {
   }
 }
 
-void print_an_node(node_t* n) {
+void print_an_node(node_t* n, int an) {
+  if (!an) {
+    ast_print_node(n);
+    return;
+  }
+
   if (n->type == NODE_ID || n->type == NODE_CHRLIT || n->type == NODE_INTLIT || n->type == NODE_STRLIT) {
     if (n->an_type == TYPE_UNKNOWN) {
       printf("%s(%s)\n", node_types[n->type], n->value);
@@ -55,15 +60,19 @@ void print_an_node(node_t* n) {
   }
 }
 
-void print_an_tree(node_t* n, int d) {
+void print_an_tree(node_t* n, int d, int an) {
   int i, k;
   for (k = 0; k < d; k++)
     printf("..");
 
-  print_an_node(n);
+  if (n->type == NODE_RETURN) {
+    an = 0;
+  }
+
+  print_an_node(n, an);
 
   for (i = 0; i < n->n_childs; i++) {
-    print_an_tree(n->childs[i], d + 1);
+    print_an_tree(n->childs[i], d + 1, an);
   }
 }
 
@@ -290,9 +299,28 @@ void parse_call_node(sym_t *st, node_t *call_node, int an) {
   }
 }
 
+void parse_return_node(sym_t *st, node_t *return_node, char *func_name) {
+  sym_t *cur_st_node = st;
+  type_t expected_type;
+
+  while (cur_st_node != NULL) {
+    if (!strcmp(cur_st_node->id, func_name)) {
+      expected_type = cur_st_node->type;
+    }
+
+    cur_st_node = cur_st_node->next;
+  }
+
+  if (expected_type != return_node->childs[0]->an_type) { // todo check that return int and return char is same thing
+    printf("Line %d, col %d: Conflicting types (got %s, expected ", return_node->loc.first_line, return_node->loc.first_column, type_str[return_node->childs[0]->an_type]);
+    printf("%s", type_str[expected_type]);
+    printf(")\n");
+  }
+}
+
 void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
   if (where->type == NODE_ARRAYDECLARATION || where->type == NODE_FUNCDECLARATION ||
-      where->type == NODE_DECLARATION || where->type == NODE_RETURN) {
+      where->type == NODE_DECLARATION) {
     an = 0;
   }
 
@@ -313,7 +341,9 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
     }
   }
 
-  if (where->type == NODE_DECLARATION) {
+  if (where->type == NODE_RETURN) {
+    parse_return_node(st, where, func_name);
+  } else if (where->type == NODE_DECLARATION) {
     //
   } else if (where->type == NODE_FUNCDECLARATION) {
 

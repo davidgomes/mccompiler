@@ -222,7 +222,7 @@ int main(int argc, char **argv) {
 
         st_print_table(st);
         printf("\n");
-        print_an_tree(ast, 0);
+        print_an_tree(ast, 0, 1);
       }
     }
   } else {

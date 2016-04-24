@@ -141,7 +141,7 @@ Statement: CommaExpression SEMI                                                 
          | IF LPAR CommaExpression RPAR Statement %prec THEN                                          { $3 = ast_fix_to_null($3); $5 = ast_fix_to_null($5); node_t *null_node = ast_insert_node(NODE_NULL, 1, 0); $$ = ast_insert_node(NODE_IF, 1, 3, $3, $5, null_node); }
          | IF LPAR CommaExpression RPAR Statement ELSE Statement                                      { $3 = ast_fix_to_null($3); $5 = ast_fix_to_null($5); $7 = ast_fix_to_null($7); $$ = ast_insert_node(NODE_IF, 1, 3, $3, $5, $7); }
          | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { $9 = ast_fix_to_null($9); $$ = ast_insert_node(NODE_FOR, 1, 4, $3, $5, $7, $9); }
-         | RETURN CommaExpression SEMI                                                                { $$ = ast_insert_node(NODE_RETURN, 1, 1, $2); }
+         | RETURN CommaExpression SEMI                                                                { $$ = ast_insert_node(NODE_RETURN, 1, 1, $2); $$->loc = @1; }
          | RETURN SEMI                                                                                { node_t* null_node = ast_insert_node(NODE_NULL, 1, 0); $$ = ast_insert_node(NODE_RETURN, 1, 1, null_node); }
          ;
 
