@@ -16,6 +16,7 @@ void main(void) {
   int c;
   int c;
   int m;
+  void *u;
 
   int z[20];
   int z[20];
