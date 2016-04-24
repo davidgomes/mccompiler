@@ -280,6 +280,7 @@ void parse_call_node(sym_t *st, node_t *call_node, int an) {
   while (cur_st_node != NULL) {
     if (!strcmp(cur_st_node->id, call_node->childs[0]->value)) {
       expected_args = cur_st_node->n_params;
+      break;
     }
 
     cur_st_node = cur_st_node->next;
