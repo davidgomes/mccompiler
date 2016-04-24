@@ -545,7 +545,7 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
         where->an_type = where->childs[i]->an_type;
       }
     }
-  } else if (where->type == NODE_EQ || where->type == NODE_GT || where->type == NODE_SUB ||
+  } else if (where->type == NODE_EQ || where->type == NODE_GT || where->type == NODE_SUB || where->type == NODE_OR || where->type == NODE_PLUS ||
       where->type == NODE_AND || where->type == NODE_NE || where->type == NODE_LT || where->type == NODE_GE ||
       where->type == NODE_LE || where->type == NODE_MUL || where->type == NODE_DIV || where->type == NODE_MOD ||
       where->type == NODE_NOT || where->type == NODE_ADDR) {
