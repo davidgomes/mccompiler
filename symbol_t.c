@@ -209,68 +209,6 @@ void init_st() {
   last = last->next;
 }
 
-/*sym_t* st_analyze_ast(node_t *root) {
-  while (cur < root->n_childs) {
-    if (cur_node->type == NODE_DECLARATION) {
-      sym_t *new_node = create_variable_node(cur_node);
-
-      if (add_to_top(st, new_node) == 1) {
-        last = new_node;
-      }
-    } else if (cur_node->type == NODE_ARRAYDECLARATION) {
-      sym_t *new_node = create_array_node(cur_node);
-
-      if (add_to_top(st, new_node) == 1) {
-        last = new_node;
-      }
-    } else if (cur_node->type == NODE_FUNCDECLARATION) {
-      sym_t *declaration_node = create_declaration_node(cur_node);
-
-      node_t* param_list = cur_node->childs[declaration_node->n_pointers + 2];
-
-      int i;
-      for (i = 0; i < param_list->n_childs; i++) {
-        node_t* param_declaration = param_list->childs[i];
-
-        sym_t *new_node = create_variable_node(param_declaration);
-        new_node->is_parameter = 1;
-        declaration_node->params[declaration_node->n_params++] = new_node;
-      }
-
-      if (add_to_top(st, declaration_node) == 1) {
-        last = declaration_node;
-      }
-    } else if (cur_node->type == NODE_FUNCDEFINITION) {
-      sym_t *table_node = create_func_table_node(cur_node);
-
-      sym_t *cur_st_node = st->next->next->next->next; // point to "puts->next"
-      sym_t *declaration_node = NULL;
-
-      while (cur_st_node != NULL) {
-        if (!strcmp(cur_st_node->id, table_node->id)) {
-          declaration_node = cur_st_node;
-        }
-
-        cur_st_node = cur_st_node->next;
-      }
-
-      if (declaration_node == NULL) {
-        declaration_node = create_node(FUNC_DECLARATION, table_node->id, table_node->type);
-        declaration_node->n_pointers = table_node->n_pointers;
-        add_to_top(st, declaration_node);
-        last = declaration_node;
-      }
-
-      st_add_definition(st, table_node, cur_node, declaration_node);
-    }
-
-    cur++;
-    cur_node = root->childs[cur];
-  }
-
-  return st;
-}*/
-
 void print_asterisks(int n_pointers) {
   int i;
   for (i = 0; i < n_pointers; i++) {
