@@ -183,7 +183,7 @@ void parse_id_node(sym_t *st, node_t *node_id, char* func_name, int an) { // ler
       node_id->an_type = cur_st_node->type;
       node_id->an_n_pointers = cur_st_node->n_pointers;
       node_id->an_array_size = cur_st_node->array_size;
-      return
+      return;
     }
 
     cur_st_node = cur_st_node->next;
