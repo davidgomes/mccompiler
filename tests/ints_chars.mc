@@ -1,5 +1,4 @@
 void main(void) {
-  int a;
-  a = '0';
-  a = main();
+  void *b, *c, *d;
+  d = c - b;
 }
