@@ -10,4 +10,6 @@ void main(void) {
   c = f(v()) + 2;
   c = f(b);
   c = f(4);
+
+  c = !v();
 }

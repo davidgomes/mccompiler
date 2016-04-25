@@ -292,6 +292,14 @@ void parse_comp_node(sym_t *st, node_t *comp_node) {
   }
 }
 
+void parse_not_node(sym_t *st, node_t *not_node) {
+  if (not_node->childs[0]->an_type == TYPE_VOID) {
+    operator_applied1(not_node, not_node->childs[0]);
+  } else {
+    not_node->an_type = TYPE_INT;
+  }
+}
+
 void parse_sub_plus_node(sym_t *st, node_t *which_node) {
   if (which_node->childs[0]->an_type == TYPE_VOID) {
     operator_applied1(which_node, which_node->childs[0]);
@@ -641,7 +649,9 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
     parse_comp_node(st, where);
   } else if (where->type == NODE_SUB || where->type == NODE_PLUS) {
     parse_sub_plus_node(st, where);
-  } else if (where->type == NODE_ADDR || where->type == NODE_NOT) {
+  } else if (where->type == NODE_NOT) {
+    parse_not_node(st, where);
+  } else if (where->type == NODE_ADDR) { // completely todo
     for (i = 0; i < where->n_childs; i++) {
       if (where->childs[i]->an_type != TYPE_UNKNOWN) {
         where->an_type = where->childs[i]->an_type;
