@@ -8,4 +8,5 @@ void main(void) {
   c = f() * 5;
   c = a % b;
   c = k / m;
+  c = 'a' * 'b';
 }
