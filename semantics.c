@@ -89,6 +89,12 @@ void print_node(node_t *which) {
   print_asterisks2(which->an_n_pointers);
 }
 
+void operator_applied1(node_t *operator, node_t *node1) {
+  printf("Line %d, col %d: Operator %s cannot be applied to types ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
+  print_node(node1);
+  printf("\n");
+}
+
 void operator_applied2(node_t *operator, node_t *node1, node_t *node2) {
   printf("Line %d, col %d: Operator %s cannot be applied to types ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
   print_node(node1);
@@ -266,6 +272,16 @@ void parse_comp_node(sym_t *st, node_t *comp_node) {
     operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]);
   } else {
     comp_node->an_type = TYPE_INT;
+  }
+}
+
+void parse_deref_node(sym_t *st, node_t *deref_node) {
+  if (deref_node->childs[0]->an_type == TYPE_VOID && deref_node->childs[0]->an_n_pointers == 0) {
+    operator_applied1(deref_node, deref_node->childs[0]);
+  } else {
+    deref_node->an_type = deref_node->childs[0]->an_type;
+    deref_node->an_n_pointers = deref_node->childs[0]->an_n_pointers - 1;
+    deref_node->an_array_size = deref_node->childs[0]->an_array_size;
   }
 }
 
@@ -574,9 +590,7 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
   } else if (where->type == NODE_CALL) {
     parse_call_node(st, where, an);
   } else if (where->type == NODE_DEREF) {
-    where->an_type = where->childs[0]->an_type;
-    where->an_n_pointers = where->childs[0]->an_n_pointers - 1;
-    where->an_array_size = where->childs[0]->an_array_size;
+    parse_deref_node(st, where);
   }
 
   if (where->type == NODE_FUNCDEFINITION || where->type == NODE_PROGRAM || where->type == NODE_FUNCBODY ||

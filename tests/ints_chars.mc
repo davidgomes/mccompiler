@@ -8,4 +8,6 @@ void main(void) {
   if (c > main1()) {
 
   }
+
+  d = *main1();
 }
