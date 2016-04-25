@@ -260,6 +260,15 @@ void parse_add_node(sym_t *st, node_t *add_node) {
   }
 }
 
+void parse_comp_node(sym_t *st, node_t *comp_node) {
+  if ((comp_node->childs[0]->an_type == TYPE_VOID && comp_node->childs[0]->an_n_pointers == 0) ||
+      (comp_node->childs[1]->an_type == TYPE_VOID && comp_node->childs[1]->an_n_pointers == 0)) { // first is void or second is void
+    operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]);
+  } else {
+    comp_node->an_type = TYPE_INT;
+  }
+}
+
 void parse_store_node(sym_t *st, node_t *store_node) {
   if (store_node->childs[1]->an_type == TYPE_VOID) {
     conflicting_types(store_node->childs[1], store_node->childs[0]);
@@ -548,9 +557,11 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
         where->an_type = where->childs[i]->an_type;
       }
     }
-  } else if (where->type == NODE_EQ || where->type == NODE_GT || where->type == NODE_SUB || where->type == NODE_OR || where->type == NODE_PLUS ||
-      where->type == NODE_AND || where->type == NODE_NE || where->type == NODE_LT || where->type == NODE_GE ||
-      where->type == NODE_LE || where->type == NODE_MUL || where->type == NODE_DIV || where->type == NODE_MOD ||
+  } else if (where->type == NODE_GT || where->type == NODE_GE | where->type == NODE_EQ || where->type == NODE_LE || where->type == NODE_LT) {
+    parse_comp_node(st, where);
+  } else if (where->type == NODE_SUB || where->type == NODE_OR || where->type == NODE_PLUS ||
+      where->type == NODE_AND || where->type == NODE_NE ||
+      where->type == NODE_MUL || where->type == NODE_DIV || where->type == NODE_MOD ||
       where->type == NODE_NOT || where->type == NODE_ADDR) {
     for (i = 0; i < where->n_childs; i++) {
       if (where->childs[i]->an_type != TYPE_UNKNOWN) {
