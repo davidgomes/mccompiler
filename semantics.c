@@ -372,6 +372,13 @@ void parse_call_node(sym_t *st, node_t *call_node, int an) {
   for (i = 0; i < args_sent_in; i++) {
     if (cur_st_node->params[i]->type != call_node->childs[1 + i]->an_type ||
         cur_st_node->params[i]->n_pointers != call_node->childs[1 + i]->an_n_pointers) { // fix for pointers
+
+      if (cur_st_node->params[i]->n_pointers == 1 && call_node->childs[1 + i]->an_n_pointers == 0) {
+        if (call_node->childs[i + 1]->an_array_size >= 1) {
+          continue;
+        }
+      }
+
       printf("Line %d, col %d: Conflicting types (got ", call_node->loc.first_line, call_node->loc.first_column);
       print_node(call_node->childs[i + 1]);
       printf(", expected ");
