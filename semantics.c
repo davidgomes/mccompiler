@@ -355,11 +355,18 @@ void parse_call_node(sym_t *st, node_t *call_node, int an) {
   }
 
   if (args_sent_in != expected_args) {
-    if (cur_st_node->params[0]->type == TYPE_VOID) {
-      return;
+    if (cur_st_node->params[0]->type != TYPE_VOID) {
+      printf("Line %d, col %d: Wrong number of arguments to function %s (got %d, required %d)\n", call_node->loc.first_line, call_node->loc.first_column, call_node->childs[0]->value, args_sent_in, expected_args);
     }
+  }
 
-    printf("Line %d, col %d: Wrong number of arguments to function %s (got %d, required %d)\n", call_node->loc.first_line, call_node->loc.first_column, call_node->childs[0]->value, args_sent_in, expected_args);
+  int i;
+  for (i = 0; i < args_sent_in; i++) {
+    if (cur_st_node->params[i]->type != call_node->childs[1 + i]->an_type) { // fix for pointers
+      printf("Line %d, col %d: Conflicting types (got %s, expected ", call_node->loc.first_line, call_node->loc.first_column, type_str[call_node->childs[1 + i]->an_type]);
+      printf("%s", type_str[call_node->childs[0]->an_type]);
+      printf(")\n");
+    }
   }
 }
 
