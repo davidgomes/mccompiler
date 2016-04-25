@@ -249,7 +249,7 @@ void parse_add_node(sym_t *st, node_t *add_node) {
       if (add_node->childs[0]->an_n_pointers == 0 && add_node->childs[0]->an_array_size == -1) { // first is not pointer
         add_node->an_type = add_node->childs[1]->an_type;
         add_node->an_n_pointers = add_node->childs[1]->an_n_pointers >= 1 ? add_node->childs[1]->an_n_pointers : 1;
-      } else if (add_node->childs[1]->an_n_pointers == 0 && add_node->childs[1]->an_array_size == -1) {// second is not pointer
+      } else if (add_node->childs[1]->an_n_pointers == 0 && add_node->childs[1]->an_array_size == -1) { // second is not pointer
         add_node->an_type = add_node->childs[0]->an_type;
         add_node->an_n_pointers = add_node->childs[0]->an_n_pointers >= 1 ? add_node->childs[0]->an_n_pointers : 1;
       } else { // they are both pointers can not add
