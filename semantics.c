@@ -89,6 +89,10 @@ void print_node(node_t *which) {
   print_asterisks2(which->an_n_pointers);
 }
 
+void unknown_symbol(node_t *symbol) {
+  printf("Line %d, col %d: Unknown symbol %s\n", symbol->loc.first_line, symbol->loc.first_column, symbol->value);
+}
+
 void operator_applied1(node_t *operator, node_t *node1) {
   printf("Line %d, col %d: Operator %s cannot be applied to types ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
   print_node(node1);
@@ -179,7 +183,7 @@ void parse_id_node(sym_t *st, node_t *node_id, char* func_name, int an) { // ler
       node_id->an_type = cur_st_node->type;
       node_id->an_n_pointers = cur_st_node->n_pointers;
       node_id->an_array_size = cur_st_node->array_size;
-      return;
+      return
     }
 
     cur_st_node = cur_st_node->next;
@@ -205,7 +209,7 @@ void parse_id_node(sym_t *st, node_t *node_id, char* func_name, int an) { // ler
           cur_st_node = cur_st_node->next;
         }
 
-        return;
+        break;
       }
     }
 
@@ -213,6 +217,7 @@ void parse_id_node(sym_t *st, node_t *node_id, char* func_name, int an) { // ler
   }
 
   node_id->an_type = TYPE_UNKNOWN;
+  unknown_symbol(node_id);
 }
 
 char *get_function_name(node_t *definition_node) {
