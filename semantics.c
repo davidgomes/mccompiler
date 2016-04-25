@@ -302,14 +302,32 @@ void parse_deref_node(sym_t *st, node_t *deref_node) {
   }
 }
 
+int find_id(node_t *where) {
+  if (where->type == NODE_ID) {
+    return 1;
+  }
+
+  for (int i = 0; i < where->n_childs; i++) {
+    if (find_id(where->childs[i])) return 1;
+  }
+
+  return 0;
+}
+
 void parse_store_node(sym_t *st, node_t *store_node) {
   if (store_node->childs[1]->an_type == TYPE_VOID) {
     conflicting_types(store_node->childs[1], store_node->childs[0]);
   }
 
-  store_node->an_type = store_node->childs[0]->an_type;
-  store_node->an_n_pointers = store_node->childs[0]->an_n_pointers;
-  store_node->an_array_size = store_node->childs[0]->an_array_size;
+  int id_found = find_id(store_node->childs[0]);
+
+  if (!id_found) {
+    printf("Line %d, col %d: Lvalue required\n", store_node->loc.first_line, store_node->loc.first_column);
+  } else {
+    store_node->an_type = store_node->childs[0]->an_type;
+    store_node->an_n_pointers = store_node->childs[0]->an_n_pointers;
+    store_node->an_array_size = store_node->childs[0]->an_array_size;
+  }
 }
 
 void parse_call_node(sym_t *st, node_t *call_node, int an) {
