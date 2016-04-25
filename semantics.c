@@ -266,6 +266,18 @@ void parse_add_node(sym_t *st, node_t *add_node) {
   }
 }
 
+void parse_mul_div_mod_node(sym_t *st, node_t *which_node) {
+  if ((which_node->childs[0]->an_type == TYPE_VOID && which_node->childs[0]->an_n_pointers == 0) ||
+      (which_node->childs[1]->an_type == TYPE_VOID && which_node->childs[1]->an_n_pointers == 0)) { // first is void or second is void
+    operator_applied2(which_node, which_node->childs[0], which_node->childs[1]);
+  } else if ((which_node->childs[0]->an_n_pointers >= 1 || which_node->childs[0]->an_array_size >= 1) ||
+             (which_node->childs[1]->an_n_pointers >= 1 || which_node->childs[1]->an_array_size >= 1)) { // first is pointer or second is pointer
+    operator_applied2(which_node, which_node->childs[0], which_node->childs[1]);
+  } else {
+    which_node->an_type = TYPE_INT;
+  }
+}
+
 void parse_comp_node(sym_t *st, node_t *comp_node) {
   if ((comp_node->childs[0]->an_type == TYPE_VOID && comp_node->childs[0]->an_n_pointers == 0) ||
       (comp_node->childs[1]->an_type == TYPE_VOID && comp_node->childs[1]->an_n_pointers == 0)) { // first is void or second is void
@@ -573,13 +585,13 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
         where->an_type = where->childs[i]->an_type;
       }
     }
-  } else if (where->type == NODE_GT || where->type == NODE_GE | where->type == NODE_EQ || where->type == NODE_LE || where->type == NODE_LT ||
-             where->type == NODE_AND || where->type == NODE_OR) {
+  } else if (where->type == NODE_MUL || where->type == NODE_DIV || where->type == NODE_MOD) {
+    parse_mul_div_mod_node(st, where);
+  } else if (where->type == NODE_GT || where->type == NODE_GE || where->type == NODE_EQ || where->type == NODE_LE || where->type == NODE_LT ||
+             where->type == NODE_AND || where->type == NODE_OR || where->type == NODE_NE) {
     parse_comp_node(st, where);
   } else if (where->type == NODE_SUB || where->type == NODE_PLUS ||
-      where->type == NODE_NE ||
-      where->type == NODE_MUL || where->type == NODE_DIV || where->type == NODE_MOD ||
-      where->type == NODE_NOT || where->type == NODE_ADDR) {
+             where->type == NODE_NOT || where->type == NODE_ADDR) {
     for (i = 0; i < where->n_childs; i++) {
       if (where->childs[i]->an_type != TYPE_UNKNOWN) {
         where->an_type = where->childs[i]->an_type;
