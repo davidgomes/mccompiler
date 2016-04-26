@@ -255,17 +255,17 @@ void parse_sub_node(sym_t *st, node_t *sub_node) {
 
 void parse_add_node(sym_t *st, node_t *add_node) {
   if ((((add_node->childs[0]->an_n_pointers >= 1 || add_node->childs[0]->an_array_size >= 1)) ||
-        (add_node->childs[1]->an_n_pointers >= 1 || add_node->childs[1]->an_array_size >= 1))) { // one of them is array/pointer
+       (add_node->childs[1]->an_n_pointers >= 1 || add_node->childs[1]->an_array_size >= 1))) { // one of them is array/pointer
 
-      if (add_node->childs[0]->an_n_pointers == 0 && add_node->childs[0]->an_array_size == -1) { // first is not pointer
-        add_node->an_type = add_node->childs[1]->an_type;
-        add_node->an_n_pointers = add_node->childs[1]->an_n_pointers >= 1 ? add_node->childs[1]->an_n_pointers : 1;
-      } else if (add_node->childs[1]->an_n_pointers == 0 && add_node->childs[1]->an_array_size == -1) { // second is not pointer
-        add_node->an_type = add_node->childs[0]->an_type;
-        add_node->an_n_pointers = add_node->childs[0]->an_n_pointers >= 1 ? add_node->childs[0]->an_n_pointers : 1;
-      } else { // they are both pointers can not add
-        operator_applied2(add_node, add_node->childs[0], add_node->childs[1]);
-      }
+    if (add_node->childs[0]->an_n_pointers == 0 && add_node->childs[0]->an_array_size == -1) { // first is not pointer
+      add_node->an_type = add_node->childs[1]->an_type;
+      add_node->an_n_pointers = add_node->childs[1]->an_n_pointers >= 1 ? add_node->childs[1]->an_n_pointers : 1;
+    } else if (add_node->childs[1]->an_n_pointers == 0 && add_node->childs[1]->an_array_size == -1) { // second is not pointer
+      add_node->an_type = add_node->childs[0]->an_type;
+      add_node->an_n_pointers = add_node->childs[0]->an_n_pointers >= 1 ? add_node->childs[0]->an_n_pointers : 1;
+    } else { // they are both pointers can not add
+      operator_applied2(add_node, add_node->childs[0], add_node->childs[1]);
+    }
   } else if (add_node->childs[0]->an_type == add_node->childs[1]->an_type) {
     add_node->an_type = add_node->childs[0]->an_type;
   }
@@ -424,7 +424,13 @@ void parse_return_node(sym_t *st, node_t *return_node, char *func_name) {
 void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
   sym_t *cur_st_node = st;
   sym_t *func_node;
+  int duplicate = 0;
+  sym_t *new_node = create_variable_node(decl_node);
 
+  if (decl_node->childs[0]->type == NODE_VOID && new_node->n_pointers == 0) {
+    printf("Line %d, col %d: Invalid use of void type in declaration\n", decl_node->loc.first_line, decl_node->loc.first_column);
+  }
+  
   if (func_name != NULL) { // variaveis globais podem ser declaradas duas vezes
     while (cur_st_node != NULL) {
       if (!strcmp(cur_st_node->id, func_name)) {
@@ -439,7 +445,7 @@ void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
     while (cur_st_node != NULL) {
       if (cur_st_node->id != NULL && !strcmp(cur_st_node->id, decl_node->childs[decl_node->n_childs - 1]->value)) {
         printf("Line %d, col %d: Symbol %s already defined\n", decl_node->loc.first_line, decl_node->loc.first_column, decl_node->childs[decl_node->n_childs - 1]->value);
-
+        duplicate = 1;
         break;
       }
 
@@ -447,38 +453,29 @@ void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
     }
   }
 
-  int n_pointers;
   if (!func_name) {
-    sym_t *new_node = create_variable_node(decl_node);
-    n_pointers = new_node->n_pointers;
-
     if (add_to_top(st, new_node) == 1) {
       last = new_node;
     }
   } else {
-    sym_t *new_node = create_variable_node(decl_node);
-    n_pointers = new_node->n_pointers;
+    if (!duplicate) {
+      cur_st_node = st;
 
-    cur_st_node = st;
+      while (cur_st_node != NULL) {
+        if (!strcmp(cur_st_node->id, func_name)) {
+          func_node = cur_st_node;
+        }
 
-    while (cur_st_node != NULL) {
-      if (!strcmp(cur_st_node->id, func_name)) {
-        func_node = cur_st_node;
+        cur_st_node = cur_st_node->next;
       }
 
-      cur_st_node = cur_st_node->next;
+      cur_st_node = func_node->definition;
+      while (cur_st_node->next != NULL) {
+        cur_st_node = cur_st_node->next;
+      }
+
+      cur_st_node->next = new_node;
     }
-
-    cur_st_node = func_node->definition;
-    while (cur_st_node->next != NULL) {
-      cur_st_node = cur_st_node->next;
-    }
-
-    cur_st_node->next = new_node;
-  }
-
-  if (decl_node->childs[0]->type == NODE_VOID && n_pointers == 0) {
-    printf("Line %d, col %d: Invalid use of void type in declaration\n", decl_node->loc.first_line, decl_node->loc.first_column);
   }
 }
 

@@ -144,9 +144,9 @@ int add_to_top(sym_t *st, sym_t *node) { // returns 1 if last has to be changed
   sym_t *cur_st_node = st;
 
   while (cur_st_node->next != NULL) {
-    if (!strcmp(cur_st_node->id, node->id)) {
+    /*if (!strcmp(cur_st_node->id, node->id)) {
       return 0;
-    }
+      }*/
 
     if (cur_st_node->next->node_type == FUNC_TABLE) {
       sym_t *tmp = cur_st_node->next;
