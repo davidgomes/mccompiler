@@ -385,7 +385,7 @@ void parse_call_node(sym_t *st, node_t *call_node, int an) {
   }
 
   int i;
-  for (i = 0; i < args_sent_in; i++) {
+  for (i = 0; i < args_sent_in && i < expected_args; i++) {
     if (cur_st_node->params[i]->type != call_node->childs[1 + i]->an_type ||
         cur_st_node->params[i]->n_pointers != call_node->childs[1 + i]->an_n_pointers) { // fix for pointers
 
@@ -462,8 +462,10 @@ void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
   }
 
   if (!func_name) {
-    if (add_to_top(st, new_node) == 1) {
-      last = new_node;
+    if (!duplicate) {
+      if (add_to_top(st, new_node) == 1) {
+        last = new_node;
+      }
     }
   } else {
     if (!duplicate) {
@@ -520,8 +522,10 @@ void parse_array_decl(sym_t *st, node_t *decl_node, char *func_name) {
   }
 
   if (!func_name) {
-    if (add_to_top(st, new_node) == 1) {
-      last = new_node;
+    if (!duplicate) {
+      if (add_to_top(st, new_node) == 1) {
+        last = new_node;
+      }
     }
   } else {
     if (!duplicate) {
