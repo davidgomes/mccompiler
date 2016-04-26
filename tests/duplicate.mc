@@ -12,6 +12,8 @@ void rekt(void) {
 
 }
 
+int a;
+
 void main(void) {
   int c;
   int c;
