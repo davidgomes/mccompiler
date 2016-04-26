@@ -318,6 +318,14 @@ void parse_deref_node(sym_t *st, node_t *deref_node) {
   }
 }
 
+void parse_addr_node(sym_t *st, node_t *addr_node) {
+  // todo se childs[0] for o Id de uma funcao, da erro
+  // todo se childs[0] for o Id de uma array tambem se da erro
+
+  addr_node->an_type = addr_node->childs[0]->an_type;
+  addr_node->an_n_pointers = addr_node->childs[0]->an_n_pointers + 1;
+}
+
 int find_id(node_t *where) {
   if (where->type == NODE_ID) {
     return 1;
@@ -488,7 +496,7 @@ void parse_array_decl(sym_t *st, node_t *decl_node, char *func_name) {
   if (decl_node->childs[0]->type == NODE_VOID && new_node->n_pointers == 0) {
     printf("Line %d, col %d: Invalid use of void type in declaration\n", decl_node->loc.first_line, decl_node->loc.first_column);
   }
-  
+
   if (func_name != NULL) { // variaveis globais podem ser declaradas duas vezes
     while (cur_st_node != NULL) {
       if (!strcmp(cur_st_node->id, func_name)) {
@@ -646,11 +654,7 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
   } else if (where->type == NODE_NOT) {
     parse_not_node(st, where);
   } else if (where->type == NODE_ADDR) { // completely todo
-    for (i = 0; i < where->n_childs; i++) {
-      if (where->childs[i]->an_type != TYPE_UNKNOWN) {
-        where->an_type = where->childs[i]->an_type;
-      }
-    }
+    parse_addr_node(st, where);
   } else if (where->type == NODE_STORE) {
     parse_store_node(st, where);
   } else if (where->type == NODE_CALL) {

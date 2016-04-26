@@ -9,6 +9,7 @@ void f(void) {
      int z[20];
 
      int k;
+     void k;
 }
 
 void main(void) {
