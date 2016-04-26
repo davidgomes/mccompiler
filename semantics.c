@@ -552,8 +552,21 @@ void parse_array_decl(sym_t *st, node_t *decl_node, char *func_name) {
 void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) {
   sym_t *declaration_node = create_declaration_node(func_decl_node);
 
-  node_t* param_list = func_decl_node->childs[declaration_node->n_pointers + 2];
+  // check if duplicate
 
+  sym_t *cur_st_node = st;
+
+  while (cur_st_node != NULL) {
+    if (!strcmp(cur_st_node->id, declaration_node->id)) {
+      printf("Line %d, col %d: Symbol %s already defined\n", func_decl_node->loc.first_line, func_decl_node->loc.first_column, declaration_node->id);
+      return;
+    }
+    
+    cur_st_node = cur_st_node->next;
+  }
+  
+  node_t* param_list = func_decl_node->childs[declaration_node->n_pointers + 2];
+  
   int i;
   for (i = 0; i < param_list->n_childs; i++) {
     node_t* param_declaration = param_list->childs[i];
@@ -576,6 +589,11 @@ void parse_func_definition(sym_t *st, node_t *func_def_node) {
 
   while (cur_st_node != NULL) {
     if (!strcmp(cur_st_node->id, table_node->id)) {
+      if (cur_st_node->node_type != FUNC_DECLARATION) {
+        printf("Line %d, col %d: Symbol %s already defined\n", func_def_node->loc.first_line, func_def_node->loc.first_column, cur_st_node->id);
+        return;
+      }
+      
       declaration_node = cur_st_node;
     }
 

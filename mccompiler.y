@@ -62,7 +62,7 @@ StartAgain: FunctionDefinition StartAgain  { $$ = ast_insert_node(NODE_BLOCK, 0,
           | /* empty */                    { $$ = NULL; }
           ;
 
-FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { $$ = ast_insert_node(NODE_FUNCDEFINITION, 1, 3, $1, $2, $3); }
+FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { $$ = ast_insert_node(NODE_FUNCDEFINITION, 1, 3, $1, $2, $3); $$->loc = @1; }
                   ;
 
 FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { $$ = ast_insert_node(NODE_FUNCBODY, 1, 2, $2, $3); }
@@ -97,7 +97,7 @@ Declarator: Id                                 { $$ = ast_insert_node(NODE_DECLA
 TerminalIntlit: INTLIT { $$ = ast_insert_terminal(NODE_INTLIT, $1); }
               ;
 
-FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { $$ = ast_insert_node(NODE_FUNCDECLARATION, 1, 2, $1, $2); }
+FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { $$ = ast_insert_node(NODE_FUNCDECLARATION, 1, 2, $1, $2); $$->loc = @1; }
                    ;
 
 TypeSpec: CHAR { $$ = ast_insert_terminal(NODE_CHAR, "Char"); }
