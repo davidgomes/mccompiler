@@ -94,7 +94,7 @@ void unknown_symbol(node_t *symbol) {
 }
 
 void operator_applied1(node_t *operator, node_t *node1) {
-  printf("Line %d, col %d: Operator %s cannot be applied to types ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
+  printf("Line %d, col %d: Operator %s cannot be applied to type ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
   print_node(node1);
   printf("\n");
 }
