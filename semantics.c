@@ -99,6 +99,11 @@ void operator_applied1(node_t *operator, node_t *node1) {
   printf("\n");
 }
 
+void operator_applied1_function(node_t *operator, node_t *func_node) {
+  printf("Line %d, col %d: Operator %s cannot be applied to type ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
+
+}
+
 void operator_applied2(node_t *operator, node_t *node1, node_t *node2) {
   printf("Line %d, col %d: Operator %s cannot be applied to types ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
   print_node(node1);
@@ -321,6 +326,19 @@ void parse_deref_node(sym_t *st, node_t *deref_node) {
 void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
   // todo se childs[0] for o Id de uma funcao, da erro
   // todo se childs[0] for o Id de uma array tambem se da erro
+
+  sym_t *cur_st_node = st;
+
+  while (cur_st_node != NULL) {
+    if (addr_node->childs[0]->value != NULL) {
+      if (!strcmp(cur_st_node->id, addr_node->childs[0]->value)) {
+        operator_applied1_function(addr_node, addr_node->childs[0]);
+        return;
+      }
+    }
+
+    cur_st_node = cur_st_node->next;
+  }
 
   addr_node->an_type = addr_node->childs[0]->an_type;
   addr_node->an_n_pointers = addr_node->childs[0]->an_n_pointers + 1;
@@ -569,13 +587,11 @@ void parse_array_decl(sym_t *st, node_t *decl_node, char *func_name) {
 void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) {
   sym_t *declaration_node = create_declaration_node(func_decl_node);
 
-  // check if duplicate
-
+  // if duplicate, we don't put it in symbol table
   sym_t *cur_st_node = st;
 
   while (cur_st_node != NULL) {
     if (!strcmp(cur_st_node->id, declaration_node->id)) {
-      printf("Line %d, col %d: Symbol %s already defined\n", func_decl_node->loc.first_line, func_decl_node->loc.first_column, declaration_node->id);
       return;
     }
 
