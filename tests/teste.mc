@@ -1,2 +1,2 @@
-void wat(int, int);
-void *wat(int a, int b);
+int a;
+char a;

@@ -329,6 +329,14 @@ void parse_not_node(sym_t *st, node_t *not_node) {
 }
 
 void parse_sub_plus_node(sym_t *st, node_t *which_node) {
+  sym_t *cur_st_node = st;
+
+  while (cur_st_node != NULL) {
+    if (cur_st_node)
+
+    cur_st_node = cur_st_node->next;
+  }
+
   if (which_node->childs[0]->an_type == TYPE_VOID) {
     operator_applied1(which_node, which_node->childs[0]);
   } else {
@@ -347,7 +355,6 @@ void parse_deref_node(sym_t *st, node_t *deref_node) {
 }
 
 void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
-  // todo se childs[0] for o Id de uma funcao, da erro
   // todo se childs[0] for o Id de uma array tambem se da erro
 
   sym_t *cur_st_node = st;
@@ -503,7 +510,15 @@ void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
     }
   } else {
     while (cur_st_node != NULL) {
-      if (!strcmp(cur_st_node->id, new_node->id)) { // check if preivous decl was actually a function and give error
+      if (!strcmp(cur_st_node->id, new_node->id)) { // check if preivous decl was something else
+        if (cur_st_node->type != new_node->type || (cur_st_node->type == new_node->type && cur_st_node->n_pointers != new_node->n_pointers)) {
+          printf("Line %d, col %d: Conflicting types (got %s", decl_node->loc.first_line, decl_node->loc.first_column, type_str[new_node->type]);
+          print_asterisks2(new_node->n_pointers);
+          printf(", expected %s", type_str[cur_st_node->type]);
+          print_asterisks2(cur_st_node->n_pointers);
+          printf(")\n");
+        }
+
         duplicate = 1;
       }
 
