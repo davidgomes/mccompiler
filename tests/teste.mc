@@ -16,3 +16,5 @@ void *l(void *o, void*);
 void *l(void *o, void* t) {
 
 }
+
+void *l(void *o, void*);
