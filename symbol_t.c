@@ -22,6 +22,7 @@ sym_t *create_node(table_type_t node_type, char *name, type_t type) {
   node->next = NULL;
   node->n_params = 0;
   node->definition = NULL;
+  node->defined = 0;
   node->params = (sym_t**) malloc(1000 * sizeof(sym_t*));
 
   int i;
@@ -154,7 +155,10 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
     if (param_declaration->n_childs == 1) { // int main(void) { for instance
       new_node = create_node(VARIABLE, NULL, TYPE_VOID);
       new_node->is_parameter = 1;
-      declaration_node->params[declaration_node->n_params++] = new_node;
+
+      if (declaration_node_was_defined == 0) {
+        declaration_node->params[declaration_node->n_params++] = new_node;
+      }
 
       break;
     }
@@ -203,12 +207,14 @@ void init_st() {
   last = st;
 
   last->next = create_node(FUNC_DECLARATION, "atoi", TYPE_INT);
+  last->next->defined = 1;
   last->next->n_params = 1;
   last->next->params[0] = create_node(VARIABLE, NULL, TYPE_CHAR);
   last->next->params[0]->n_pointers = 1;
   last = last->next;
 
   last->next = create_node(FUNC_DECLARATION, "itoa", TYPE_CHAR);
+  last->next->defined = 1;
   last->next->n_pointers = 1;
   last->next->n_params = 2;
   last->next->params[0] = create_node(VARIABLE, NULL, TYPE_INT);
@@ -217,6 +223,7 @@ void init_st() {
   last = last->next;
 
   last->next = create_node(FUNC_DECLARATION, "puts", TYPE_INT);
+  last->next->defined = 1;
   last->next->n_params = 1;
   last->next->params[0] = create_node(VARIABLE, NULL, TYPE_CHAR);
   last->next->params[0]->n_pointers = 1;

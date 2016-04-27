@@ -59,6 +59,7 @@ typedef struct sym_t {
   /*Points to the next item on the table*/
   struct sym_t* next;
   struct sym_t* definition;
+  int defined;
 } sym_t;
 
 typedef struct node {
