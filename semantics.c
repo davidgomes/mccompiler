@@ -318,7 +318,7 @@ void parse_deref_node(sym_t *st, node_t *deref_node) {
   }
 }
 
-void parse_addr_node(sym_t *st, node_t *addr_node) {
+void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
   // todo se childs[0] for o Id de uma funcao, da erro
   // todo se childs[0] for o Id de uma array tambem se da erro
 
@@ -702,7 +702,7 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
   } else if (where->type == NODE_NOT) {
     parse_not_node(st, where);
   } else if (where->type == NODE_ADDR) { // completely todo
-    parse_addr_node(st, where);
+    parse_addr_node(st, where, func_name);
   } else if (where->type == NODE_STORE) {
     parse_store_node(st, where);
   } else if (where->type == NODE_CALL) {
