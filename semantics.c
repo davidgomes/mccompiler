@@ -408,23 +408,33 @@ void parse_call_node(sym_t *st, node_t *call_node, int an) {
 void parse_return_node(sym_t *st, node_t *return_node, char *func_name) {
   sym_t *cur_st_node = st;
   type_t expected_type;
+  int expected_pointers;
 
   while (cur_st_node != NULL) {
     if (!strcmp(cur_st_node->id, func_name)) {
       expected_type = cur_st_node->type;
+      expected_pointers = cur_st_node->n_pointers;
     }
 
     cur_st_node = cur_st_node->next;
   }
 
-  if (expected_type == TYPE_VOID && return_node->childs[0]->type != NODE_NULL) {
-    printf("Line %d, col %d: Invalid use of void type in declaration\n", return_node->loc.first_line, return_node->loc.first_column);
-    return;
-  }
+  if (expected_type != return_node->childs[0]->an_type ||
+      (expected_type == return_node->childs[0]->an_type &&
+       expected_pointers != return_node->childs[0]->an_n_pointers)) {
 
-  if (expected_type != return_node->childs[0]->an_type) { // todo check that return int and return char is same thing
-    printf("Line %d, col %d: Conflicting types (got %s, expected ", return_node->loc.first_line, return_node->loc.first_column, type_str[return_node->childs[0]->an_type]);
+    if (expected_pointers == 0 && return_node->childs[0]->an_n_pointers == 0) { // none is pointer
+      if ((expected_type == TYPE_CHAR && return_node->childs[0]->an_type == TYPE_INT) ||
+          (expected_type == TYPE_INT && return_node->childs[0]->an_type == TYPE_CHAR)) { // if one is int and the other is char no problem
+        return;
+      }
+    }
+
+    printf("Line %d, col %d: Conflicting types (got %s", return_node->loc.first_line, return_node->loc.first_column, type_str[return_node->childs[0]->an_type]);
+    print_asterisks2(return_node->childs[0]->an_n_pointers);
+    printf(", expected ");
     printf("%s", type_str[expected_type]);
+    print_asterisks2(expected_pointers);
     printf(")\n");
   }
 }
