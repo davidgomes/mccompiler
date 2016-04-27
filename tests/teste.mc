@@ -1,20 +1,2 @@
-int a(int a, int b) {
-
-}
-
-int a(int a, int b);
-int a(int, int);
-
-int b(int);
-
-int b(int k, int z) {
-
-}
-
-void *l(void *o, void*);
-
-void *l(void *o, void* t) {
-
-}
-
-void *l(void *o, void*);
+void wat(int, int);
+void *wat(int a, int b);

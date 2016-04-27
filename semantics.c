@@ -614,7 +614,7 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
   sym_t *cur_st_node = st;
 
   while (cur_st_node != NULL) {
-    if (!strcmp(cur_st_node->id, declaration_node->id)) {
+    if (!strcmp(cur_st_node->id, declaration_node->id)) { // todo if it's different declaration (different type or args) then error
       return;
     }
 
