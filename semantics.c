@@ -437,6 +437,7 @@ void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
 
   if (decl_node->childs[0]->type == NODE_VOID && new_node->n_pointers == 0) {
     printf("Line %d, col %d: Invalid use of void type in declaration\n", decl_node->loc.first_line, decl_node->loc.first_column);
+    return;
   }
 
   if (func_name != NULL) { // variaveis globais podem ser declaradas duas vezes
