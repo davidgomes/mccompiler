@@ -30,3 +30,7 @@ void main(void) {
   c = dude();
   *c = a;
 }
+
+void rekt(void) {
+
+}
