@@ -459,6 +459,14 @@ void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
 
       cur_st_node = cur_st_node->next;
     }
+  } else {
+    while (cur_st_node != NULL) {
+      if (!strcmp(cur_st_node->id, new_node->id)) { // check if preivous decl was actually a function and give error
+        duplicate = 1;
+      }
+
+      cur_st_node = cur_st_node->next;
+    }
   }
 
   if (!func_name) {
@@ -519,6 +527,14 @@ void parse_array_decl(sym_t *st, node_t *decl_node, char *func_name) {
 
       cur_st_node = cur_st_node->next;
     }
+  } else {
+    while (cur_st_node != NULL) {
+      if (!strcmp(cur_st_node->id, new_node->id)) { // check if preivous decl was actually a function and give error
+        duplicate = 1;
+      }
+
+      cur_st_node = cur_st_node->next;
+    }
   }
 
   if (!func_name) {
@@ -561,12 +577,12 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
       printf("Line %d, col %d: Symbol %s already defined\n", func_decl_node->loc.first_line, func_decl_node->loc.first_column, declaration_node->id);
       return;
     }
-    
+
     cur_st_node = cur_st_node->next;
   }
-  
+
   node_t* param_list = func_decl_node->childs[declaration_node->n_pointers + 2];
-  
+
   int i;
   for (i = 0; i < param_list->n_childs; i++) {
     node_t* param_declaration = param_list->childs[i];
@@ -593,7 +609,7 @@ void parse_func_definition(sym_t *st, node_t *func_def_node) {
         printf("Line %d, col %d: Symbol %s already defined\n", func_def_node->loc.first_line, func_def_node->loc.first_column, cur_st_node->id);
         return;
       }
-      
+
       declaration_node = cur_st_node;
     }
 
