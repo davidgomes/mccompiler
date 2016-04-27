@@ -326,24 +326,14 @@ void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
   addr_node->an_n_pointers = addr_node->childs[0]->an_n_pointers + 1;
 }
 
-int find_id(node_t *where) {
-  if (where->type == NODE_ID) {
-    return 1;
-  }
-
-  for (int i = 0; i < where->n_childs; i++) {
-    if (find_id(where->childs[i])) return 1;
-  }
-
-  return 0;
-}
-
 void parse_store_node(sym_t *st, node_t *store_node) {
   if (store_node->childs[1]->an_type == TYPE_VOID) {
     conflicting_types(store_node->childs[1], store_node->childs[0]);
   }
 
-  int id_found = find_id(store_node->childs[0]);
+  int id_found = store_node->childs[0]->type == NODE_ID ||
+                 (store_node->childs[0]->type == NODE_DEREF && store_node->childs[0]->an_type != TYPE_UNDEF &&
+                  store_node->childs[0]->an_type != TYPE_UNKNOWN);
 
   if (!id_found) {
     printf("Line %d, col %d: Lvalue required\n", store_node->loc.first_line, store_node->loc.first_column);
