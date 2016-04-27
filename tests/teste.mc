@@ -1,8 +1,5 @@
-char buffer[20];
+int f(int, int);
 
-void main(void) {
-  char *b;
-  int k;
-  b = *buffer + 3;
-  k = buffer + 3;
+int f(char, int) {
+  return 0;
 }

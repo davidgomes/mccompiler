@@ -1,5 +1,10 @@
-int f(int, int);
+char buffer[20];
 
-int f(char, int) {
-  
+int main(void) {
+  char *b;
+  char k;
+  b = *buffer + 3;
+  k = buffer + 3;
+
+  return 0;
 }
