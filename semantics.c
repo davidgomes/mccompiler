@@ -600,7 +600,7 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
 void parse_func_definition(sym_t *st, node_t *func_def_node) {
   sym_t *table_node = create_func_table_node(func_def_node);
 
-  sym_t *cur_st_node = st->next->next->next->next; // point to "puts->next"
+  sym_t *cur_st_node = st;
   sym_t *declaration_node = NULL;
 
   while (cur_st_node != NULL) {
