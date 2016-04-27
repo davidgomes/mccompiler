@@ -111,7 +111,9 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
 
   node_t* param_list = cur_node->childs[new_node->n_pointers + 2];
 
-  if (declaration_node->n_params == 0) { // TODO Ao ler os parâmetros, detetar parâmetros duplicados
+  int declaration_node_was_defined = declaration_node->n_params > 0;
+
+  //if (declaration_node->n_params == 0) { // TODO Ao ler os parâmetros, detetar parâmetros duplicados
     int i;
     for (i = 0; i < param_list->n_childs; i++) {
       node_t* param_declaration = param_list->childs[i];
@@ -127,12 +129,14 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
       new_node = create_variable_node(param_declaration);
       new_node->is_parameter = 1;
 
-      declaration_node->params[declaration_node->n_params++] = new_node;
+      if (declaration_node_was_defined == 0) {
+        declaration_node->params[declaration_node->n_params++] = new_node;
+      }
 
       last_node->next = new_node;
       last_node = new_node;
     }
-  }
+  //}
 }
 
 int add_to_top(sym_t *st, sym_t *node) { // returns 1 if last has to be changed
