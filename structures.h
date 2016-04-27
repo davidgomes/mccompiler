@@ -12,8 +12,6 @@ typedef enum { NODE_PROGRAM, NODE_DECLARATION, NODE_ARRAYDECLARATION, NODE_FUNCD
                NODE_FUNCTIONBODYSTATEMENT, NODE_STATEMENT, NODE_ARRAYDECLARATOR, NODE_BLOCK, NODE_PROGRAM_BLOCK,
                NODE_EXPRESSION} nodetype_t;
 
-typedef struct sym_t sym_t;
-
 typedef enum {
   TYPE_INT,
   TYPE_CHAR,
@@ -25,25 +23,6 @@ typedef enum {
   TYPE_UNKNOWN, /* Used internally */
   TYPE_UNDEF
 } type_t;
-
-typedef struct node {
-  struct node *sibling_right;
-  nodetype_t type;
-  char* value;
-  int to_use;
-  int n_childs;
-  struct node **childs;
-
-  type_t an_type;
-  int an_n_pointers;
-  int an_array_size;
-
-  // for function ids in calls
-  int an_n_params;
-  sym_t **an_params;
-
-  YYLTYPE loc;
-} node_t;
 
 typedef enum {
   GLOBAL,
@@ -81,6 +60,25 @@ typedef struct sym_t {
   struct sym_t* next;
   struct sym_t* definition;
 } sym_t;
+
+typedef struct node {
+  struct node *sibling_right;
+  nodetype_t type;
+  char* value;
+  int to_use;
+  int n_childs;
+  struct node **childs;
+
+  type_t an_type;
+  int an_n_pointers;
+  int an_array_size;
+
+  // for function ids in calls
+  int an_n_params;
+  sym_t **an_params;
+
+  YYLTYPE loc;
+} node_t;
 
 
 #endif
