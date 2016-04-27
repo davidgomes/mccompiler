@@ -99,9 +99,32 @@ void operator_applied1(node_t *operator, node_t *node1) {
   printf("\n");
 }
 
-void operator_applied1_function(node_t *operator, node_t *func_node) {
-  printf("Line %d, col %d: Operator %s cannot be applied to type ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
+void print_function_type(sym_t *decl_node) {
+  printf("%s(", type_str[decl_node->type]);
 
+  int i;
+  for (i = 0; i < decl_node->n_params; i++) {
+    sym_t *arg = decl_node->params[i];
+
+    if (arg->n_pointers == 0) {
+      printf("%s", type_str[arg->type]);
+    } else {
+      printf("%s", type_str[arg->type]);
+      print_asterisks2(arg->n_pointers);
+    }
+
+    if (i != decl_node->n_params - 1) {
+      printf(",");
+    }
+  }
+
+  printf(")");
+}
+
+void operator_applied1_function(node_t *operator, sym_t *decl_node) {
+  printf("Line %d, col %d: Operator %s cannot be applied to type ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
+  print_function_type(decl_node);
+  printf("\n");
 }
 
 void operator_applied2(node_t *operator, node_t *node1, node_t *node2) {
@@ -332,7 +355,7 @@ void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
   while (cur_st_node != NULL) {
     if (addr_node->childs[0]->value != NULL) {
       if (!strcmp(cur_st_node->id, addr_node->childs[0]->value)) {
-        operator_applied1_function(addr_node, addr_node->childs[0]);
+        operator_applied1_function(addr_node, cur_st_node);
         return;
       }
     }
