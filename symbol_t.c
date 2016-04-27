@@ -67,6 +67,11 @@ sym_t* create_array_node(node_t *cur_node) {
   sym_t *new_node = create_node(ARRAY, cur_node->childs[n_pointers + 1]->value, node_type_to_sym_type(cur_node->childs[0]->type));
   new_node->n_pointers = n_pointers;
   new_node->array_size = atoi(cur_node->childs[n_pointers + 2]->value);
+
+  if (cur_node->childs[n_pointers + 2]->value[0] == '0') {
+    printf("octal\n");
+  }
+
   return new_node;
 }
 
