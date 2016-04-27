@@ -44,7 +44,7 @@ sym_t* create_variable_node(node_t *cur_node) {
     cur_pointer++;
   }
 
-  if (cur_node->childs[n_pointers + 1] == NULL) {
+  if (n_pointers + 1 >= cur_node->n_childs) {
     new_node = create_node(VARIABLE, NULL, node_type_to_sym_type(cur_node->childs[0]->type));
   } else {
     new_node = create_node(VARIABLE, cur_node->childs[n_pointers + 1]->value, node_type_to_sym_type(cur_node->childs[0]->type));
