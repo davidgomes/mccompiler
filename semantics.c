@@ -448,6 +448,7 @@ void parse_minus_plus_node(sym_t *st, node_t *which_node, char *func_name) {
 
   if (which_node->childs[0]->an_n_pointers > 0) {
     operator_applied1(which_node, which_node->childs[0]);
+    return;
   }
 
   if (which_node->childs[0]->an_type == TYPE_VOID) {
