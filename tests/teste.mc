@@ -1,6 +1,6 @@
 char buffer[20];
 
-int f(char, int) {
+int f(char a, int b) {
   if (+f) {
 
   }
@@ -14,4 +14,10 @@ int f(char, int) {
   }
 
   return 0;
+}
+
+int g(int a);
+
+int g(char* a) {
+
 }
