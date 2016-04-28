@@ -14,6 +14,9 @@ int n[03];
 int f(int a, int b) {
   int n;
   int n;
+
+  int b;
+  int c, b;
 }
 
 int f(int a, int b) {
