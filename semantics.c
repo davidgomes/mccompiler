@@ -143,6 +143,22 @@ void conflicting_types(node_t *node1, node_t *node2) {
   printf(")\n");
 }
 
+sym_t *is_function(sym_t *st, node_t *which_node) {
+  sym_t *cur_st_node = st;
+
+  while (cur_st_node != NULL) {
+    if (which_node->value != NULL) {
+      if (!strcmp(cur_st_node->id, which_node->value)) {
+        return cur_st_node;
+      }
+    }
+
+    cur_st_node = cur_st_node->next;
+  }
+
+  return NULL;
+}
+
 void parse_id_node(sym_t *st, node_t *node_id, char* func_name, int an) { // ler também nas declarations para chamada de funcoes nao definidas, no fim.
   if (!an) { // todo: check for duplicate but not annotate
     return;
@@ -359,15 +375,11 @@ void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
 
   sym_t *cur_st_node = st;
 
-  while (cur_st_node != NULL) {
-    if (addr_node->childs[0]->value != NULL) {
-      if (!strcmp(cur_st_node->id, addr_node->childs[0]->value)) {
-        operator_applied1_function(addr_node, cur_st_node);
-        return;
-      }
-    }
+  sym_t *func_node = is_function(st, addr_node->childs[0]);
 
-    cur_st_node = cur_st_node->next;
+  if (func_node != NULL) {
+    operator_applied1_function(addr_node, func_node);
+    return;
   }
 
   addr_node->an_type = addr_node->childs[0]->an_type;
