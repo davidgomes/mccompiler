@@ -1,6 +1,6 @@
 char buffer[20];
 
-void v(void) { return; }
+void v(void) { return 5; }
 
 int f(char a, int b) {
   void *wat;

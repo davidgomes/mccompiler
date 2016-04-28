@@ -587,7 +587,7 @@ void parse_return_node(sym_t *st, node_t *return_node, char *func_name) {
       return;
     }
 
-    printf("Line %d, col %d: Conflicting types (got %s", return_node->loc.first_line, return_node->loc.first_column, type_str[return_node->childs[0]->an_type]);
+    printf("Line %d, col %d: Conflicting types (got %s", return_node->childs[0]->loc.first_line, return_node->childs[0]->loc.first_column, type_str[return_node->childs[0]->an_type]);
     print_asterisks2(return_node->childs[0]->an_n_pointers);
     printf(", expected ");
     printf("%s", type_str[expected_type]);
