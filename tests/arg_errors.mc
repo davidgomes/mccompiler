@@ -12,7 +12,8 @@ int o[3];
 int n[03];
 
 int f(int a, int b) {
-
+  int n;
+  int n;
 }
 
 int f(int a, int b) {
