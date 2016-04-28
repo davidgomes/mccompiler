@@ -339,7 +339,16 @@ void parse_sub_node(sym_t *st, node_t *sub_node) {
       (sub_node->childs[1]->an_type == TYPE_VOID && sub_node->childs[1]->an_n_pointers >= 1)) { // subtracting void*s
     operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
   } else if (sub_node->childs[0]->an_type == sub_node->childs[1]->an_type) {
-    sub_node->an_type = sub_node->childs[0]->an_type;
+    if (sub_node->childs[0]->an_type == TYPE_CHAR) {// both are chars
+      sub_node->an_type = TYPE_INT;
+    } else {
+      sub_node->an_type = sub_node->childs[0]->an_type;
+    }
+  } else {
+    if ((sub_node->childs[0]->an_type == TYPE_CHAR && sub_node->childs[1]->an_type == TYPE_INT) ||
+        (sub_node->childs[0]->an_type == TYPE_INT && sub_node->childs[1]->an_type == TYPE_CHAR)) { // one is char, the other is int
+      sub_node->an_type = TYPE_INT;
+    }
   }
 }
 
