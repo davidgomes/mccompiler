@@ -383,6 +383,13 @@ void parse_comp_node(sym_t *st, node_t *comp_node) {
 }
 
 void parse_not_node(sym_t *st, node_t *not_node) {
+  sym_t *func_node = is_function(st, not_node->childs[0]);
+
+  if (func_node != NULL) {
+    operator_applied1_function(not_node, func_node);
+    return;
+  }
+
   if (not_node->childs[0]->an_type == TYPE_VOID) {
     operator_applied1(not_node, not_node->childs[0]);
   } else {
