@@ -751,7 +751,6 @@ void parse_func_definition(sym_t *st, node_t *func_def_node) {
 
   while (cur_st_node != NULL) {
     if (!strcmp(cur_st_node->id, table_node->id)) {
-      //if (cur_st_node->node_type != FUNC_DECLARATION || (cur_st_node->node_type == FUNC_DECLARATION && (cur_st_node->definition != NULL || cur_st_node->defined))) {
       if (cur_st_node->node_type != FUNC_DECLARATION || (cur_st_node->node_type == FUNC_DECLARATION && cur_st_node->definition != NULL)) {
         printf("Line %d, col %d: Symbol %s already defined\n", func_def_node->loc.first_line, func_def_node->childs[table_node->n_pointers + 1]->loc.first_column, cur_st_node->id);
         return;
