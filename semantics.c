@@ -440,6 +440,8 @@ void parse_minus_plus_node(sym_t *st, node_t *which_node, char *func_name) {
 
   if (which_node->childs[0]->an_type == TYPE_VOID) {
     operator_applied1(which_node, which_node->childs[0]);
+  } else if (which_node->childs[0]->an_type == TYPE_CHAR) {
+    which_node->an_type = TYPE_INT;
   } else {
     which_node->an_type = which_node->childs[0]->an_type;
   }

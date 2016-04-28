@@ -33,7 +33,7 @@ int f(char a, int b) {
 
   }
 
-  if (v() - v()) {
+  if (+'c') {
 
   }
 
