@@ -33,8 +33,8 @@ int f(char a, int b) {
 
   }
 
-  if (v() + v()) {
-  
+  if (v() - v()) {
+
   }
 
   return 0;

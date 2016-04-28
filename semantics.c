@@ -341,6 +341,8 @@ void parse_sub_node(sym_t *st, node_t *sub_node) {
   } else if (sub_node->childs[0]->an_type == sub_node->childs[1]->an_type) {
     if (sub_node->childs[0]->an_type == TYPE_CHAR) {// both are chars
       sub_node->an_type = TYPE_INT;
+    } else if (sub_node->childs[0]->an_type == TYPE_VOID) {
+      operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
     } else {
       sub_node->an_type = sub_node->childs[0]->an_type;
     }
