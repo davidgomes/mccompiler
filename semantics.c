@@ -757,7 +757,7 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
     parse_minus_plus_node(st, where);
   } else if (where->type == NODE_NOT) {
     parse_not_node(st, where);
-  } else if (where->type == NODE_ADDR) { // completely todo
+  } else if (where->type == NODE_ADDR) {
     parse_addr_node(st, where, func_name);
   } else if (where->type == NODE_STORE) {
     parse_store_node(st, where);
