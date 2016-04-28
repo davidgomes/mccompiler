@@ -1,7 +1,8 @@
-char buffer[20];
+char b;
 
 int main(void) {
-  char *addr = &(buffer[2]);
+  int c;
+  void *pointer = &c;
 
   return 0;
 }

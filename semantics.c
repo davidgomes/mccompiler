@@ -390,12 +390,21 @@ void parse_not_node(sym_t *st, node_t *not_node) {
   }
 }
 
-void parse_minus_plus_node(sym_t *st, node_t *which_node) {
+void parse_minus_plus_node(sym_t *st, node_t *which_node, char *func_name) {
   sym_t *func_node = is_function(st, which_node->childs[0]);
 
   if (func_node != NULL) {
     operator_applied1_function(which_node, func_node);
     return;
+  }
+
+  if (which_node->childs[0]->type == NODE_ID) {
+    sym_t *array_node = is_array(st, which_node->childs[0], func_name);
+
+    if (array_node != NULL) { // todo array print not just type print
+      operator_applied1(which_node, which_node->childs[0]);
+      return;
+    }
   }
 
   if (which_node->childs[0]->an_type == TYPE_VOID) {
@@ -437,7 +446,7 @@ void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
       array_node = is_array(st, addr_node->childs[0], func_name);
     }
 
-    if (array_node) {
+    if (array_node) { // maybe todo fix char[20] to char*, depends on professor answer
       printf("Line %d, col %d: Operator %s cannot be applied to type ", addr_node->loc.first_line, addr_node->loc.first_column, node_types[addr_node->type]);
       printf("%s[%d]\n", type_str[array_node->type], array_node->array_size);
     } else {
@@ -817,7 +826,7 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
              where->type == NODE_AND || where->type == NODE_OR || where->type == NODE_NE) {
     parse_comp_node(st, where);
   } else if (where->type == NODE_MINUS || where->type == NODE_PLUS) {
-    parse_minus_plus_node(st, where);
+    parse_minus_plus_node(st, where, func_name);
   } else if (where->type == NODE_NOT) {
     parse_not_node(st, where);
   } else if (where->type == NODE_ADDR) {
