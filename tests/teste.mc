@@ -1,5 +1,7 @@
 char buffer[20];
 
+void v(void) {}
+
 int f(char a, int b) {
   void *wat;
 
@@ -28,6 +30,10 @@ int f(char a, int b) {
   }
 
   if ('b' - 'a') {
+
+  }
+
+  if (v() + v()) {
   
   }
 
