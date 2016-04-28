@@ -2,8 +2,13 @@ void z(void) {
 
 }
 
-int puts(void) {
+int f(void) {
+  return 10;
+}
 
+int puts(void) {
+  void *mm;
+  mm = &f();
 }
 
 void main(void) {

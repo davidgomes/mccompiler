@@ -380,8 +380,16 @@ void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
     return;
   }
 
-  addr_node->an_type = addr_node->childs[0]->an_type;
-  addr_node->an_n_pointers = addr_node->childs[0]->an_n_pointers + 1;
+  int id_found = addr_node->childs[0]->type == NODE_ID ||
+                 (addr_node->childs[0]->type == NODE_DEREF && addr_node->childs[0]->an_type != TYPE_UNDEF &&
+                  addr_node->childs[0]->an_type != TYPE_UNKNOWN);
+
+  if (!id_found) {
+    operator_applied1(addr_node, addr_node->childs[0]);
+  } else {
+    addr_node->an_type = addr_node->childs[0]->an_type;
+    addr_node->an_n_pointers = addr_node->childs[0]->an_n_pointers + 1;
+  }
 }
 
 void parse_store_node(sym_t *st, node_t *store_node) {
