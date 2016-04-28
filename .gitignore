@@ -14,3 +14,4 @@ mccompiler.tab.h
 symbol_t
 mccompiler.dSYM/
 semantics
+tests/test
