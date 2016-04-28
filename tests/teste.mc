@@ -1,6 +1,8 @@
 char buffer[20];
 
-int f(char, int) {
+int f(char a, int b) {
+  void *wat;
+
   if (+f) {
 
   }
@@ -13,5 +15,15 @@ int f(char, int) {
 
   }
 
+  if ('a' + 'b') {
+
+  }
+
   return 0;
+}
+
+int g(int a);
+
+int g(char* a) { /* , int k */
+
 }

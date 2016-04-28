@@ -357,7 +357,11 @@ void parse_add_node(sym_t *st, node_t *add_node) {
       operator_applied2(add_node, add_node->childs[0], add_node->childs[1]);
     }
   } else if (add_node->childs[0]->an_type == add_node->childs[1]->an_type) {
-    add_node->an_type = add_node->childs[0]->an_type;
+    if (add_node->childs[0]->an_type == TYPE_CHAR) { // both are chars
+      add_node->an_type = TYPE_INT;      
+    } else {
+      add_node->an_type = add_node->childs[0]->an_type;
+    }
   }
 }
 
