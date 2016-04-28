@@ -19,6 +19,10 @@ int f(char a, int b) {
 
   }
 
+  if ('a' + 4) {
+  
+  }
+
   return 0;
 }
 

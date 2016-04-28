@@ -358,9 +358,14 @@ void parse_add_node(sym_t *st, node_t *add_node) {
     }
   } else if (add_node->childs[0]->an_type == add_node->childs[1]->an_type) {
     if (add_node->childs[0]->an_type == TYPE_CHAR) { // both are chars
-      add_node->an_type = TYPE_INT;      
+      add_node->an_type = TYPE_INT;
     } else {
       add_node->an_type = add_node->childs[0]->an_type;
+    }
+  } else {
+    if ((add_node->childs[0]->an_type == TYPE_CHAR && add_node->childs[1]->an_type == TYPE_INT) ||
+        (add_node->childs[0]->an_type == TYPE_INT && add_node->childs[1]->an_type == TYPE_CHAR)) { // one is char, the other is int
+      add_node->an_type = TYPE_INT;
     }
   }
 }
