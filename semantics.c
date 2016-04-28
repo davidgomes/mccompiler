@@ -373,8 +373,6 @@ void parse_deref_node(sym_t *st, node_t *deref_node) {
 void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
   // todo se childs[0] for o Id de uma array tambem se da erro
 
-  sym_t *cur_st_node = st;
-
   sym_t *func_node = is_function(st, addr_node->childs[0]);
 
   if (func_node != NULL) {
