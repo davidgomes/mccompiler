@@ -453,7 +453,7 @@ void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
       array_node = is_array(st, addr_node->childs[0], func_name);
     }
 
-    if (array_node) { // maybe todo fix char[20] to char*, depends on professor answer
+    if (array_node) {
       printf("Line %d, col %d: Operator %s cannot be applied to type ", addr_node->loc.first_line, addr_node->loc.first_column, node_types[addr_node->type]);
       printf("%s[%d]\n", type_str[array_node->type], array_node->array_size);
     } else {
