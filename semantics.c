@@ -143,12 +143,58 @@ void conflicting_types(node_t *node1, node_t *node2) {
   printf(")\n");
 }
 
+sym_t *is_array(sym_t *st, node_t *which_node, char *func_name) {
+  sym_t *cur_st_node;
+
+  cur_st_node = st;
+  sym_t *func_node = NULL;
+
+  while (cur_st_node != NULL) {
+    if (!strcmp(cur_st_node->id, func_name)) {
+      func_node = cur_st_node;
+      break;
+    }
+
+    cur_st_node = cur_st_node->next;
+  }
+
+  cur_st_node = func_node->definition->next;
+
+  while (cur_st_node != NULL) {
+    if (cur_st_node->id != NULL && which_node->value != NULL) {
+      if (!strcmp(cur_st_node->id, which_node->value)) {
+        if (cur_st_node->node_type == ARRAY) {
+          return cur_st_node;
+        }
+      }
+    }
+
+    cur_st_node = cur_st_node->next;
+  }
+
+  // check if it's a global array
+  cur_st_node = st;
+  while (cur_st_node != NULL) {
+    if (which_node->value != NULL) {
+      if (!strcmp(cur_st_node->id, which_node->value)) {
+        if (cur_st_node->node_type == ARRAY) {
+          return cur_st_node;
+        }
+      }
+    }
+
+    cur_st_node = cur_st_node->next;
+  }
+
+  return NULL;
+}
+
 sym_t *is_function(sym_t *st, node_t *which_node) {
   sym_t *cur_st_node = st;
 
   while (cur_st_node != NULL) {
     if (which_node->value != NULL) {
-      if (!strcmp(cur_st_node->id, which_node->value)) {
+      if (!strcmp(cur_st_node->id, which_node->value) && cur_st_node->node_type == FUNC_DECLARATION) {
         return cur_st_node;
       }
     }
@@ -371,8 +417,6 @@ void parse_deref_node(sym_t *st, node_t *deref_node) {
 }
 
 void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
-  // todo se childs[0] for o Id de uma array tambem se da erro
-
   sym_t *func_node = is_function(st, addr_node->childs[0]);
 
   if (func_node != NULL) {
@@ -384,11 +428,25 @@ void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
                  (addr_node->childs[0]->type == NODE_DEREF && addr_node->childs[0]->an_type != TYPE_UNDEF &&
                   addr_node->childs[0]->an_type != TYPE_UNKNOWN);
 
+  //printf("Line %d: id_found=%d\n", addr_node->loc.first_line, id_found);
+
   if (!id_found) {
     operator_applied1(addr_node, addr_node->childs[0]);
   } else {
-    addr_node->an_type = addr_node->childs[0]->an_type;
-    addr_node->an_n_pointers = addr_node->childs[0]->an_n_pointers + 1;
+    // ver se childs[0] for o Id de uma array tambem se da erro
+    sym_t *array_node = NULL;
+
+    if (addr_node->childs[0]->type == NODE_ID) {
+      array_node = is_array(st, addr_node->childs[0], func_name);
+    }
+
+    if (array_node) {
+      printf("Line %d, col %d: Operator %s cannot be applied to type ", addr_node->loc.first_line, addr_node->loc.first_column, node_types[addr_node->type]);
+      printf("%s[%d]\n", type_str[array_node->type], array_node->array_size);
+    } else {
+      addr_node->an_type = addr_node->childs[0]->an_type;
+      addr_node->an_n_pointers = addr_node->childs[0]->an_n_pointers + 1;
+    }
   }
 }
 

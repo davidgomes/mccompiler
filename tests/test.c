@@ -1,10 +1,7 @@
 char buffer[20];
 
 int main(void) {
-  char *b;
-  char k;
-  b = *buffer + 3;
-  k = buffer + 3;
+  char *addr = &(buffer[2]);
 
   return 0;
 }

@@ -2,13 +2,19 @@ void z(void) {
 
 }
 
+char buffer2[30];
+
 int f(void) {
   return 10;
 }
 
 int puts(void) {
   void *mm;
+  char buffer[20];
   mm = &f();
+  mm = &buffer[2];
+  mm = &buffer;
+  mm = &buffer2;
 }
 
 void main(void) {
