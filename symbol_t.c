@@ -35,6 +35,13 @@ sym_t *create_node(table_type_t node_type, char *name, type_t type) {
   return node;
 }
 
+void print_asterisks(int n_pointers) {
+  int i;
+  for (i = 0; i < n_pointers; i++) {
+    printf("*");
+  }
+}
+
 sym_t* create_variable_node(node_t *cur_node) {
   int n_pointers = 0;
   int cur_pointer = 1;
@@ -131,6 +138,11 @@ sym_t* create_func_table_node(node_t *cur_node) {
   return new_node;
 }
 
+void print_sym_node(sym_t *which_node) {
+  printf("%s", type_str[which_node->type]);
+  print_asterisks(which_node->n_pointers);
+}
+
 void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *declaration_node) {
   sym_t *new_node, *last_node;
 
@@ -168,6 +180,14 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
 
     if (declaration_node_was_defined == 0) {
       declaration_node->params[declaration_node->n_params++] = new_node;
+    } else {
+      if (declaration_node->params[i]->type != new_node->type) {
+        printf("Line %d, col %d: Conflicting types (got ", param_declaration->loc.first_line, param_declaration->loc.first_column);
+        print_sym_node(new_node);
+        printf(", expected ");
+        print_sym_node(declaration_node->params[i]);
+        printf(")\n");
+      }
     }
 
     last_node->next = new_node;
@@ -228,13 +248,6 @@ void init_st() {
   last->next->params[0] = create_node(VARIABLE, NULL, TYPE_CHAR);
   last->next->params[0]->n_pointers = 1;
   last = last->next;
-}
-
-void print_asterisks(int n_pointers) {
-  int i;
-  for (i = 0; i < n_pointers; i++) {
-    printf("*");
-  }
 }
 
 void st_print_table_element(sym_t* element) {

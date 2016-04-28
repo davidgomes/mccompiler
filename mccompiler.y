@@ -109,14 +109,14 @@ FunctionDeclarator: Id LPAR ParameterList RPAR          { $$ = ast_insert_node(N
                   | Asterisk Id LPAR ParameterList RPAR { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 3, $1, $2, $4); }
                   ;
 
-ParameterList: ParameterList COMMA ParameterDeclaration { $1->to_use = 0; $$ = ast_insert_node(NODE_PARAMLIST, 1, 2, $1, $3); }
-             | ParameterDeclaration                     { $$ = ast_insert_node(NODE_PARAMLIST, 1, 1, $1); }
+ParameterList: ParameterList COMMA ParameterDeclaration { $1->to_use = 0; $$ = ast_insert_node(NODE_PARAMLIST, 1, 2, $1, $3); $$->loc = @3; }
+             | ParameterDeclaration                     { $$ = ast_insert_node(NODE_PARAMLIST, 1, 1, $1); $$->loc = @1; }
              ;
 
-ParameterDeclaration: TypeSpec Asterisk Id { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 3, $1, $2, $3); }
-                    | TypeSpec Id          { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2); }
-                    | TypeSpec Asterisk    { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2); }
-                    | TypeSpec             { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 1, $1); }
+ParameterDeclaration: TypeSpec Asterisk Id { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 3, $1, $2, $3); $$->loc = @1; }
+                    | TypeSpec Id          { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2); $$->loc = @1; }
+                    | TypeSpec Asterisk    { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 2, $1, $2); $$->loc = @1; }
+                    | TypeSpec             { $$ = ast_insert_node(NODE_PARAMDECLARATION, 1, 1, $1); $$->loc = @1; }
                     ;
 
 Id: ID { $$ = ast_insert_terminal(NODE_ID, $1); $$->loc = @1; }
