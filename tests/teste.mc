@@ -1,6 +1,6 @@
 char buffer[20];
 
-void v(void) {}
+void v(void) { return; }
 
 int f(char a, int b) {
   void *wat;
@@ -35,6 +35,12 @@ int f(char a, int b) {
 
   if (+'c') {
 
+  }
+
+  for (b = 0; b < 10; b = b + 1) {
+    if (b + 2 == 4) {
+      return 4;
+    }
   }
 
   return 0;
