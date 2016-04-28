@@ -391,12 +391,11 @@ void parse_not_node(sym_t *st, node_t *not_node) {
 }
 
 void parse_minus_plus_node(sym_t *st, node_t *which_node) {
-  sym_t *cur_st_node = st;
+  sym_t *func_node = is_function(st, which_node->childs[0]);
 
-  while (cur_st_node != NULL) {
-    if (cur_st_node)
-
-    cur_st_node = cur_st_node->next;
+  if (func_node != NULL) {
+    operator_applied1_function(which_node, func_node);
+    return;
   }
 
   if (which_node->childs[0]->an_type == TYPE_VOID) {
@@ -427,8 +426,6 @@ void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
   int id_found = addr_node->childs[0]->type == NODE_ID ||
                  (addr_node->childs[0]->type == NODE_DEREF && addr_node->childs[0]->an_type != TYPE_UNDEF &&
                   addr_node->childs[0]->an_type != TYPE_UNKNOWN);
-
-  //printf("Line %d: id_found=%d\n", addr_node->loc.first_line, id_found);
 
   if (!id_found) {
     operator_applied1(addr_node, addr_node->childs[0]);
