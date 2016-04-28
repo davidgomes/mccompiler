@@ -344,7 +344,7 @@ void parse_not_node(sym_t *st, node_t *not_node) {
   }
 }
 
-void parse_sub_plus_node(sym_t *st, node_t *which_node) {
+void parse_minus_plus_node(sym_t *st, node_t *which_node) {
   sym_t *cur_st_node = st;
 
   while (cur_st_node != NULL) {
@@ -753,8 +753,8 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
   } else if (where->type == NODE_GT || where->type == NODE_GE || where->type == NODE_EQ || where->type == NODE_LE || where->type == NODE_LT ||
              where->type == NODE_AND || where->type == NODE_OR || where->type == NODE_NE) {
     parse_comp_node(st, where);
-  } else if (where->type == NODE_SUB || where->type == NODE_PLUS) {
-    parse_sub_plus_node(st, where);
+  } else if (where->type == NODE_MINUS || where->type == NODE_PLUS) {
+    parse_minus_plus_node(st, where);
   } else if (where->type == NODE_NOT) {
     parse_not_node(st, where);
   } else if (where->type == NODE_ADDR) { // completely todo
