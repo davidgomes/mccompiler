@@ -24,7 +24,6 @@ int f(char a, int b) {
 
 int g(int a);
 
-int g(char* a) { /* , int k */
 int g(char* a) {
 
 }
