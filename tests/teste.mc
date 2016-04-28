@@ -37,8 +37,12 @@ int f(char a, int b) {
 
   }
 
-  if(!wat) {
+  if (+wat) {
 
+  }
+
+  if (-buffer) {
+  
   }
 
   for (b = 0; b < 10; b = b + 1) {

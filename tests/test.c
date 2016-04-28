@@ -1,8 +1,12 @@
 char b;
 
 int main(void) {
-  int c;
-  void *pointer = &c;
+  void *hey;
+  int *b;
+
+  if (+b) {
+
+  }
 
   return 0;
 }

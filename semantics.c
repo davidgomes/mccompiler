@@ -438,6 +438,18 @@ void parse_minus_plus_node(sym_t *st, node_t *which_node, char *func_name) {
     }
   }
 
+  sym_t *array_node = is_array(st, which_node->childs[0], func_name);
+
+  if (array_node) {
+    printf("Line %d, col %d: Operator %s cannot be applied to type ", which_node->loc.first_line, which_node->loc.first_column, node_types[which_node->type]);
+    printf("%s[%d]\n", type_str[array_node->type], array_node->array_size);
+    return;
+  }
+
+  if (which_node->childs[0]->an_n_pointers > 0) {
+    operator_applied1(which_node, which_node->childs[0]);
+  }
+
   if (which_node->childs[0]->an_type == TYPE_VOID) {
     operator_applied1(which_node, which_node->childs[0]);
   } else if (which_node->childs[0]->an_type == TYPE_CHAR) {
