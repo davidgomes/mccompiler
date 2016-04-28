@@ -409,7 +409,9 @@ void parse_minus_plus_node(sym_t *st, node_t *which_node, char *func_name) {
     sym_t *array_node = is_array(st, which_node->childs[0], func_name);
 
     if (array_node != NULL) { // todo array print not just type print
-      operator_applied1(which_node, which_node->childs[0]);
+      printf("Line %d, col %d: Operator %s cannot be applied to type ", which_node->loc.first_line, which_node->loc.first_column, node_types[which_node->type]);
+      printf("%s[%d]\n", type_str[array_node->type], array_node->array_size);
+
       return;
     }
   }
