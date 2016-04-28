@@ -412,7 +412,7 @@ void parse_not_node(sym_t *st, node_t *not_node) {
     return;
   }
 
-  if (not_node->childs[0]->an_type == TYPE_VOID) {
+  if (not_node->childs[0]->an_type == TYPE_VOID && not_node->childs[0]->an_n_pointers == 0) {
     operator_applied1(not_node, not_node->childs[0]);
   } else {
     not_node->an_type = TYPE_INT;

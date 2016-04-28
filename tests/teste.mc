@@ -37,6 +37,10 @@ int f(char a, int b) {
 
   }
 
+  if(!wat) {
+
+  }
+
   for (b = 0; b < 10; b = b + 1) {
     if (b + 2 == 4) {
       return 4;
