@@ -2,8 +2,18 @@ char buffer[20];
 
 void v(void) { return 5; }
 
+int g(int a) {
+  return '0';
+}
+
+char *w(void) {
+  return "heyy";
+}
+
 int f(char a, int b) {
-  void *wat;
+  void *wat, *u;
+  int *lol;
+  char *lol2;
 
   if (+f) {
 
@@ -42,7 +52,7 @@ int f(char a, int b) {
   }
 
   if (-buffer) {
-  
+
   }
 
   for (b = 0; b < 10; b = b + 1) {
@@ -51,11 +61,19 @@ int f(char a, int b) {
     }
   }
 
+  if (wat - u) {
+
+  }
+
+  if (lol - lol2) {
+
+  }
+
   return 0;
 }
 
 int g(int a);
 
-int g(char* a) {
+/*int g(char* a, int k) {
 
-}
+}*/
