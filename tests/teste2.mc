@@ -1,10 +1,14 @@
-char x;
+char *buf[20];
+char a, b;
 
-int f(int *c) {
-  c;
-}
+void **vv1;
+void *vv2;
+
+char **cp;
+int *ip;
 
 void main(void) {
-  int my_c[20];
-  f(my_c);
+  vv1 - vv2;
+  cp - ip;
+  buf - cp;
 }

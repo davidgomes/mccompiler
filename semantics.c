@@ -86,7 +86,7 @@ type_t node_type_to_sym_type(nodetype_t type) {
 
 void print_node(node_t *which) {
   //printf("%s", type_str[which->an_type]);
-  print_asterisks2(which->an_n_pointers);
+  //print_asterisks2(which->an_n_pointers);
 }
 
 void unknown_symbol(node_t *symbol) {
@@ -95,7 +95,7 @@ void unknown_symbol(node_t *symbol) {
 
 void operator_applied1(node_t *operator, node_t *node1) {
   //printf("Line %d, col %d: Operator %s cannot be applied to type ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
-  print_node(node1);
+  //print_node(node1);
   //printf("\n");
 }
 
@@ -110,7 +110,7 @@ void print_function_type(sym_t *decl_node) {
       //printf("%s", type_str[arg->type]);
     } else {
       //printf("%s", type_str[arg->type]);
-      print_asterisks2(arg->n_pointers);
+      //print_asterisks2(arg->n_pointers);
     }
 
     if (i != decl_node->n_params - 1) {
@@ -123,23 +123,23 @@ void print_function_type(sym_t *decl_node) {
 
 void operator_applied1_function(node_t *operator, sym_t *decl_node) {
   //printf("Line %d, col %d: Operator %s cannot be applied to type ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
-  print_function_type(decl_node);
+  //print_function_type(decl_node);
   //printf("\n");
 }
 
 void operator_applied2(node_t *operator, node_t *node1, node_t *node2) {
   //printf("Line %d, col %d: Operator %s cannot be applied to types ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
-  print_node(node1);
+  //print_node(node1);
   //printf(", ");
-  print_node(node2);
+  //print_node(node2);
   //printf("\n");
 }
 
 void conflicting_types(node_t *node1, node_t *node2) {
   //printf("Line %d, col %d: Conflicting types (got ", node1->loc.first_line, node2->loc.first_column);
-  print_node(node1);
+  //print_node(node1);
   //printf(", expected ");
-  print_node(node2);
+  //print_node(node2);
   //printf(")\n");
 }
 
@@ -268,35 +268,34 @@ void parse_id_node(sym_t *st, node_t *node_id, char* func_name, int an) { // ler
 
   cur_st_node = st->next;
 
-    while (cur_st_node != NULL) {
-      if (cur_st_node->id != NULL) {
-        if (!strcmp(cur_st_node->id, func_name) && cur_st_node->node_type == FUNC_DECLARATION) {
-          cur_st_node = cur_st_node->definition->next;
+  while (cur_st_node != NULL) {
+    if (cur_st_node->id != NULL) {
+      if (!strcmp(cur_st_node->id, func_name) && cur_st_node->node_type == FUNC_DECLARATION) {
+        cur_st_node = cur_st_node->definition->next;
 
-          while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
-            if (cur_st_node->id != NULL) {
-              if (!strcmp(cur_st_node->id, node_id->value)) {
-                node_id->an_type = cur_st_node->type;
-                node_id->an_n_pointers = cur_st_node->n_pointers;
-                node_id->an_array_size = cur_st_node->array_size;
-                return;
-              }
+        while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
+          if (cur_st_node->id != NULL) {
+            if (!strcmp(cur_st_node->id, node_id->value)) {
+              node_id->an_type = cur_st_node->type;
+              node_id->an_n_pointers = cur_st_node->n_pointers;
+              node_id->an_array_size = cur_st_node->array_size;
+              return;
             }
-
-            cur_st_node = cur_st_node->next;
           }
 
-          break;
+          cur_st_node = cur_st_node->next;
         }
-      }
 
-      cur_st_node = cur_st_node->next;
+        break;
+      }
     }
 
+    cur_st_node = cur_st_node->next;
+  }
 
   cur_st_node = st->next;
 
-  while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
+  while (cur_st_node != NULL) {
     if (!strcmp(cur_st_node->id, node_id->value)) {
       node_id->an_type = cur_st_node->type;
       node_id->an_n_pointers = cur_st_node->n_pointers;
@@ -306,7 +305,6 @@ void parse_id_node(sym_t *st, node_t *node_id, char* func_name, int an) { // ler
 
     cur_st_node = cur_st_node->next;
   }
-
 
   node_id->an_type = TYPE_UNKNOWN;
   unknown_symbol(node_id);
@@ -337,30 +335,81 @@ void set_function_type(sym_t *st, node_t *call_node) {
 }
 
 void parse_sub_node(sym_t *st, node_t *sub_node) {
+  int first_pointers = sub_node->childs[0]->an_n_pointers;
+  int second_pointers = sub_node->childs[1]->an_n_pointers;
+
+  if (sub_node->childs[0]->an_array_size >= 1) {
+    first_pointers++;
+  }
+
+  if (sub_node->childs[1]->an_array_size >= 1) {
+    second_pointers++;
+  }
+
   if ((sub_node->childs[0]->an_type == TYPE_VOID && sub_node->childs[0]->an_n_pointers >= 1) ||
       (sub_node->childs[1]->an_type == TYPE_VOID && sub_node->childs[1]->an_n_pointers >= 1)) { // subtracting void*s
-    operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
+    if (first_pointers == 0) {
+      sub_node->an_type = TYPE_VOID;
+      sub_node->an_n_pointers = second_pointers;
+    } else if (second_pointers == 0) {
+      sub_node->an_type = TYPE_VOID;
+      sub_node->an_n_pointers = first_pointers;
+      //} else if (first_pointers == 1 && second_pointers == 1) {
+      //operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
+    } else {
+      sub_node->an_type = TYPE_INT;
+      sub_node->an_n_pointers = first_pointers > second_pointers ? first_pointers : second_pointers;
+
+      if (first_pointers == second_pointers) {
+        sub_node->an_n_pointers = 0;
+      }
+    }
   } else if (sub_node->childs[0]->an_type == sub_node->childs[1]->an_type) {
     if (sub_node->childs[0]->an_type == TYPE_CHAR) { // both are chars
-      sub_node->an_type = TYPE_INT;
+      if (first_pointers == 0 && second_pointers == 0) {
+        sub_node->an_type = TYPE_INT;
+      } else {
+        sub_node->an_type = TYPE_CHAR;
+      }
     } else if (sub_node->childs[0]->an_type == TYPE_VOID) {
       operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
     } else {
       sub_node->an_type = sub_node->childs[0]->an_type;
     }
+
+    sub_node->an_n_pointers = first_pointers > second_pointers ? first_pointers : second_pointers;
+
+    if (first_pointers == second_pointers) {
+      sub_node->an_n_pointers = 0;
+    }
   } else {
     if ((sub_node->childs[0]->an_type == TYPE_CHAR && sub_node->childs[1]->an_type == TYPE_INT) ||
         (sub_node->childs[0]->an_type == TYPE_INT && sub_node->childs[1]->an_type == TYPE_CHAR)) { // one is char, the other is int
-        if (sub_node->childs[0]->type == NODE_CHRLIT) {
-          sub_node->childs[0]->an_type = TYPE_INT;
-        }
+      if (sub_node->childs[0]->type == NODE_CHRLIT) {
+        sub_node->childs[0]->an_type = TYPE_INT;
+      }
 
-        if (sub_node->childs[1]->type == NODE_CHRLIT) {
-          sub_node->childs[1]->an_type = TYPE_INT;
-        }
+      if (sub_node->childs[1]->type == NODE_CHRLIT) {
+        sub_node->childs[1]->an_type = TYPE_INT;
+      }
 
       sub_node->an_type = TYPE_INT;
+      sub_node->an_n_pointers = first_pointers > second_pointers ? first_pointers : second_pointers;
+
+      if (first_pointers == second_pointers) {
+        sub_node->an_n_pointers = 0;
+      } else if (first_pointers > second_pointers) {
+        sub_node->an_n_pointers = first_pointers;
+        sub_node->an_type = sub_node->childs[0]->an_type;
+      } else if (second_pointers > first_pointers) {
+        sub_node->an_n_pointers = second_pointers;
+        sub_node->an_type = sub_node->childs[1]->an_type;
+      }
     }
+  }
+
+  if (sub_node->an_type == TYPE_CHAR && sub_node->an_n_pointers == 0) {
+    sub_node->an_type = TYPE_INT;
   }
 }
 
@@ -633,10 +682,10 @@ void parse_return_node(sym_t *st, node_t *return_node, char *func_name) {
     }
 
     //printf("Line %d, col %d: Conflicting types (got %s", return_node->childs[0]->loc.first_line, return_node->childs[0]->loc.first_column, type_str[return_node->childs[0]->an_type]);
-    print_asterisks2(return_node->childs[0]->an_n_pointers);
+    //print_asterisks2(return_node->childs[0]->an_n_pointers);
     //printf(", expected ");
     //printf("%s", type_str[expected_type]);
-    print_asterisks2(expected_pointers);
+    //print_asterisks2(expected_pointers);
     //printf(")\n");
   }
 }
@@ -677,9 +726,9 @@ void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
       if (!strcmp(cur_st_node->id, new_node->id)) { // check if preivous decl was something else
         if (cur_st_node->type != new_node->type || (cur_st_node->type == new_node->type && cur_st_node->n_pointers != new_node->n_pointers)) {
           //printf("Line %d, col %d: Conflicting types (got %s", decl_node->loc.first_line, decl_node->loc.first_column, type_str[new_node->type]);
-          print_asterisks2(new_node->n_pointers);
+          //print_asterisks2(new_node->n_pointers);
           //printf(", expected %s", type_str[cur_st_node->type]);
-          print_asterisks2(cur_st_node->n_pointers);
+          //int_asterisks2(cur_st_node->n_pointers);
           //printf(")\n");
         }
 
