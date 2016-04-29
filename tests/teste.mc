@@ -19,12 +19,13 @@ int f(char a, int b) {
   void *wat, *u;
   int *lol;
   char *lol2;
+  int *buffer[20];
 
   lol2 = "heyy";
   *lol = '4';
 
   if (lol + 2) {
-  
+
   }
 
   if (&*lol2) {
