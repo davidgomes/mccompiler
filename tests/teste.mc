@@ -10,10 +10,30 @@ char *w(void) {
   return "heyy";
 }
 
+char *loooool(void) {
+  char *c_pointer;
+  return &*c_pointer;
+}
+
 int f(char a, int b) {
   void *wat, *u;
   int *lol;
   char *lol2;
+
+  lol2 = "heyy";
+  *lol = '4';
+
+  if (lol + 2) {
+  
+  }
+
+  if (&*lol2) {
+
+  }
+
+  if ('5' / '4') {
+
+  }
 
   if (+f) {
 
