@@ -85,62 +85,62 @@ type_t node_type_to_sym_type(nodetype_t type) {
 }
 
 void print_node(node_t *which) {
-  //printf("%s", type_str[which->an_type]);
-  //print_asterisks2(which->an_n_pointers);
+  printf("%s", type_str[which->an_type]);
+  print_asterisks2(which->an_n_pointers);
 }
 
 void unknown_symbol(node_t *symbol) {
-  //printf("Line %d, col %d: Unknown symbol %s\n", symbol->loc.first_line, symbol->loc.first_column, symbol->value);
+  printf("Line %d, col %d: Unknown symbol %s\n", symbol->loc.first_line, symbol->loc.first_column, symbol->value);
 }
 
 void operator_applied1(node_t *operator, node_t *node1) {
-  //printf("Line %d, col %d: Operator %s cannot be applied to type ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
-  //print_node(node1);
-  //printf("\n");
+  printf("Line %d, col %d: Operator %s cannot be applied to type ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
+  print_node(node1);
+  printf("\n");
 }
 
 void print_function_type(sym_t *decl_node) {
-  //printf("%s(", type_str[decl_node->type]);
+  printf("%s(", type_str[decl_node->type]);
 
   int i;
   for (i = 0; i < decl_node->n_params; i++) {
     sym_t *arg = decl_node->params[i];
 
     if (arg->n_pointers == 0) {
-      //printf("%s", type_str[arg->type]);
+      printf("%s", type_str[arg->type]);
     } else {
-      //printf("%s", type_str[arg->type]);
-      //print_asterisks2(arg->n_pointers);
+      printf("%s", type_str[arg->type]);
+      print_asterisks2(arg->n_pointers);
     }
 
     if (i != decl_node->n_params - 1) {
-      //printf(",");
+      printf(",");
     }
   }
 
-  //printf(")");
+  printf(")");
 }
 
 void operator_applied1_function(node_t *operator, sym_t *decl_node) {
-  //printf("Line %d, col %d: Operator %s cannot be applied to type ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
-  //print_function_type(decl_node);
-  //printf("\n");
+  printf("Line %d, col %d: Operator %s cannot be applied to type ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
+  print_function_type(decl_node);
+  printf("\n");
 }
 
 void operator_applied2(node_t *operator, node_t *node1, node_t *node2) {
-  //printf("Line %d, col %d: Operator %s cannot be applied to types ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
-  //print_node(node1);
-  //printf(", ");
-  //print_node(node2);
-  //printf("\n");
+  printf("Line %d, col %d: Operator %s cannot be applied to types ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
+  print_node(node1);
+  printf(", ");
+  print_node(node2);
+  printf("\n");
 }
 
 void conflicting_types(node_t *node1, node_t *node2) {
-  //printf("Line %d, col %d: Conflicting types (got ", node1->loc.first_line, node2->loc.first_column);
-  //print_node(node1);
-  //printf(", expected ");
-  //print_node(node2);
-  //printf(")\n");
+  printf("Line %d, col %d: Conflicting types (got ", node1->loc.first_line, node2->loc.first_column);
+  print_node(node1);
+  printf(", expected ");
+  print_node(node2);
+  printf(")\n");
 }
 
 sym_t *is_array(sym_t *st, node_t *which_node, char *func_name) {
@@ -354,8 +354,8 @@ void parse_sub_node(sym_t *st, node_t *sub_node) {
     } else if (second_pointers == 0) {
       sub_node->an_type = TYPE_VOID;
       sub_node->an_n_pointers = first_pointers;
-      //} else if (first_pointers == 1 && second_pointers == 1) {
-      //operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
+    } else if (first_pointers == 1 && second_pointers == 1) {
+      operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
     } else {
       sub_node->an_type = TYPE_INT;
       sub_node->an_n_pointers = first_pointers > second_pointers ? first_pointers : second_pointers;
@@ -508,8 +508,8 @@ void parse_minus_plus_node(sym_t *st, node_t *which_node, char *func_name) {
     sym_t *array_node = is_array(st, which_node->childs[0], func_name);
 
     if (array_node != NULL) {
-      //printf("Line %d, col %d: Operator %s cannot be applied to type ", which_node->loc.first_line, which_node->loc.first_column, node_types[which_node->type]);
-      //printf("%s[%d]\n", type_str[array_node->type], array_node->array_size);
+      printf("Line %d, col %d: Operator %s cannot be applied to type ", which_node->loc.first_line, which_node->loc.first_column, node_types[which_node->type]);
+      printf("%s[%d]\n", type_str[array_node->type], array_node->array_size);
 
       return;
     }
@@ -518,8 +518,8 @@ void parse_minus_plus_node(sym_t *st, node_t *which_node, char *func_name) {
   sym_t *array_node = is_array(st, which_node->childs[0], func_name);
 
   if (array_node) {
-    //printf("Line %d, col %d: Operator %s cannot be applied to type ", which_node->loc.first_line, which_node->loc.first_column, node_types[which_node->type]);
-    //printf("%s[%d]\n", type_str[array_node->type], array_node->array_size);
+    printf("Line %d, col %d: Operator %s cannot be applied to type ", which_node->loc.first_line, which_node->loc.first_column, node_types[which_node->type]);
+    printf("%s[%d]\n", type_str[array_node->type], array_node->array_size);
     return;
   }
 
@@ -570,8 +570,8 @@ void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
     }
 
     if (array_node) {
-      //printf("Line %d, col %d: Operator %s cannot be applied to type ", addr_node->loc.first_line, addr_node->loc.first_column, node_types[addr_node->type]);
-      //printf("%s[%d]\n", type_str[array_node->type], array_node->array_size);
+      printf("Line %d, col %d: Operator %s cannot be applied to type ", addr_node->loc.first_line, addr_node->loc.first_column, node_types[addr_node->type]);
+      printf("%s[%d]\n", type_str[array_node->type], array_node->array_size);
     } else {
       addr_node->an_type = addr_node->childs[0]->an_type;
       addr_node->an_n_pointers = addr_node->childs[0]->an_n_pointers + 1;
@@ -589,7 +589,7 @@ void parse_store_node(sym_t *st, node_t *store_node) {
                   store_node->childs[0]->an_type != TYPE_UNKNOWN);
 
   if (!id_found) {
-    //printf("Line %d, col %d: Lvalue required\n", store_node->loc.first_line, store_node->loc.first_column);
+    printf("Line %d, col %d: Lvalue required\n", store_node->loc.first_line, store_node->loc.first_column);
   } else {
     store_node->an_type = store_node->childs[0]->an_type;
     store_node->an_n_pointers = store_node->childs[0]->an_n_pointers;
@@ -617,33 +617,34 @@ void parse_call_node(sym_t *st, node_t *call_node, int an) {
   }
 
   if (cur_st_node == NULL) {
-    //printf("Line %d, col %d: Symbol %s is not a function\n", call_node->loc.first_line, call_node->loc.first_column, call_node->childs[0]->value);
+    printf("Line %d, col %d: Symbol %s is not a function\n", call_node->loc.first_line, call_node->loc.first_column, call_node->childs[0]->value);
     return;
   }
 
   if (args_sent_in != expected_args) {
     if (cur_st_node->params[0]->type != TYPE_VOID) {
-      //printf("Line %d, col %d: Wrong number of arguments to function %s (got %d, required %d)\n", call_node->loc.first_line, call_node->loc.first_column, call_node->childs[0]->value, args_sent_in, expected_args);
+      printf("Line %d, col %d: Wrong number of arguments to function %s (got %d, required %d)\n", call_node->loc.first_line, call_node->loc.first_column, call_node->childs[0]->value, args_sent_in, expected_args);
     }
   }
 
   int i;
   for (i = 0; i < args_sent_in && i < expected_args; i++) {
+    int child_pointers = call_node->childs[1 + i]->an_n_pointers;
+
+    if (call_node->childs[1 + i]->an_array_size >= 1) {
+      child_pointers++;
+    }
+
+    int expected_pointers = cur_st_node->params[i]->n_pointers;
+
     if (cur_st_node->params[i]->type != call_node->childs[1 + i]->an_type ||
-        cur_st_node->params[i]->n_pointers != call_node->childs[1 + i]->an_n_pointers) { // fix for pointers
-
-      if (cur_st_node->params[i]->n_pointers == 1 && call_node->childs[1 + i]->an_n_pointers == 0) {
-        if (call_node->childs[i + 1]->an_array_size >= 1) {
-          continue;
-        }
-      }
-
-      /*//printf("Line %d, col %d: Conflicting types (got ", call_node->loc.first_line, call_node->loc.first_column);
+        expected_pointers != child_pointers) {
+      /*printf("Line %d, col %d: Conflicting types (got ", call_node->loc.first_line, call_node->loc.first_column);
       print_node(call_node->childs[i + 1]);
-      //printf(", expected ");
-      //printf("%s", type_str[cur_st_node->params[i]->type]);
+      printf(", expected ");
+      printf("%s", type_str[cur_st_node->params[i]->type]);
       print_asterisks2(cur_st_node->params[i]->n_pointers);
-      //printf(")\n");*/
+      printf(")\n");*/
     }
   }
 }
@@ -681,12 +682,12 @@ void parse_return_node(sym_t *st, node_t *return_node, char *func_name) {
       return;
     }
 
-    //printf("Line %d, col %d: Conflicting types (got %s", return_node->childs[0]->loc.first_line, return_node->childs[0]->loc.first_column, type_str[return_node->childs[0]->an_type]);
-    //print_asterisks2(return_node->childs[0]->an_n_pointers);
-    //printf(", expected ");
-    //printf("%s", type_str[expected_type]);
-    //print_asterisks2(expected_pointers);
-    //printf(")\n");
+    printf("Line %d, col %d: Conflicting types (got %s", return_node->childs[0]->loc.first_line, return_node->childs[0]->loc.first_column, type_str[return_node->childs[0]->an_type]);
+    print_asterisks2(return_node->childs[0]->an_n_pointers);
+    printf(", expected ");
+    printf("%s", type_str[expected_type]);
+    print_asterisks2(expected_pointers);
+    printf(")\n");
   }
 }
 
@@ -697,7 +698,7 @@ void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
   sym_t *new_node = create_variable_node(decl_node);
 
   if (decl_node->childs[0]->type == NODE_VOID && new_node->n_pointers == 0) {
-    //printf("Line %d, col %d: Invalid use of void type in declaration\n", decl_node->loc.first_line, decl_node->loc.first_column);
+    printf("Line %d, col %d: Invalid use of void type in declaration\n", decl_node->loc.first_line, decl_node->loc.first_column);
     return;
   }
 
@@ -714,7 +715,7 @@ void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
 
     while (cur_st_node != NULL) {
       if (cur_st_node->id != NULL && !strcmp(cur_st_node->id, decl_node->childs[decl_node->n_childs - 1]->value)) {
-        //printf("Line %d, col %d: Symbol %s already defined\n", decl_node->loc.first_line, decl_node->loc.first_column, decl_node->childs[decl_node->n_childs - 1]->value);
+        printf("Line %d, col %d: Symbol %s already defined\n", decl_node->loc.first_line, decl_node->loc.first_column, decl_node->childs[decl_node->n_childs - 1]->value);
         duplicate = 1;
         break;
       }
@@ -725,11 +726,11 @@ void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
     while (cur_st_node != NULL) {
       if (!strcmp(cur_st_node->id, new_node->id)) { // check if preivous decl was something else
         if (cur_st_node->type != new_node->type || (cur_st_node->type == new_node->type && cur_st_node->n_pointers != new_node->n_pointers)) {
-          //printf("Line %d, col %d: Conflicting types (got %s", decl_node->loc.first_line, decl_node->loc.first_column, type_str[new_node->type]);
-          //print_asterisks2(new_node->n_pointers);
-          //printf(", expected %s", type_str[cur_st_node->type]);
-          //int_asterisks2(cur_st_node->n_pointers);
-          //printf(")\n");
+          printf("Line %d, col %d: Conflicting types (got %s", decl_node->loc.first_line, decl_node->loc.first_column, type_str[new_node->type]);
+          print_asterisks2(new_node->n_pointers);
+          printf(", expected %s", type_str[cur_st_node->type]);
+          print_asterisks2(cur_st_node->n_pointers);
+          printf(")\n");
         }
 
         duplicate = 1;
@@ -774,7 +775,7 @@ void parse_array_decl(sym_t *st, node_t *decl_node, char *func_name) {
   sym_t *new_node = create_array_node(decl_node);
 
   if (decl_node->childs[0]->type == NODE_VOID && new_node->n_pointers == 0) {
-    //printf("Line %d, col %d: Invalid use of void type in declaration\n", decl_node->loc.first_line, decl_node->loc.first_column);
+    printf("Line %d, col %d: Invalid use of void type in declaration\n", decl_node->loc.first_line, decl_node->loc.first_column);
   }
 
   if (func_name != NULL) { // variaveis globais podem ser declaradas duas vezes
@@ -790,7 +791,7 @@ void parse_array_decl(sym_t *st, node_t *decl_node, char *func_name) {
 
     while (cur_st_node != NULL) {
       if (cur_st_node->id != NULL && !strcmp(cur_st_node->id, decl_node->childs[decl_node->n_childs - 2]->value)) {
-        //printf("Line %d, col %d: Symbol %s already defined\n", decl_node->loc.first_line, decl_node->loc.first_column, decl_node->childs[decl_node->n_childs - 2]->value);
+        printf("Line %d, col %d: Symbol %s already defined\n", decl_node->loc.first_line, decl_node->loc.first_column, decl_node->childs[decl_node->n_childs - 2]->value);
         duplicate = 1;
         break;
       }
@@ -906,7 +907,7 @@ void parse_func_definition(sym_t *st, node_t *func_def_node) {
   while (cur_st_node != NULL) {
     if (!strcmp(cur_st_node->id, table_node->id)) {
       if (cur_st_node->node_type != FUNC_DECLARATION || (cur_st_node->node_type == FUNC_DECLARATION && cur_st_node->definition != NULL)) {
-        //printf("Line %d, col %d: Symbol %s already defined\n", func_def_node->loc.first_line, func_def_node->childs[table_node->n_pointers + 1]->loc.first_column, cur_st_node->id);
+        printf("Line %d, col %d: Symbol %s already defined\n", func_def_node->loc.first_line, func_def_node->childs[table_node->n_pointers + 1]->loc.first_column, cur_st_node->id);
         return;
       }
 
@@ -963,7 +964,6 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
 
   } else if (where->type == NODE_INTLIT || where->type == NODE_CHRLIT) {
     if (an) {
-      //where->an_type = node_type_to_sym_type(where->type);
       where->an_type = TYPE_INT;
     }
   } else if (where->type == NODE_STRLIT) {

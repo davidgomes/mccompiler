@@ -1,14 +1,9 @@
-char *buf[20];
-char a, b;
+int *b[10];
 
-void **vv1;
-void *vv2;
+void f(int *t) {
 
-char **cp;
-int *ip;
+}
 
 void main(void) {
-  vv1 - vv2;
-  cp - ip;
-  buf - cp;
+  f(b);
 }
