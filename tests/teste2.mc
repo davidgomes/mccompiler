@@ -1,6 +1,6 @@
-int *b[10];
+int b[10];
 
-void f(int *t) {
+void f(char **b) {
 
 }
 
