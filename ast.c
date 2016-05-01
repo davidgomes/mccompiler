@@ -4,7 +4,7 @@
 #include "ast.h"
 
 node_t *merge_nodes[2048];
-int where_there_errors = 0;
+int were_there_errors = 0;
 
 char* node_types[] = {
   "Program",

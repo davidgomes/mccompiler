@@ -206,7 +206,7 @@ int main(int argc, char **argv) {
       BEGIN ERRORS;
       yyparse();
 
-      if (!where_there_errors) {
+      if (!were_there_errors) {
         ast_print_tree(ast, 0);
       }
 
@@ -216,7 +216,7 @@ int main(int argc, char **argv) {
       BEGIN ERRORS;
       yyparse();
 
-      if (!where_there_errors) {
+      if (!were_there_errors) {
         init_st();
 
         an_tree(ast, st, NULL, 1);
@@ -230,7 +230,7 @@ int main(int argc, char **argv) {
     BEGIN ERRORS;
     yyparse();
 
-    if (!where_there_errors) {
+    if (!were_there_errors) {
       init_st();
       an_tree(ast, st, NULL, 1);
     }

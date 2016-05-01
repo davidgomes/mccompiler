@@ -9,7 +9,7 @@
 #include "semantics.h"
 
 node_t *ast;
-int where_there_errors;
+int were_there_errors;
 
 type_t node_type_to_sym_type(nodetype_t type);
 node_t* ast_create_node(nodetype_t nodetype, int to_use);

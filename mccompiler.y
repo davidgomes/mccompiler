@@ -196,7 +196,7 @@ ExpressionList: CommaExpressionTwo { $$ = $1; }
               ;
 %%
 int yyerror (char *s) {
-  where_there_errors = 1;
+  were_there_errors = 1;
   printf("Line %d, col %d: %s: %s\n", yylineno, col - (int) yyleng, s, yytext);
   return 0;
 }
