@@ -878,6 +878,7 @@ void parse_array_decl(sym_t *st, node_t *decl_node, char *func_name) {
 
 void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) {
   sym_t *declaration_node = create_declaration_node(func_decl_node);
+  node_t* param_list = func_decl_node->childs[declaration_node->n_pointers + 2];
 
   // if duplicate, we don't put it in symbol table
   sym_t *cur_st_node = st;
@@ -891,7 +892,14 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
         print_sym_array(cur_st_node);
         printf(")\n");
       } else {
-        // todo iterate each arg and check if it's different in which case give a conflicting type on the error itself
+        // todo iterate each arg and check if it's different in which case give a conflicting type on the argument itself
+
+        //node_t* expected_param_list = func_decl_node->childs[declaration_node->n_pointers + 2];
+
+        if (cur_st_node->n_params != param_list->n_childs) {
+          printf("Line %d, col %d: Wrong number of arguments to function %s (got %d, required %d)\n",
+                 func_decl_node->loc.first_line, func_decl_node->loc.first_column, declaration_node->id, param_list->n_childs, cur_st_node->n_params);
+        }
       }
 
       return;
@@ -899,8 +907,6 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
 
     cur_st_node = cur_st_node->next;
   }
-
-  node_t* param_list = func_decl_node->childs[declaration_node->n_pointers + 2];
 
   int i;
   for (i = 0; i < param_list->n_childs; i++) {
