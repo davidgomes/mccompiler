@@ -599,6 +599,7 @@ void parse_store_node(sym_t *st, node_t *store_node) {
 
   if (store_node->childs[1]->an_type == TYPE_VOID && store_node->childs[1]->an_n_pointers == 0) {
     conflicting_types(store_node->childs[1], store_node->childs[0]);
+    return;
   }
 
   int id_found = store_node->childs[0]->type == NODE_ID ||
