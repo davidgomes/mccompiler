@@ -883,13 +883,15 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
   sym_t *cur_st_node = st;
 
   while (cur_st_node != NULL) {
-    if (!strcmp(cur_st_node->id, declaration_node->id)) { // todo if it's different args, error on arg
+    if (!strcmp(cur_st_node->id, declaration_node->id)) {
       if (cur_st_node->node_type != FUNC_DECLARATION) {
         printf("Line %d, col %d: Conflicting types (got ", func_decl_node->loc.first_line, func_decl_node->loc.first_column);
         print_function_type(declaration_node);
         printf(", expected ");
         print_sym_array(cur_st_node);
         printf(")\n");
+      } else {
+        // todo iterate each arg and check if it's different in which case give a conflicting type on the error itself
       }
 
       return;
