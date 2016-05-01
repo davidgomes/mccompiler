@@ -94,6 +94,11 @@ void print_node(node_t *which) {
   }
 }
 
+void print_sym_node2(sym_t *which_node) {
+  printf("%s", type_str[which_node->type]);
+  print_asterisks2(which_node->n_pointers);
+}
+
 void print_node_array(node_t *which) {
   printf("%s", type_str[which->an_type]);
   print_asterisks2(which->an_n_pointers);
@@ -889,6 +894,15 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
   sym_t *declaration_node = create_declaration_node(func_decl_node);
   node_t* param_list = func_decl_node->childs[declaration_node->n_pointers + 2];
 
+  int i;
+  for (i = 0; i < param_list->n_childs; i++) {
+    node_t* param_declaration = param_list->childs[i];
+
+    sym_t *new_node = create_variable_node(param_declaration);
+    new_node->is_parameter = 1;
+    declaration_node->params[declaration_node->n_params++] = new_node;
+  }
+
   // if duplicate, we don't put it in symbol table
   sym_t *cur_st_node = st;
 
@@ -905,14 +919,20 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
 
         // node_t* expected_param_list = func_decl_node->childs[declaration_node->n_pointers + 2];
 
-        if (cur_st_node->n_params != param_list->n_childs) {
+        if (cur_st_node->n_params != declaration_node->n_params) {
           printf("Line %d, col %d: Wrong number of arguments to function %s (got %d, required %d)\n",
                  func_decl_node->loc.first_line, func_decl_node->loc.first_column, declaration_node->id, param_list->n_childs, cur_st_node->n_params);
         } else {
           int i;
 
           for (i = 0; i < cur_st_node->n_params; i++) {
-
+            if (cur_st_node->params[i]->type != declaration_node->params[i]->type) {
+              printf("Line %d, col %d: Conflicting types (got ", param_list->childs[i]->loc.first_line, param_list->childs[i]->loc.first_column);
+              print_sym_node2(declaration_node->params[i]);
+              printf(", expected ");
+              print_sym_node2(cur_st_node->params[i]);
+              printf(")\n");
+            }
           }
         }
       }
@@ -921,15 +941,6 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
     }
 
     cur_st_node = cur_st_node->next;
-  }
-
-  int i;
-  for (i = 0; i < param_list->n_childs; i++) {
-    node_t* param_declaration = param_list->childs[i];
-
-    sym_t *new_node = create_variable_node(param_declaration);
-    new_node->is_parameter = 1;
-    declaration_node->params[declaration_node->n_params++] = new_node;
   }
 
   if (add_to_top(st, declaration_node) == 1) {
