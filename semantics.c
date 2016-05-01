@@ -678,13 +678,22 @@ void parse_call_node(sym_t *st, node_t *call_node, int an) {
 
     int expected_pointers = cur_st_node->params[i]->n_pointers;
 
-    if (expected_pointers != child_pointers) {
-      /*printf("Line %d, col %d: Conflicting types (got ", call_node->loc.first_line, call_node->loc.first_column);
+    if (expected_pointers != child_pointers || call_node->childs[1 + i]->an_type != cur_st_node->params[i]->type) {
+      if (call_node->childs[1 + i]->an_type == TYPE_VOID || cur_st_node->params[i]->type == TYPE_VOID) {
+        continue;
+      }
+
+      if (((call_node->childs[1 + i]->an_type == TYPE_INT && cur_st_node->params[i]->type == TYPE_CHAR) ||
+          (call_node->childs[1 + i]->an_type == TYPE_CHAR && cur_st_node->params[i]->type == TYPE_INT)) && expected_pointers == 0 && child_pointers == 0) {
+        continue;
+      }
+
+      printf("Line %d, col %d: Conflicting types (got ", call_node->loc.first_line, call_node->loc.first_column);
       print_node(call_node->childs[i + 1]);
       printf(", expected ");
       printf("%s", type_str[cur_st_node->params[i]->type]);
       print_asterisks2(cur_st_node->params[i]->n_pointers);
-      printf(")\n");*/
+      printf(")\n");
     }
   }
 }
@@ -894,11 +903,17 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
       } else {
         // todo iterate each arg and check if it's different in which case give a conflicting type on the argument itself
 
-        //node_t* expected_param_list = func_decl_node->childs[declaration_node->n_pointers + 2];
+        // node_t* expected_param_list = func_decl_node->childs[declaration_node->n_pointers + 2];
 
         if (cur_st_node->n_params != param_list->n_childs) {
           printf("Line %d, col %d: Wrong number of arguments to function %s (got %d, required %d)\n",
                  func_decl_node->loc.first_line, func_decl_node->loc.first_column, declaration_node->id, param_list->n_childs, cur_st_node->n_params);
+        } else {
+          int i;
+
+          for (i = 0; i < cur_st_node->n_params; i++) {
+
+          }
         }
       }
 

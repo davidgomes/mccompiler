@@ -1,9 +1,8 @@
-int c(int, char);
-int c(int, char, char);
+int f(char *t) {
+  return 10;
+}
 
-int b(char*, void*);
-void b(int, char);
-
-int b(char* c, void* d) {
-
+void main(void) {
+  void *c;
+  f(c);
 }
