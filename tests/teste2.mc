@@ -1,5 +1,2 @@
-int **c, *b;
-
-void main(void) {
-  c + b;
-}
+int a;
+int a(void);

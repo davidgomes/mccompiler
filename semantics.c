@@ -94,6 +94,24 @@ void print_node(node_t *which) {
   }
 }
 
+void print_node_array(node_t *which) {
+  printf("%s", type_str[which->an_type]);
+  print_asterisks2(which->an_n_pointers);
+
+  if (which->an_array_size >= 1) {
+    printf("[%d]", which->an_array_size);
+  }
+}
+
+void print_sym_array(sym_t *which) {
+  printf("%s", type_str[which->type]);
+  print_asterisks2(which->n_pointers);
+
+  if (which->array_size >= 1) {
+    printf("[%d]", which->array_size);
+  }
+}
+
 void unknown_symbol(node_t *symbol) {
   printf("Line %d, col %d: Unknown symbol %s\n", symbol->loc.first_line, symbol->loc.first_column, symbol->value);
 }
@@ -107,19 +125,23 @@ void operator_applied1(node_t *operator, node_t *node1) {
 void print_function_type(sym_t *decl_node) {
   printf("%s(", type_str[decl_node->type]);
 
-  int i;
-  for (i = 0; i < decl_node->n_params; i++) {
-    sym_t *arg = decl_node->params[i];
+  if (decl_node->n_params == 0) {
+    printf("void");
+  } else {
+    int i;
+    for (i = 0; i < decl_node->n_params; i++) {
+      sym_t *arg = decl_node->params[i];
 
-    if (arg->n_pointers == 0) {
-      printf("%s", type_str[arg->type]);
-    } else {
-      printf("%s", type_str[arg->type]);
-      print_asterisks2(arg->n_pointers);
-    }
+      if (arg->n_pointers == 0) {
+        printf("%s", type_str[arg->type]);
+      } else {
+        printf("%s", type_str[arg->type]);
+        print_asterisks2(arg->n_pointers);
+      }
 
-    if (i != decl_node->n_params - 1) {
-      printf(",");
+      if (i != decl_node->n_params - 1) {
+        printf(",");
+      }
     }
   }
 
@@ -861,7 +883,13 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
   sym_t *cur_st_node = st;
 
   while (cur_st_node != NULL) {
-    if (!strcmp(cur_st_node->id, declaration_node->id)) { // todo if it's different declaration (different type or args) then error
+    if (!strcmp(cur_st_node->id, declaration_node->id)) { // todo if it's different args, error on arg
+      printf("Line %d, col %d: Conflicting types (got ", func_decl_node->loc.first_line, func_decl_node->loc.first_column);
+      print_function_type(declaration_node);
+      printf(", expected ");
+      print_sym_array(cur_st_node);
+      printf(")\n");
+
       return;
     }
 
