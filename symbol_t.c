@@ -181,7 +181,7 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
     if (declaration_node_was_defined == 0) {
       declaration_node->params[declaration_node->n_params++] = new_node;
     } else {
-      if (declaration_node->params[i]->type != new_node->type) {
+      if (declaration_node->params[i]->type != new_node->type || declaration_node->params[i]->n_pointers != new_node->n_pointers) {
         printf("Line %d, col %d: Conflicting types (got ", param_declaration->loc.first_line, param_declaration->loc.first_column);
         print_sym_node(new_node);
         printf(", expected ");
