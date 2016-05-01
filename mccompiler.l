@@ -230,8 +230,10 @@ int main(int argc, char **argv) {
     BEGIN ERRORS;
     yyparse();
 
-    init_st();
-    an_tree(ast, st, NULL, 1);
+    if (!where_there_errors) {
+      init_st();
+      an_tree(ast, st, NULL, 1);
+    }
   }
 
   return 0;
