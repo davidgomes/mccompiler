@@ -926,7 +926,7 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
           int i;
 
           for (i = 0; i < cur_st_node->n_params; i++) {
-            if (cur_st_node->params[i]->type != declaration_node->params[i]->type) {
+            if (cur_st_node->params[i]->type != declaration_node->params[i]->type || cur_st_node->params[i]->n_pointers != declaration_node->params[i]->n_pointers) {
               printf("Line %d, col %d: Conflicting types (got ", param_list->childs[i]->loc.first_line, param_list->childs[i]->loc.first_column);
               print_sym_node2(declaration_node->params[i]);
               printf(", expected ");
