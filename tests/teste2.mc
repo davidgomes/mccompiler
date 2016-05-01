@@ -1,11 +1,9 @@
 int b[10];
 
-void f(char **b) {
-  int c;
-  int c;
-  int c, a, a;
-}
+void f(int, char);
 
-void main(void) {
-  f(b);
+void f2(char **b) {
+  int c[20];
+  b = f;
+  c = f;
 }

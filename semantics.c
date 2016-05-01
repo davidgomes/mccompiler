@@ -86,7 +86,12 @@ type_t node_type_to_sym_type(nodetype_t type) {
 
 void print_node(node_t *which) {
   printf("%s", type_str[which->an_type]);
-  print_asterisks2(which->an_n_pointers);
+
+  if (which->an_array_size >= 1) {
+    print_asterisks2(which->an_n_pointers + 1);
+  } else {
+    print_asterisks2(which->an_n_pointers);
+  }
 }
 
 void unknown_symbol(node_t *symbol) {
@@ -580,6 +585,18 @@ void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
 }
 
 void parse_store_node(sym_t *st, node_t *store_node) {
+  sym_t *func_node = is_function(st, store_node->childs[1]);
+
+  if (func_node != NULL) {
+    printf("Line %d, col %d: Conflicting types (got ", store_node->loc.first_line, store_node->loc.first_column);
+    print_function_type(func_node);
+    printf(", expected ");
+    print_node(store_node->childs[0]);
+    printf(")\n");
+
+    return;
+  }
+
   if (store_node->childs[1]->an_type == TYPE_VOID && store_node->childs[1]->an_n_pointers == 0) {
     conflicting_types(store_node->childs[1], store_node->childs[0]);
   }
