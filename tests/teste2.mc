@@ -1,6 +1,5 @@
-int b(char*, void*);
-void b(int, char);
+int **c, *b;
 
-int b(char* c, void* d) {
-
+void main(void) {
+  c + b;
 }

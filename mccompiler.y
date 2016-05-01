@@ -161,20 +161,20 @@ CommaExpressionTwo: CommaExpressionTwo COMMA CommaExpressionTwo { $$ = ast_inser
                   | Expression                            { $$ = $1; }
                   ;
 
-Expression: Expression ASSIGN Expression         { $$ = ast_insert_node(NODE_STORE, 1, 2, $1, $3); $$->loc = @1; }
-          | Expression AND Expression            { $$ = ast_insert_node(NODE_AND, 1, 2, $1, $3); $$->loc = @1; }
-          | Expression OR Expression             { $$ = ast_insert_node(NODE_OR, 1, 2, $1, $3); $$->loc = @1; }
-          | Expression EQ Expression             { $$ = ast_insert_node(NODE_EQ, 1, 2, $1, $3); $$->loc = @1; }
-          | Expression NE Expression             { $$ = ast_insert_node(NODE_NE, 1, 2, $1, $3); $$->loc = @1; }
-          | Expression LT Expression             { $$ = ast_insert_node(NODE_LT, 1, 2, $1, $3); $$->loc = @1; }
-          | Expression GT Expression             { $$ = ast_insert_node(NODE_GT, 1, 2, $1, $3); $$->loc = @1; }
-          | Expression LE Expression             { $$ = ast_insert_node(NODE_LE, 1, 2, $1, $3); $$->loc = @1; }
-          | Expression GE Expression             { $$ = ast_insert_node(NODE_GE, 1, 2, $1, $3); $$->loc = @1; }
-          | Expression AST Expression            { $$ = ast_insert_node(NODE_MUL, 1, 2, $1, $3); $$->loc = @1; }
-          | Expression PLUS Expression           { $$ = ast_insert_node(NODE_ADD, 1, 2, $1, $3); $$->loc = @1; }
-          | Expression MINUS Expression          { $$ = ast_insert_node(NODE_SUB, 1, 2, $1, $3); $$->loc = @1; }
-          | Expression DIV Expression            { $$ = ast_insert_node(NODE_DIV, 1, 2, $1, $3); $$->loc = @1; }
-          | Expression MOD Expression            { $$ = ast_insert_node(NODE_MOD, 1, 2, $1, $3); $$->loc = @1; }
+Expression: Expression ASSIGN Expression         { $$ = ast_insert_node(NODE_STORE, 1, 2, $1, $3); $$->loc = @2; }
+          | Expression AND Expression            { $$ = ast_insert_node(NODE_AND, 1, 2, $1, $3); $$->loc = @2; }
+          | Expression OR Expression             { $$ = ast_insert_node(NODE_OR, 1, 2, $1, $3); $$->loc = @2; }
+          | Expression EQ Expression             { $$ = ast_insert_node(NODE_EQ, 1, 2, $1, $3); $$->loc = @2; }
+          | Expression NE Expression             { $$ = ast_insert_node(NODE_NE, 1, 2, $1, $3); $$->loc = @2; }
+          | Expression LT Expression             { $$ = ast_insert_node(NODE_LT, 1, 2, $1, $3); $$->loc = @2; }
+          | Expression GT Expression             { $$ = ast_insert_node(NODE_GT, 1, 2, $1, $3); $$->loc = @2; }
+          | Expression LE Expression             { $$ = ast_insert_node(NODE_LE, 1, 2, $1, $3); $$->loc = @2; }
+          | Expression GE Expression             { $$ = ast_insert_node(NODE_GE, 1, 2, $1, $3); $$->loc = @2; }
+          | Expression AST Expression            { $$ = ast_insert_node(NODE_MUL, 1, 2, $1, $3); $$->loc = @2; }
+          | Expression PLUS Expression           { $$ = ast_insert_node(NODE_ADD, 1, 2, $1, $3); $$->loc = @2; }
+          | Expression MINUS Expression          { $$ = ast_insert_node(NODE_SUB, 1, 2, $1, $3); $$->loc = @2; }
+          | Expression DIV Expression            { $$ = ast_insert_node(NODE_DIV, 1, 2, $1, $3); $$->loc = @2; }
+          | Expression MOD Expression            { $$ = ast_insert_node(NODE_MOD, 1, 2, $1, $3); $$->loc = @2; }
           | AMP Expression                       { $$ = ast_insert_node(NODE_ADDR, 1, 1, $2); $$->loc = @2; }
           | AST Expression          %prec NOT    { $$ = ast_insert_node(NODE_DEREF, 1, 1, $2); $$->loc = @2; }
           | PLUS Expression         %prec NOT    { $$ = ast_insert_node(NODE_PLUS, 1, 1, $2); $$->loc = @2; }
