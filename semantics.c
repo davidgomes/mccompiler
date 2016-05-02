@@ -854,6 +854,16 @@ void parse_array_decl(sym_t *st, node_t *decl_node, char *func_name) {
     }
   } else {
     while (cur_st_node != NULL) {
+      if (cur_st_node->node_type == new_node->node_type) {
+        if (cur_st_node->array_size != new_node->array_size) {
+          printf("Line %d, col %d: Conflicting types (got ", decl_node->loc.first_line, decl_node->loc.first_column);
+          print_sym_array(new_node);
+          printf(", expected ");
+          print_sym_array(cur_st_node);
+          printf(")\n");
+        }
+      }
+
       if (!strcmp(cur_st_node->id, new_node->id)) { // check if preivous decl was actually a function and give error
         duplicate = 1;
       }
