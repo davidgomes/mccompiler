@@ -790,11 +790,21 @@ void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
   } else {
     while (cur_st_node != NULL) {
       if (!strcmp(cur_st_node->id, new_node->id)) { // check if preivous decl was something else
-        if (cur_st_node->type != new_node->type || (cur_st_node->type == new_node->type && cur_st_node->n_pointers != new_node->n_pointers)) {
+        if (cur_st_node->type != new_node->type || cur_st_node->n_pointers != new_node->n_pointers || cur_st_node->array_size != new_node->array_size) {
           printf("Line %d, col %d: Conflicting types (got %s", decl_node->loc.first_line, decl_node->loc.first_column, type_str[new_node->type]);
           print_asterisks2(new_node->n_pointers);
+
+          if (new_node->array_size >= 1) {
+            printf("[%d]", new_node->array_size);
+          }
+
           printf(", expected %s", type_str[cur_st_node->type]);
           print_asterisks2(cur_st_node->n_pointers);
+
+          if (cur_st_node->array_size >= 1) {
+            printf("[%d]", cur_st_node->array_size);
+          }
+
           printf(")\n");
         }
 
@@ -921,6 +931,10 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
     new_node->is_parameter = 1;
     declaration_node->params[declaration_node->n_params++] = new_node;
 
+    if (new_node->type == TYPE_VOID && new_node->n_pointers == 0 && new_node->id != NULL) {
+      printf("Line %d, col %d: Invalid use of void type in declaration\n", param_list->childs[i]->childs[0]->loc.first_line, param_list->childs[i]->childs[0]->loc.first_column);
+    }
+
     if (i >= 1) {
       int u;
       for (u = 0; u < i; u++) {
@@ -936,6 +950,7 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
   // if duplicate, we don't put it in symbol table
   sym_t *cur_st_node = st;
   int arg_mismatch = 0;
+  int duplicate = 0;
 
   while (cur_st_node != NULL) {
     if (!strcmp(cur_st_node->id, declaration_node->id)) {
@@ -963,6 +978,8 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
             arg_mismatch = 1;
           }
         }
+
+        duplicate = 1;
       }
 
       break;
@@ -978,8 +995,10 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
     print_function_type(cur_st_node);
     printf(")\n");
   } else {
-    if (add_to_top(st, declaration_node) == 1) {
-      last = declaration_node;
+    if (!duplicate) {
+      if (add_to_top(st, declaration_node) == 1) {
+        last = declaration_node;
+      }
     }
   }
 }

@@ -243,7 +243,7 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
     }
 
     if (new_node->type == TYPE_VOID && new_node->n_pointers == 0) {
-      printf("Line %d, col %d: Invalid use of void type in declaration\n", param_declaration->loc.first_line, param_declaration->loc.first_column);
+      printf("Line %d, col %d: Invalid use of void type in declaration\n", param_declaration->childs[0]->loc.first_line, param_declaration->childs[0]->loc.first_column);
     }
 
     last_node->next = new_node;

@@ -1,9 +1,9 @@
-int **b[30];
-int **b;
+void f1(void);
+void f1(void);
 
-void i;
+void f2(void *x);
+void f2(void t);
 
-int f(void b);
+void f3(void t) {
 
-int f1(char*);
-int f1(int);
+}
