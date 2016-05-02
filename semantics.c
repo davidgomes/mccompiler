@@ -155,6 +155,22 @@ void print_function_type(sym_t *decl_node) {
   printf(")");
 }
 
+sym_t *is_sym_function(sym_t *st, sym_t *which_node) {
+  sym_t *cur_st_node = st;
+
+  while (cur_st_node != NULL) {
+    if (which_node->id != NULL) {
+      if (!strcmp(cur_st_node->id, which_node->id) && cur_st_node->node_type == FUNC_DECLARATION) {
+        return cur_st_node;
+      }
+    }
+
+    cur_st_node = cur_st_node->next;
+  }
+
+  return NULL;
+}
+
 void operator_applied1_function(node_t *operator, sym_t *decl_node) {
   printf("Line %d, col %d: Operator %s cannot be applied to type ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
   print_function_type(decl_node);
@@ -757,12 +773,16 @@ void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
 
   func_node = is_function(st, decl_node->childs[1]);
 
-  if (func_node != NULL) {
-    printf("Line %d, col %d: Symbol %s already defined\n", decl_node->loc.first_line, decl_node->loc.first_column, new_node->id);
+  if (func_node != NULL && func_name == NULL) {
+    printf("Line %d, col %d: Conflicting types (got ", decl_node->loc.first_line, decl_node->loc.first_column);
+    print_sym_array(new_node);
+    printf(", expected ");
+    print_function_type(func_node);
+    printf(")\n");
     return;
   }
 
-  if (decl_node->childs[0]->type == NODE_VOID && new_node->n_pointers == 0) {
+  if (new_node->type == TYPE_VOID && new_node->n_pointers == 0) {
     printf("Line %d, col %d: Invalid use of void type in declaration\n", decl_node->childs[0]->loc.first_line, decl_node->childs[0]->loc.first_column);
     return;
   }
@@ -849,6 +869,17 @@ void parse_array_decl(sym_t *st, node_t *decl_node, char *func_name) {
   int duplicate = 0;
   sym_t *new_node = create_array_node(decl_node);
 
+  func_node = is_function(st, decl_node->childs[1]);
+
+  if (func_node != NULL && func_name == NULL) {
+    printf("Line %d, col %d: Conflicting types (got ", decl_node->loc.first_line, decl_node->loc.first_column);
+    print_sym_array(new_node);
+    printf(", expected ");
+    print_function_type(func_node);
+    printf(")\n");
+    return;
+  }
+
   if (decl_node->childs[0]->type == NODE_VOID && new_node->n_pointers == 0) {
     printf("Line %d, col %d: Invalid use of void type in declaration\n", decl_node->loc.first_line, decl_node->loc.first_column);
   }
@@ -880,7 +911,13 @@ void parse_array_decl(sym_t *st, node_t *decl_node, char *func_name) {
           printf("Line %d, col %d: Conflicting types (got ", decl_node->loc.first_line, decl_node->loc.first_column);
           print_sym_array(new_node);
           printf(", expected ");
-          print_sym_array(cur_st_node);
+
+          if (is_sym_function(st, cur_st_node)) {
+            print_function_type(cur_st_node);
+          } else {
+            print_sym_array(cur_st_node);
+          }
+
           printf(")\n");
         }
 
@@ -956,11 +993,12 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
   while (cur_st_node != NULL) {
     if (!strcmp(cur_st_node->id, declaration_node->id)) {
       if (cur_st_node->node_type != FUNC_DECLARATION) {
-        printf("Line %d, col %d: Conflicting types (got ", func_decl_node->loc.first_line, func_decl_node->loc.first_column);
+        printf("Line %d, col %d: Conflicting types (got ", func_decl_node->loc.first_line, func_decl_node->loc.first_column + declaration_node->n_pointers);
         print_function_type(declaration_node);
         printf(", expected ");
         print_sym_array(cur_st_node);
         printf(")\n");
+        return;
       } else {
         // todo iterate each arg and check if it's different in which case give a conflicting type on the argument itself
 
@@ -1045,7 +1083,18 @@ int parse_func_definition(sym_t *st, node_t *func_def_node) {
   while (cur_st_node != NULL) {
     if (!strcmp(cur_st_node->id, table_node->id)) {
       if (cur_st_node->node_type != FUNC_DECLARATION || (cur_st_node->node_type == FUNC_DECLARATION && cur_st_node->definition != NULL)) {
-        printf("Line %d, col %d: Symbol %s already defined\n", func_def_node->loc.first_line, func_def_node->childs[table_node->n_pointers + 1]->loc.first_column, cur_st_node->id);
+        sym_t *func_node = is_sym_function(st, cur_st_node);
+
+        if (func_node) {
+          printf("Line %d, col %d: Symbol %s already defined\n", func_def_node->loc.first_line, func_def_node->childs[table_node->n_pointers + 1]->loc.first_column, cur_st_node->id);
+        } else {
+          printf("Line %d, col %d: Conflicting types (got ", func_def_node->loc.first_line, func_def_node->childs[table_node->n_pointers + 1]->loc.first_column);
+          print_function_type(table_node);
+          printf(", expected ");
+          print_sym_array(cur_st_node);
+          printf(")\n");
+        }
+
         return 1;
       }
 

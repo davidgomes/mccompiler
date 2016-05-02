@@ -1,4 +1,11 @@
-int f1(int, char);
-int f2(char);
+void *p;
 
-char f1, f2[10];
+void p(void);
+
+void p(void) {} /* devia dar conflicting types */
+
+
+int A;
+int *A(int); /* nao devia ser no asterisco mas sim no nome */
+
+void k;
