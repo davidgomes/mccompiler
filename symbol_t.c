@@ -200,8 +200,9 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
   int i;
   for (i = 0; i < param_list->n_childs; i++) {
     node_t* param_declaration = param_list->childs[i];
+    int inserted = 0;
 
-    if (param_declaration->n_childs == 1) { // int main(void) { for instance
+    if (param_declaration->n_childs == 1 && param_declaration->childs[0]->type == TYPE_VOID) { // int main(void) { for instance
       if (i < declaration_node->n_params && declaration_node->params[i]->n_pointers >= 1) {
         arg_mismatch = 1;
       }
@@ -213,18 +214,22 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
         declaration_node->params[declaration_node->n_params++] = new_node;
       }
 
-      break;
+      inserted = 1;
     }
 
-    new_node = create_variable_node(param_declaration);
-    new_node->is_parameter = 1;
+    if (!inserted) {
+      new_node = create_variable_node(param_declaration);
+      new_node->is_parameter = 1;
+    }
 
     if (i >= 1) { // verify if there's another argument with that name
       sym_t *cur_st_node = table_node->next->next;
 
-      while (1) {
-        if (!strcmp(cur_st_node->id, new_node->id)) {
-          printf("Line %d, col %d: Symbol %s already defined\n", param_declaration->loc.first_line, param_declaration->loc.first_column, cur_st_node->id);
+      while (cur_st_node != NULL) {
+        if (cur_st_node->id != NULL && new_node->id != NULL) {
+          if (!strcmp(cur_st_node->id, new_node->id)) {
+            printf("Line %d, col %d: Symbol %s already defined\n", param_declaration->loc.first_line, param_declaration->loc.first_column, cur_st_node->id);
+          }
         }
 
         if (cur_st_node == last_node) break;
@@ -233,7 +238,9 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
     }
 
     if (declaration_node_was_defined == 0) {
-      declaration_node->params[declaration_node->n_params++] = new_node;
+      if (!inserted) {
+        declaration_node->params[declaration_node->n_params++] = new_node;
+      }
     } else {
       if (i < declaration_node->n_params) {
         if (declaration_node->params[i]->type != new_node->type || declaration_node->params[i]->n_pointers != new_node->n_pointers) {
@@ -242,12 +249,14 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
       }
     }
 
-    if (new_node->type == TYPE_VOID && new_node->n_pointers == 0) {
+    if (new_node->type == TYPE_VOID && new_node->n_pointers == 0 && param_list->n_childs != 1) {
       printf("Line %d, col %d: Invalid use of void type in declaration\n", param_declaration->childs[0]->loc.first_line, param_declaration->childs[0]->loc.first_column);
     }
 
-    last_node->next = new_node;
-    last_node = new_node;
+    if (!inserted) {
+      last_node->next = new_node;
+      last_node = new_node;
+    }
   }
 
   if (arg_mismatch || declaration_node->n_params != param_list->n_childs) {
@@ -339,21 +348,23 @@ void st_print_table_element(sym_t* element) {
   if (element->node_type == GLOBAL) {
     printf("===== Global Symbol Table =====\n");
   } else if (element->node_type == VARIABLE) {
-    if (element->is_parameter) {
-      if (element->n_pointers == 0) {
-        printf("%s\t%s\tparam\n", element->id, type_str[element->type]);
+    if (element->id != NULL) {
+      if (element->is_parameter) {
+        if (element->n_pointers == 0) {
+          printf("%s\t%s\tparam\n", element->id, type_str[element->type]);
+        } else {
+          printf("%s\t%s", element->id, type_str[element->type]);
+          print_asterisks(element->n_pointers);
+          printf("\tparam\n");
+        }
       } else {
-        printf("%s\t%s", element->id, type_str[element->type]);
-        print_asterisks(element->n_pointers);
-        printf("\tparam\n");
-      }
-    } else {
-      if (element->n_pointers == 0) {
-        printf("%s\t%s\n", element->id, type_str[element->type]);
-      } else {
-        printf("%s\t%s", element->id, type_str[element->type]);
-        print_asterisks(element->n_pointers);
-        printf("\n");
+        if (element->n_pointers == 0) {
+          printf("%s\t%s\n", element->id, type_str[element->type]);
+        } else {
+          printf("%s\t%s", element->id, type_str[element->type]);
+          print_asterisks(element->n_pointers);
+          printf("\n");
+        }
       }
     }
   } else if (element->node_type == ARRAY) {

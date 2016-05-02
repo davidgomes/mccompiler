@@ -1,9 +1,5 @@
-void f1(void);
-void f1(void);
+void *f6(int, char*, int***, int);
 
-void f2(void *x);
-void f2(void t);
-
-void f3(void t) {
+char *f6(int, char*, int***, int, int) {
 
 }
