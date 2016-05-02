@@ -202,7 +202,7 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
     node_t* param_declaration = param_list->childs[i];
 
     if (param_declaration->n_childs == 1) { // int main(void) { for instance
-      if (declaration_node->params[i]->n_pointers >= 1) {
+      if (i < declaration_node->n_params && declaration_node->params[i]->n_pointers >= 1) {
         arg_mismatch = 1;
       }
 
