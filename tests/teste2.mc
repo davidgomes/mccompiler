@@ -1,6 +1,9 @@
-int f(int, int);
-int a;
+int **b[30];
+int **b;
 
-int f(int a, int b){
-  b = a + a;
-}
+void i;
+
+int f(void b);
+
+int f1(char*);
+int f1(int);

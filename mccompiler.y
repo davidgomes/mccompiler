@@ -100,9 +100,9 @@ TerminalIntlit: INTLIT { $$ = ast_insert_terminal(NODE_INTLIT, $1); }
 FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { $$ = ast_insert_node(NODE_FUNCDECLARATION, 1, 2, $1, $2); $$->loc = @2; }
                    ;
 
-TypeSpec: CHAR { $$ = ast_insert_terminal(NODE_CHAR, "Char"); }
-        | INT  { $$ = ast_insert_terminal(NODE_INT, "Int"); }
-        | VOID { $$ = ast_insert_terminal(NODE_VOID, "Void"); }
+TypeSpec: CHAR { $$ = ast_insert_terminal(NODE_CHAR, "Char"); $$->loc = @1; }
+        | INT  { $$ = ast_insert_terminal(NODE_INT, "Int"); $$->loc = @1; }
+        | VOID { $$ = ast_insert_terminal(NODE_VOID, "Void"); $$->loc = @1; }
         ;
 
 FunctionDeclarator: Id LPAR ParameterList RPAR          { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 2, $1, $3); }

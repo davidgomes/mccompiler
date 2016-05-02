@@ -707,7 +707,7 @@ void parse_call_node(sym_t *st, node_t *call_node, int an) {
   }
 }
 
-void parse_return_node(sym_t *st, node_t *return_node, char *func_name) {
+void parse_return_node(sym_t *st, node_t *return_node, char *func_name) { // TODO accept return int[] when expects int*
   sym_t *cur_st_node = st;
   type_t expected_type;
   int expected_pointers;
@@ -762,9 +762,8 @@ void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
     return;
   }
 
-
   if (decl_node->childs[0]->type == NODE_VOID && new_node->n_pointers == 0) {
-    printf("Line %d, col %d: Invalid use of void type in declaration\n", decl_node->loc.first_line, decl_node->loc.first_column);
+    printf("Line %d, col %d: Invalid use of void type in declaration\n", decl_node->childs[0]->loc.first_line, decl_node->childs[0]->loc.first_column);
     return;
   }
 
@@ -921,6 +920,17 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
     sym_t *new_node = create_variable_node(param_declaration);
     new_node->is_parameter = 1;
     declaration_node->params[declaration_node->n_params++] = new_node;
+
+    if (i >= 1) {
+      int u;
+      for (u = 0; u < i; u++) {
+        if (new_node->id != NULL && declaration_node->params[u]->id != NULL) {
+          if (!strcmp(new_node->id, declaration_node->params[u]->id)) {
+            printf("Line %d, col %d: Symbol %s already defined\n", param_declaration->loc.first_line, param_declaration->loc.first_column, declaration_node->params[i]->id);
+          }
+        }
+      }
+    }
   }
 
   // if duplicate, we don't put it in symbol table
