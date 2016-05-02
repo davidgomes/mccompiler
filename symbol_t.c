@@ -219,6 +219,19 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
     new_node = create_variable_node(param_declaration);
     new_node->is_parameter = 1;
 
+    if (i >= 1) {
+      sym_t *cur_st_node = table_node->next->next;
+
+      while (1) {
+        if (!strcmp(cur_st_node->id, new_node->id)) {
+          printf("Line %d, col %d: Symbol %s already defined\n", param_declaration->loc.first_line, param_declaration->loc.first_column, cur_st_node->id);
+        }
+
+        if (cur_st_node == last_node) break;
+        cur_st_node = cur_st_node->next;
+      }
+    }
+
     if (declaration_node_was_defined == 0) {
       declaration_node->params[declaration_node->n_params++] = new_node;
     } else {
