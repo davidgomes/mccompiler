@@ -1,5 +1,3 @@
-int function(void);
-
-char function(void) {
+int function(void b) {
 
 }

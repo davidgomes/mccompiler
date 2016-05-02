@@ -159,7 +159,7 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
   int declaration_node_was_defined = declaration_node->n_params > 0;
 
   // TODO Ao ler os parâmetros, detetar parâmetros duplicados e parâmetros que não estejam
-  // de acordo com a prévia declaração
+  // de acordo com a prévia declaração. Ah e também detetar invalid use of void type in declaration
   int i;
   for (i = 0; i < param_list->n_childs; i++) {
     node_t* param_declaration = param_list->childs[i];
@@ -188,6 +188,10 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
         print_sym_node(declaration_node->params[i]);
         printf(")\n");
       }
+    }
+
+    if (new_node->type == TYPE_VOID && new_node->n_pointers == 0) {
+      printf("Line %d, col %d: Invalid use of void type in declaration\n", param_declaration->loc.first_line, param_declaration->loc.first_column);
     }
 
     last_node->next = new_node;
