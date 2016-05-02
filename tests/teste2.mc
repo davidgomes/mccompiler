@@ -1,6 +1,5 @@
-int f(int, char);
-int f(int, char*);
+int function(void);
 
-int f(int c, char* d) {
+char function(void) {
 
 }
