@@ -219,7 +219,7 @@ int main(int argc, char **argv) {
       if (!were_there_errors) {
         init_st();
 
-        an_tree(ast, st, NULL, 1);
+        an_tree(ast, st, NULL, 1, 0);
         st_print_table(st);
         printf("\n");
         print_an_tree(ast, 0, 1);
@@ -232,7 +232,7 @@ int main(int argc, char **argv) {
 
     if (!were_there_errors) {
       init_st();
-      an_tree(ast, st, NULL, 1);
+      an_tree(ast, st, NULL, 1, 0);
     }
   }
 

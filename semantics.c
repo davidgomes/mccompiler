@@ -1035,7 +1035,7 @@ int mystrlen(const char *str) {
   return val;
 }
 
-void parse_func_definition(sym_t *st, node_t *func_def_node) {
+int parse_func_definition(sym_t *st, node_t *func_def_node) {
   sym_t *table_node = create_func_table_node(func_def_node);
 
   sym_t *cur_st_node = st;
@@ -1045,7 +1045,7 @@ void parse_func_definition(sym_t *st, node_t *func_def_node) {
     if (!strcmp(cur_st_node->id, table_node->id)) {
       if (cur_st_node->node_type != FUNC_DECLARATION || (cur_st_node->node_type == FUNC_DECLARATION && cur_st_node->definition != NULL)) {
         printf("Line %d, col %d: Symbol %s already defined\n", func_def_node->loc.first_line, func_def_node->childs[table_node->n_pointers + 1]->loc.first_column, cur_st_node->id);
-        return;
+        return 1;
       }
 
       declaration_node = cur_st_node;
@@ -1061,10 +1061,12 @@ void parse_func_definition(sym_t *st, node_t *func_def_node) {
     last = declaration_node;
   }
 
-  st_add_definition(st, table_node, func_def_node, declaration_node);
+  int error_given = st_add_definition(st, table_node, func_def_node, declaration_node);
+
+  return error_given;
 }
 
-void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
+void an_tree(node_t *where, sym_t *st, char *func_name, int an, int bad) {
   if (where->type == NODE_ARRAYDECLARATION || where->type == NODE_FUNCDECLARATION ||
       where->type == NODE_DECLARATION) {
     an = 0;
@@ -1072,7 +1074,7 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
 
   int i;
   if (where->type == NODE_FUNCDEFINITION) {
-    parse_func_definition(st, where);
+    bad = parse_func_definition(st, where);
 
     func_name = (char *) strdup(get_function_name(where));
 
@@ -1080,19 +1082,21 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an) {
 
     for (i = 0; i < where->n_childs; i++) {
       if (where->childs[i]->type == NODE_FUNCBODY) {
-        an_tree(where->childs[i], st, func_name, an);
+        an_tree(where->childs[i], st, func_name, an, bad);
       }
     }
   } else {
     for (i = 0; i < where->n_childs; i++) {
-      an_tree(where->childs[i], st, func_name, an);
+      an_tree(where->childs[i], st, func_name, an, bad);
     }
   }
 
   if (where->type == NODE_RETURN) {
     parse_return_node(st, where, func_name);
   } else if (where->type == NODE_DECLARATION) {
-    parse_decl(st, where, func_name);
+    if (!bad) {
+      parse_decl(st, where, func_name);
+    }
   } else if (where->type == NODE_FUNCDECLARATION) {
     parse_func_declaration(st, where, func_name);
   } else if (where->type == NODE_ARRAYDECLARATION) {

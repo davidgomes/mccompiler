@@ -16,7 +16,7 @@ sym_t* create_variable_node(node_t *cur_node);
 sym_t* create_array_node(node_t *cur_node);
 sym_t* create_declaration_node(node_t *cur_node);
 sym_t* create_func_table_node(node_t *cur_node);
-void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *declaration_node);
+int st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *declaration_node);
 int add_to_top(sym_t *st, sym_t *node);
 
 void init_st();

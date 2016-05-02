@@ -171,8 +171,9 @@ void print_function_type2(sym_t *decl_node) {
   printf(")");
 }
 
-void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *declaration_node) {
+int st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *declaration_node) {
   sym_t *new_node, *last_node;
+  int error_given = 0;
 
   declaration_node->definition = table_node;
   last_node = table_node;
@@ -193,9 +194,6 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
       arg_mismatch = 1;
     }
   }
-
-  // TODO Ao ler os parâmetros, detetar parâmetros duplicados e parâmetros que não estejam
-  // de acordo com a prévia declaração.
 
   int i;
   for (i = 0; i < param_list->n_childs; i++) {
@@ -260,6 +258,7 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
   }
 
   if (arg_mismatch || declaration_node->n_params != param_list->n_childs) {
+    error_given = 1;
     printf("Line %d, col %d: Conflicting types (got ", cur_node->loc.first_line, cur_node->loc.first_column + table_node->n_pointers);
 
     printf("%s", type_str[table_node->type]);
@@ -287,6 +286,13 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
     print_function_type2(declaration_node);
     printf(")\n");
   }
+
+  if (error_given) {
+    declaration_node->definition = NULL;
+    free(table_node);
+  }
+
+  return error_given;
 }
 
 int add_to_top(sym_t *st, sym_t *node) { // returns 1 if last has to be changed
