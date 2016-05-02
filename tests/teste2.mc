@@ -1,8 +1,6 @@
-int f(void*);
+int *gg(void*, char***);
+int *gg(void*);
 
-int f(void) {
+int **gg(void*, char****) {
 
 }
-
-int g(char*);
-int g(int*);

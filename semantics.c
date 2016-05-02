@@ -954,7 +954,7 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
   }
 
   if (arg_mismatch) {
-    printf("Line %d, col %d: Conflicting types (got ", func_decl_node->loc.first_line, func_decl_node->loc.first_column);
+    printf("Line %d, col %d: Conflicting types (got ", func_decl_node->loc.first_line, func_decl_node->loc.first_column + declaration_node->n_pointers);
     print_function_type(declaration_node);
     printf(", expected ");
     print_function_type(cur_st_node);

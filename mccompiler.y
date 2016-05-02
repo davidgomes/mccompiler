@@ -105,8 +105,8 @@ TypeSpec: CHAR { $$ = ast_insert_terminal(NODE_CHAR, "Char"); }
         | VOID { $$ = ast_insert_terminal(NODE_VOID, "Void"); }
         ;
 
-FunctionDeclarator: Id LPAR ParameterList RPAR          { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 2, $1, $3); $$->loc = @1;}
-                  | Asterisk Id LPAR ParameterList RPAR { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 3, $1, $2, $4); $$->loc = @2; }
+FunctionDeclarator: Id LPAR ParameterList RPAR          { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 2, $1, $3); }
+                  | Asterisk Id LPAR ParameterList RPAR { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 3, $1, $2, $4); }
                   ;
 
 ParameterList: ParameterList COMMA ParameterDeclaration { $1->to_use = 0; $$ = ast_insert_node(NODE_PARAMLIST, 1, 2, $1, $3); $$->loc = @3; }

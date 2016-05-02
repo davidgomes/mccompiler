@@ -238,7 +238,7 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
   }
 
   if (arg_mismatch || declaration_node->n_params != param_list->n_childs) {
-    printf("Line %d, col %d: Conflicting types (got ", cur_node->loc.first_line, cur_node->loc.first_column);
+    printf("Line %d, col %d: Conflicting types (got ", cur_node->loc.first_line, cur_node->loc.first_column + table_node->n_pointers);
 
     printf("%s", type_str[table_node->type]);
     print_asterisks(table_node->n_pointers);
