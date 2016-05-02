@@ -128,7 +128,9 @@ void operator_applied1(node_t *operator, node_t *node1) {
 }
 
 void print_function_type(sym_t *decl_node) {
-  printf("%s(", type_str[decl_node->type]);
+  printf("%s", type_str[decl_node->type]);
+  print_asterisks2(decl_node->n_pointers);
+  printf("(");
 
   if (decl_node->n_params == 0) {
     printf("void");

@@ -144,7 +144,9 @@ void print_sym_node(sym_t *which_node) {
 }
 
 void print_function_type2(sym_t *decl_node) {
-  printf("%s(", type_str[decl_node->type]);
+  printf("%s", type_str[decl_node->type]);
+  print_asterisks(decl_node->n_pointers);
+  printf("(");
 
   if (decl_node->n_params == 0) {
     printf("void");
@@ -182,12 +184,18 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
 
   node_t* param_list = cur_node->childs[new_node->n_pointers + 2];
 
-  int declaration_node_was_defined = declaration_node->n_params > 0;
+  int declaration_node_was_defined = declaration_node->n_params > 0; // e se for void?? cuidado com isto
+
+  int arg_mismatch = 0;
+
+  if (declaration_node_was_defined) {
+    if (declaration_node->type != table_node->type || declaration_node->n_pointers != table_node->n_pointers) {
+      arg_mismatch = 1;
+    }
+  }
 
   // TODO Ao ler os parâmetros, detetar parâmetros duplicados e parâmetros que não estejam
   // de acordo com a prévia declaração.
-
-  int arg_mismatch = 0;
 
   int i;
   for (i = 0; i < param_list->n_childs; i++) {
@@ -238,10 +246,11 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
       printf("void");
     } else {
       while (cur_st_node != NULL) {
+        printf("%s", type_str[cur_st_node->type]);
+        print_asterisks(cur_st_node->n_pointers);
+
         if (cur_st_node != last_node) {
-          printf("%s,", type_str[cur_st_node->type]);
-        } else {
-          printf("%s", type_str[cur_st_node->type]);
+          printf(",");
         }
 
         cur_st_node = cur_st_node->next;
