@@ -62,7 +62,7 @@ StartAgain: FunctionDefinition StartAgain  { $$ = ast_insert_node(NODE_BLOCK, 0,
           | /* empty */                    { $$ = NULL; }
           ;
 
-FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { $$ = ast_insert_node(NODE_FUNCDEFINITION, 1, 3, $1, $2, $3); $$->loc = @1; }
+FunctionDefinition: TypeSpec FunctionDeclarator FunctionBody { $$ = ast_insert_node(NODE_FUNCDEFINITION, 1, 3, $1, $2, $3); $$->loc = @2; }
                   ;
 
 FunctionBody: LBRACE FunctionBodyDeclaration FunctionBodyStatement RBRACE { $$ = ast_insert_node(NODE_FUNCBODY, 1, 2, $2, $3); }
@@ -80,12 +80,12 @@ FunctionBodyStatement: FunctionBodyStatement StatementCanError  { $$ = ast_inser
                      | Statement                                { $$ = ast_insert_node(NODE_FUNCTIONBODYSTATEMENT, 0, 1, $1); }
                      ;
 
-Declaration: TypeSpec DeclarationSecond SEMI  { if ($2 != NULL) { ast_add_typespec($1, $2); $$ = $2; } else { $$ = $2; } $$->loc = @2; }
+Declaration: TypeSpec DeclarationSecond SEMI  { if ($2 != NULL) { ast_add_typespec($1, $2); $$ = $2; } else { $$ = $2; } }
            | error SEMI                       { $$ = NULL; }
            ;
 
-DeclarationSecond: DeclarationSecond COMMA Declarator { $$ = ast_insert_node(NODE_DECLARATION, 0, 2, $1, $3); $$->loc = @3; }
-                 | Declarator                         { $$ = $1; $$->loc = @1; }
+DeclarationSecond: DeclarationSecond COMMA Declarator { $$ = ast_insert_node(NODE_DECLARATION, 0, 2, $1, $3); }
+                 | Declarator                         { $$ = $1; }
                  ;
 
 Declarator: Id                                 { $$ = ast_insert_node(NODE_DECLARATION, 1, 1, $1); $$->loc = @1; }
@@ -97,7 +97,7 @@ Declarator: Id                                 { $$ = ast_insert_node(NODE_DECLA
 TerminalIntlit: INTLIT { $$ = ast_insert_terminal(NODE_INTLIT, $1); }
               ;
 
-FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { $$ = ast_insert_node(NODE_FUNCDECLARATION, 1, 2, $1, $2); $$->loc = @1; }
+FunctionDeclaration: TypeSpec FunctionDeclarator SEMI { $$ = ast_insert_node(NODE_FUNCDECLARATION, 1, 2, $1, $2); $$->loc = @2; }
                    ;
 
 TypeSpec: CHAR { $$ = ast_insert_terminal(NODE_CHAR, "Char"); }
@@ -105,8 +105,8 @@ TypeSpec: CHAR { $$ = ast_insert_terminal(NODE_CHAR, "Char"); }
         | VOID { $$ = ast_insert_terminal(NODE_VOID, "Void"); }
         ;
 
-FunctionDeclarator: Id LPAR ParameterList RPAR          { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 2, $1, $3); }
-                  | Asterisk Id LPAR ParameterList RPAR { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 3, $1, $2, $4); }
+FunctionDeclarator: Id LPAR ParameterList RPAR          { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 2, $1, $3); $$->loc = @1;}
+                  | Asterisk Id LPAR ParameterList RPAR { $$ = ast_insert_node(NODE_FUNCDECLARATOR, 0, 3, $1, $2, $4); $$->loc = @2; }
                   ;
 
 ParameterList: ParameterList COMMA ParameterDeclaration { $1->to_use = 0; $$ = ast_insert_node(NODE_PARAMLIST, 1, 2, $1, $3); $$->loc = @3; }
@@ -122,8 +122,8 @@ ParameterDeclaration: TypeSpec Asterisk Id { $$ = ast_insert_node(NODE_PARAMDECL
 Id: ID { $$ = ast_insert_terminal(NODE_ID, $1); $$->loc = @1; }
   ;
 
-Asterisk: Asterisk Ast { $$ = ast_insert_node(NODE_POINTER, 0, 2, $1, $2); }
-        | Ast          { $$ = ast_insert_node(NODE_POINTER, 0, 1, $1); }
+Asterisk: Asterisk Ast { $$ = ast_insert_node(NODE_POINTER, 0, 2, $1, $2); $$->loc = @1; }
+        | Ast          { $$ = ast_insert_node(NODE_POINTER, 0, 1, $1); $$->loc = @1; }
         ;
 
 Ast: AST { $$ = ast_insert_terminal(NODE_POINTER, "Pointer"); $$->loc = @1; }

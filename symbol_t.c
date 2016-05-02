@@ -143,6 +143,32 @@ void print_sym_node(sym_t *which_node) {
   print_asterisks(which_node->n_pointers);
 }
 
+void print_function_type2(sym_t *decl_node) {
+  printf("%s(", type_str[decl_node->type]);
+
+  if (decl_node->n_params == 0) {
+    printf("void");
+  } else {
+    int i;
+    for (i = 0; i < decl_node->n_params; i++) {
+      sym_t *arg = decl_node->params[i];
+
+      if (arg->n_pointers == 0) {
+        printf("%s", type_str[arg->type]);
+      } else {
+        printf("%s", type_str[arg->type]);
+        print_asterisks(arg->n_pointers);
+      }
+
+      if (i != decl_node->n_params - 1) {
+        printf(",");
+      }
+    }
+  }
+
+  printf(")");
+}
+
 void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *declaration_node) {
   sym_t *new_node, *last_node;
 
@@ -158,17 +184,13 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
 
   int declaration_node_was_defined = declaration_node->n_params > 0;
 
-  /*if (declaration_node->n_params != param_list->n_childs) {
-    printf("Line %d, col %d: Wrong number of arguments to function %s (got %d, required %d)\n",
-          cur_node->loc.first_line, cur_node->loc.first_column, table_node->id, param_list->n_childs, declaration_node->n_params);
-
-    return;
-  }*/
-
   // TODO Ao ler os parâmetros, detetar parâmetros duplicados e parâmetros que não estejam
   // de acordo com a prévia declaração.
+
+  int arg_mismatch = 0;
+
   int i;
-  for (i = 0; i < param_list->n_childs && i < declaration_node->n_params; i++) {
+  for (i = 0; i < param_list->n_childs; i++) {
     node_t* param_declaration = param_list->childs[i];
 
     if (param_declaration->n_childs == 1) { // int main(void) { for instance
@@ -188,12 +210,10 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
     if (declaration_node_was_defined == 0) {
       declaration_node->params[declaration_node->n_params++] = new_node;
     } else {
-      if (declaration_node->params[i]->type != new_node->type || declaration_node->params[i]->n_pointers != new_node->n_pointers) {
-        printf("Line %d, col %d: Conflicting types (got ", param_declaration->loc.first_line, param_declaration->loc.first_column);
-        print_sym_node(new_node);
-        printf(", expected ");
-        print_sym_node(declaration_node->params[i]);
-        printf(")\n");
+      if (i < declaration_node->n_params) {
+        if (declaration_node->params[i]->type != new_node->type || declaration_node->params[i]->n_pointers != new_node->n_pointers) {
+          arg_mismatch = 1;
+        }
       }
     }
 
@@ -203,6 +223,34 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
 
     last_node->next = new_node;
     last_node = new_node;
+  }
+
+  if (arg_mismatch || declaration_node->n_params != param_list->n_childs) {
+    printf("Line %d, col %d: Conflicting types (got ", cur_node->loc.first_line, cur_node->loc.first_column);
+
+    printf("%s", type_str[table_node->type]);
+    print_asterisks(table_node->n_pointers);
+    printf("(");
+
+    sym_t *cur_st_node = table_node->next->next;
+
+    if (cur_st_node == NULL) {
+      printf("void");
+    } else {
+      while (cur_st_node != NULL) {
+        if (cur_st_node != last_node) {
+          printf("%s,", type_str[cur_st_node->type]);
+        } else {
+          printf("%s", type_str[cur_st_node->type]);
+        }
+
+        cur_st_node = cur_st_node->next;
+      }
+    }
+
+    printf("), expected ");
+    print_function_type2(declaration_node);
+    printf(")\n");
   }
 }
 

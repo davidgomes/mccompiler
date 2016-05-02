@@ -303,6 +303,8 @@ void parse_id_node(sym_t *st, node_t *node_id, char* func_name, int an) { // ler
   while (cur_st_node != NULL) {
     if (cur_st_node->id != NULL) {
       if (!strcmp(cur_st_node->id, func_name) && cur_st_node->node_type == FUNC_DECLARATION) {
+        if (cur_st_node->definition == NULL) break;
+
         cur_st_node = cur_st_node->definition->next;
 
         while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
@@ -854,17 +856,15 @@ void parse_array_decl(sym_t *st, node_t *decl_node, char *func_name) {
     }
   } else {
     while (cur_st_node != NULL) {
-      if (cur_st_node->node_type == new_node->node_type) {
-        if (cur_st_node->array_size != new_node->array_size) {
+      if (!strcmp(cur_st_node->id, new_node->id)) { // TODO check if preivous decl was actually a function and give error
+        if (cur_st_node->array_size != new_node->array_size || cur_st_node->type != new_node->type || cur_st_node->n_pointers != new_node->n_pointers) {
           printf("Line %d, col %d: Conflicting types (got ", decl_node->loc.first_line, decl_node->loc.first_column);
           print_sym_array(new_node);
           printf(", expected ");
           print_sym_array(cur_st_node);
           printf(")\n");
         }
-      }
 
-      if (!strcmp(cur_st_node->id, new_node->id)) { // check if preivous decl was actually a function and give error
         duplicate = 1;
       }
 
@@ -937,7 +937,7 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
           printf(")\n");
         }
 
-        /*if (cur_st_node->n_params != declaration_node->n_params) {
+        if (cur_st_node->n_params != declaration_node->n_params) {
           printf("Line %d, col %d: Wrong number of arguments to function %s (got %d, required %d)\n",
                  func_decl_node->loc.first_line, func_decl_node->loc.first_column, declaration_node->id, param_list->n_childs, cur_st_node->n_params);
         } else {
@@ -953,7 +953,7 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
               printf(")\n");
             }
           }
-        }*/
+        }
       }
 
       return;
@@ -1023,14 +1023,6 @@ void parse_func_definition(sym_t *st, node_t *func_def_node) {
     declaration_node->n_pointers = table_node->n_pointers;
     add_to_top(st, declaration_node);
     last = declaration_node;
-  } else {
-    if (declaration_node->type != table_node->type || declaration_node->n_pointers != table_node->n_pointers) {
-      printf("Line %d, col %d: Conflicting types (got ", func_def_node->loc.first_line, func_def_node->loc.first_column);
-      print_sym_node2(table_node);
-      printf(", expected ");
-      print_sym_node2(declaration_node);
-      printf(")\n");
-    }
   }
 
   st_add_definition(st, table_node, func_def_node, declaration_node);
