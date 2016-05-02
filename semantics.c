@@ -915,6 +915,7 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
 
   // if duplicate, we don't put it in symbol table
   sym_t *cur_st_node = st;
+  int arg_mismatch = 0;
 
   while (cur_st_node != NULL) {
     if (!strcmp(cur_st_node->id, declaration_node->id)) {
@@ -928,42 +929,38 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
         // todo iterate each arg and check if it's different in which case give a conflicting type on the argument itself
 
         if (cur_st_node->type != declaration_node->type || cur_st_node->n_pointers != declaration_node->n_pointers) {
-          printf("Line %d, col %d: Conflicting types (got ", func_decl_node->loc.first_line, func_decl_node->loc.first_column);
-          printf("%s", type_str[declaration_node->type]);
-          print_asterisks2(declaration_node->n_pointers);
-          printf(", expected ");
-          printf("%s", type_str[cur_st_node->type]);
-          print_asterisks2(cur_st_node->n_pointers);
-          printf(")\n");
+          arg_mismatch = 1;
         }
 
         if (cur_st_node->n_params != declaration_node->n_params) {
-          printf("Line %d, col %d: Wrong number of arguments to function %s (got %d, required %d)\n",
-                 func_decl_node->loc.first_line, func_decl_node->loc.first_column, declaration_node->id, param_list->n_childs, cur_st_node->n_params);
-        } else {
+          arg_mismatch = 1;
+        }
 
-          int i;
+        int i;
 
-          for (i = 0; i < cur_st_node->n_params && i < declaration_node->n_params; i++) {
-            if (cur_st_node->params[i]->type != declaration_node->params[i]->type || cur_st_node->params[i]->n_pointers != declaration_node->params[i]->n_pointers) {
-              printf("Line %d, col %d: Conflicting types (got ", param_list->childs[i]->loc.first_line, param_list->childs[i]->loc.first_column);
-              print_sym_node2(declaration_node->params[i]);
-              printf(", expected ");
-              print_sym_node2(cur_st_node->params[i]);
-              printf(")\n");
-            }
+        for (i = 0; i < cur_st_node->n_params && i < declaration_node->n_params; i++) {
+          if (cur_st_node->params[i]->type != declaration_node->params[i]->type || cur_st_node->params[i]->n_pointers != declaration_node->params[i]->n_pointers) {
+            arg_mismatch = 1;
           }
         }
       }
 
-      return;
+      break;
     }
 
     cur_st_node = cur_st_node->next;
   }
 
-  if (add_to_top(st, declaration_node) == 1) {
-    last = declaration_node;
+  if (arg_mismatch) {
+    printf("Line %d, col %d: Conflicting types (got ", func_decl_node->loc.first_line, func_decl_node->loc.first_column);
+    print_function_type(declaration_node);
+    printf(", expected ");
+    print_function_type(cur_st_node);
+    printf(")\n");
+  } else {
+    if (add_to_top(st, declaration_node) == 1) {
+      last = declaration_node;
+    }
   }
 }
 
