@@ -1,6 +1,6 @@
-int main(char, char);
-int f(void);
+int f(int, int);
+int f(int, int);
 
-void main (char c, char b){
-  int a, a, a;
+int f(int a, int b){
+  f(a, b, c);
 }

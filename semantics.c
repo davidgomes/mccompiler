@@ -927,10 +927,20 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
       } else {
         // todo iterate each arg and check if it's different in which case give a conflicting type on the argument itself
 
+        if (cur_st_node->type != declaration_node->type || cur_st_node->n_pointers != declaration_node->n_pointers) {
+          printf("Line %d, col %d: Conflicting types (got ", func_decl_node->loc.first_line, func_decl_node->loc.first_column);
+          printf("%s", type_str[declaration_node->type]);
+          print_asterisks2(declaration_node->n_pointers);
+          printf(", expected ");
+          printf("%s", type_str[cur_st_node->type]);
+          print_asterisks2(cur_st_node->n_pointers);
+          printf(")\n");
+        }
+
         /*if (cur_st_node->n_params != declaration_node->n_params) {
           printf("Line %d, col %d: Wrong number of arguments to function %s (got %d, required %d)\n",
                  func_decl_node->loc.first_line, func_decl_node->loc.first_column, declaration_node->id, param_list->n_childs, cur_st_node->n_params);
-        } else {*/
+        } else {
 
           int i;
 
@@ -942,8 +952,8 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
               print_sym_node2(cur_st_node->params[i]);
               printf(")\n");
             }
-          //}
-        }
+          }
+        }*/
       }
 
       return;
