@@ -250,10 +250,11 @@ int st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *dec
       }
     }
 
-    if (new_node->type == TYPE_VOID && new_node->n_pointers == 0 && new_node->id != NULL) {
+    if (new_node->type == TYPE_VOID && new_node->n_pointers == 0 && (new_node->id != NULL || param_list->n_childs > 1)) {
       printf("Line %d, col %d: Invalid use of void type in declaration\n", param_declaration->childs[0]->loc.first_line, param_declaration->childs[0]->loc.first_column);
       should_not_insert = 1;
       error_given = 1;
+      break;
     }
 
     if (!inserted && !should_not_insert) {
@@ -262,34 +263,36 @@ int st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *dec
     }
   }
 
-  if (arg_mismatch || declaration_node->n_params != param_list->n_childs) {
-    error_given = 1;
-    printf("Line %d, col %d: Conflicting types (got ", cur_node->loc.first_line, cur_node->loc.first_column + table_node->n_pointers);
+  if (!error_given) {
+    if (arg_mismatch || declaration_node->n_params != param_list->n_childs) {
+      error_given = 1;
+      printf("Line %d, col %d: Conflicting types (got ", cur_node->loc.first_line, cur_node->loc.first_column + table_node->n_pointers);
 
-    printf("%s", type_str[table_node->type]);
-    print_asterisks(table_node->n_pointers);
-    printf("(");
+      printf("%s", type_str[table_node->type]);
+      print_asterisks(table_node->n_pointers);
+      printf("(");
 
-    sym_t *cur_st_node = table_node->next->next;
+      sym_t *cur_st_node = table_node->next->next;
 
-    if (cur_st_node == NULL) {
-      printf("void");
-    } else {
-      while (cur_st_node != NULL) {
-        printf("%s", type_str[cur_st_node->type]);
-        print_asterisks(cur_st_node->n_pointers);
+      if (cur_st_node == NULL) {
+        printf("void");
+      } else {
+        while (cur_st_node != NULL) {
+          printf("%s", type_str[cur_st_node->type]);
+          print_asterisks(cur_st_node->n_pointers);
 
-        if (cur_st_node != last_node) {
-          printf(",");
+          if (cur_st_node != last_node) {
+            printf(",");
+          }
+
+          cur_st_node = cur_st_node->next;
         }
-
-        cur_st_node = cur_st_node->next;
       }
-    }
 
-    printf("), expected ");
-    print_function_type2(declaration_node);
-    printf(")\n");
+      printf("), expected ");
+      print_function_type2(declaration_node);
+      printf(")\n");
+    }
   }
 
   if (error_given) {

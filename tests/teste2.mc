@@ -1,2 +1,3 @@
-void a(void);
-int a(void a, void b);
+void a(int x, void);
+
+void a(int x, void) {}

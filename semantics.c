@@ -969,9 +969,10 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
     new_node->is_parameter = 1;
     declaration_node->params[declaration_node->n_params++] = new_node;
 
-    if (new_node->type == TYPE_VOID && new_node->n_pointers == 0 && new_node->id != NULL) {
+    if (new_node->type == TYPE_VOID && new_node->n_pointers == 0 && (new_node->id != NULL || param_list->n_childs > 1)) {
       printf("Line %d, col %d: Invalid use of void type in declaration\n", param_list->childs[i]->childs[0]->loc.first_line, param_list->childs[i]->childs[0]->loc.first_column);
       to_insert = 0;
+      break;
     }
 
     if (i >= 1) {
@@ -992,41 +993,43 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
   int arg_mismatch = 0;
   int duplicate = 0;
 
-  while (cur_st_node != NULL) {
-    if (!strcmp(cur_st_node->id, declaration_node->id)) {
-      if (cur_st_node->node_type != FUNC_DECLARATION) {
-        printf("Line %d, col %d: Conflicting types (got ", func_decl_node->loc.first_line, func_decl_node->loc.first_column + declaration_node->n_pointers);
-        print_function_type(declaration_node);
-        printf(", expected ");
-        print_sym_array(cur_st_node);
-        printf(")\n");
-        return;
-      } else {
-        // todo iterate each arg and check if it's different in which case give a conflicting type on the argument itself
+  if (to_insert) {
+    while (cur_st_node != NULL) {
+      if (!strcmp(cur_st_node->id, declaration_node->id)) {
+        if (cur_st_node->node_type != FUNC_DECLARATION) {
+          printf("Line %d, col %d: Conflicting types (got ", func_decl_node->loc.first_line, func_decl_node->loc.first_column + declaration_node->n_pointers);
+          print_function_type(declaration_node);
+          printf(", expected ");
+          print_sym_array(cur_st_node);
+          printf(")\n");
+          return;
+        } else {
+          // todo iterate each arg and check if it's different in which case give a conflicting type on the argument itself
 
-        if (cur_st_node->type != declaration_node->type || cur_st_node->n_pointers != declaration_node->n_pointers) {
-          arg_mismatch = 1;
-        }
-
-        if (cur_st_node->n_params != declaration_node->n_params) {
-          arg_mismatch = 1;
-        }
-
-        int i;
-
-        for (i = 0; i < cur_st_node->n_params && i < declaration_node->n_params; i++) {
-          if (cur_st_node->params[i]->type != declaration_node->params[i]->type || cur_st_node->params[i]->n_pointers != declaration_node->params[i]->n_pointers) {
+          if (cur_st_node->type != declaration_node->type || cur_st_node->n_pointers != declaration_node->n_pointers) {
             arg_mismatch = 1;
           }
+
+          if (cur_st_node->n_params != declaration_node->n_params) {
+            arg_mismatch = 1;
+          }
+
+          int i;
+
+          for (i = 0; i < cur_st_node->n_params && i < declaration_node->n_params; i++) {
+            if (cur_st_node->params[i]->type != declaration_node->params[i]->type || cur_st_node->params[i]->n_pointers != declaration_node->params[i]->n_pointers) {
+              arg_mismatch = 1;
+            }
+          }
+
+          duplicate = 1;
         }
 
-        duplicate = 1;
+        break;
       }
 
-      break;
+      cur_st_node = cur_st_node->next;
     }
-
-    cur_st_node = cur_st_node->next;
   }
 
   if (arg_mismatch) {
