@@ -755,6 +755,14 @@ void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
   int duplicate = 0;
   sym_t *new_node = create_variable_node(decl_node);
 
+  func_node = is_function(st, decl_node->childs[1]);
+
+  if (func_node != NULL) {
+    printf("Line %d, col %d: Symbol %s already defined\n", decl_node->loc.first_line, decl_node->loc.first_column, new_node->id);
+    return;
+  }
+
+
   if (decl_node->childs[0]->type == NODE_VOID && new_node->n_pointers == 0) {
     printf("Line %d, col %d: Invalid use of void type in declaration\n", decl_node->loc.first_line, decl_node->loc.first_column);
     return;
