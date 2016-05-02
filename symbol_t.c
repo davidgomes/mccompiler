@@ -158,8 +158,15 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
 
   int declaration_node_was_defined = declaration_node->n_params > 0;
 
+  if (declaration_node->n_params != param_list->n_childs) {
+    printf("Line %d, col %d: Wrong number of arguments to function %s (got %d, required %d)\n",
+          cur_node->loc.first_line, cur_node->loc.first_column, table_node->id, param_list->n_childs, declaration_node->n_params);
+
+    return;
+  }
+
   // TODO Ao ler os parâmetros, detetar parâmetros duplicados e parâmetros que não estejam
-  // de acordo com a prévia declaração. Ah e também detetar invalid use of void type in declaration
+  // de acordo com a prévia declaração.
   int i;
   for (i = 0; i < param_list->n_childs; i++) {
     node_t* param_declaration = param_list->childs[i];
