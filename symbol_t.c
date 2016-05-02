@@ -202,6 +202,10 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
     node_t* param_declaration = param_list->childs[i];
 
     if (param_declaration->n_childs == 1) { // int main(void) { for instance
+      if (declaration_node->params[i]->n_pointers >= 1) {
+        arg_mismatch = 1;
+      }
+
       new_node = create_node(VARIABLE, NULL, TYPE_VOID);
       new_node->is_parameter = 1;
 

@@ -1,6 +1,6 @@
-int f(void);
+int f(void*);
 
-int f(int k, char *t) {
+int f(void) {
 
 }
 
