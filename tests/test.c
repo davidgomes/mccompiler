@@ -1,11 +1,7 @@
-#include <stdio.h>
-#include <string.h>
+int f(int, int);
+int a;
 
-int a(int);
-int a(char);
-
-int main(void) {
-  int b, *b;
-
-  return 0;
+int f(int a, int b){
+  b = a + a;
+  return b;
 }

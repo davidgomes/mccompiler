@@ -1,15 +1,6 @@
-int *gg(void*, char***);
-int *gg(void*);
+int f(int, int);
+int a;
 
-int **gg(void* u, char**** l) {
-
-}
-
-int f(int a, int a) {
-  int a;
-  int gg;
-}
-
-int f(int b, int c) {
-
+int f(int a, int b){
+  b = a + a;
 }

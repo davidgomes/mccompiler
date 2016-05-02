@@ -219,7 +219,7 @@ void st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *de
     new_node = create_variable_node(param_declaration);
     new_node->is_parameter = 1;
 
-    if (i >= 1) {
+    if (i >= 1) { // verify if there's another argument with that name
       sym_t *cur_st_node = table_node->next->next;
 
       while (1) {
