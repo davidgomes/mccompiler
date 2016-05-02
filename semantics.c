@@ -875,7 +875,7 @@ void parse_array_decl(sym_t *st, node_t *decl_node, char *func_name) {
     }
   } else {
     while (cur_st_node != NULL) {
-      if (!strcmp(cur_st_node->id, new_node->id)) { // TODO check if preivous decl was actually a function and give error
+      if (!strcmp(cur_st_node->id, new_node->id)) { // TODO check if previous decl was actually a function and give error
         if (cur_st_node->array_size != new_node->array_size || cur_st_node->type != new_node->type || cur_st_node->n_pointers != new_node->n_pointers) {
           printf("Line %d, col %d: Conflicting types (got ", decl_node->loc.first_line, decl_node->loc.first_column);
           print_sym_array(new_node);
@@ -941,6 +941,7 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
         if (new_node->id != NULL && declaration_node->params[u]->id != NULL) {
           if (!strcmp(new_node->id, declaration_node->params[u]->id)) {
             printf("Line %d, col %d: Symbol %s already defined\n", param_declaration->loc.first_line, param_declaration->loc.first_column, declaration_node->params[i]->id);
+            break;
           }
         }
       }
@@ -1100,7 +1101,9 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an, int bad) {
   } else if (where->type == NODE_FUNCDECLARATION) {
     parse_func_declaration(st, where, func_name);
   } else if (where->type == NODE_ARRAYDECLARATION) {
-    parse_array_decl(st, where, func_name);
+    if (!bad) {
+      parse_array_decl(st, where, func_name);
+    }
   } else if (where->type == NODE_FUNCDEFINITION) {
 
   } else if (where->type == NODE_INTLIT || where->type == NODE_CHRLIT) {

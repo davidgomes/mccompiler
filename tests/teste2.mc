@@ -1,16 +1,4 @@
-int f(char);
-char f(int a) {}
-char f(int a, int b) {}
+int f1(int, char);
+int f2(char);
 
-int f(char x) {
-  int x;
-  int l;
-}
-
-int f(char x) {
-
-}
-
-int f(int l, int z) {
-  int lol;
-}
+char f1, f2[10];

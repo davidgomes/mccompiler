@@ -199,6 +199,7 @@ int st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *dec
   for (i = 0; i < param_list->n_childs; i++) {
     node_t* param_declaration = param_list->childs[i];
     int inserted = 0;
+    int should_not_insert = 0;
 
     if (param_declaration->n_childs == 1 && param_declaration->childs[0]->type == TYPE_VOID) { // int main(void) { for instance
       if (i < declaration_node->n_params && declaration_node->params[i]->n_pointers >= 1) {
@@ -227,6 +228,8 @@ int st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *dec
         if (cur_st_node->id != NULL && new_node->id != NULL) {
           if (!strcmp(cur_st_node->id, new_node->id)) {
             printf("Line %d, col %d: Symbol %s already defined\n", param_declaration->loc.first_line, param_declaration->loc.first_column, cur_st_node->id);
+            should_not_insert = 1;
+            break;
           }
         }
 
@@ -251,7 +254,7 @@ int st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *dec
       printf("Line %d, col %d: Invalid use of void type in declaration\n", param_declaration->childs[0]->loc.first_line, param_declaration->childs[0]->loc.first_column);
     }
 
-    if (!inserted) {
+    if (!inserted && !should_not_insert) {
       last_node->next = new_node;
       last_node = new_node;
     }
