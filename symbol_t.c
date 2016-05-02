@@ -250,8 +250,10 @@ int st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *dec
       }
     }
 
-    if (new_node->type == TYPE_VOID && new_node->n_pointers == 0 && param_list->n_childs != 1) {
+    if (new_node->type == TYPE_VOID && new_node->n_pointers == 0 && new_node->id != NULL) {
       printf("Line %d, col %d: Invalid use of void type in declaration\n", param_declaration->childs[0]->loc.first_line, param_declaration->childs[0]->loc.first_column);
+      should_not_insert = 1;
+      error_given = 1;
     }
 
     if (!inserted && !should_not_insert) {

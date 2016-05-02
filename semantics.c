@@ -959,6 +959,7 @@ void parse_array_decl(sym_t *st, node_t *decl_node, char *func_name) {
 void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) {
   sym_t *declaration_node = create_declaration_node(func_decl_node);
   node_t* param_list = func_decl_node->childs[declaration_node->n_pointers + 2];
+  int to_insert = 1;
 
   int i;
   for (i = 0; i < param_list->n_childs; i++) {
@@ -970,6 +971,7 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
 
     if (new_node->type == TYPE_VOID && new_node->n_pointers == 0 && new_node->id != NULL) {
       printf("Line %d, col %d: Invalid use of void type in declaration\n", param_list->childs[i]->childs[0]->loc.first_line, param_list->childs[i]->childs[0]->loc.first_column);
+      to_insert = 0;
     }
 
     if (i >= 1) {
@@ -1034,7 +1036,7 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
     print_function_type(cur_st_node);
     printf(")\n");
   } else {
-    if (!duplicate) {
+    if (!duplicate && to_insert) {
       if (add_to_top(st, declaration_node) == 1) {
         last = declaration_node;
       }
@@ -1080,6 +1082,8 @@ int parse_func_definition(sym_t *st, node_t *func_def_node) {
   sym_t *cur_st_node = st;
   sym_t *declaration_node = NULL;
 
+  int print_conflicting_type = 0;
+
   while (cur_st_node != NULL) {
     if (!strcmp(cur_st_node->id, table_node->id)) {
       if (cur_st_node->node_type != FUNC_DECLARATION || (cur_st_node->node_type == FUNC_DECLARATION && cur_st_node->definition != NULL)) {
@@ -1087,15 +1091,12 @@ int parse_func_definition(sym_t *st, node_t *func_def_node) {
 
         if (func_node) {
           printf("Line %d, col %d: Symbol %s already defined\n", func_def_node->loc.first_line, func_def_node->childs[table_node->n_pointers + 1]->loc.first_column, cur_st_node->id);
+          return 1;
         } else {
-          printf("Line %d, col %d: Conflicting types (got ", func_def_node->loc.first_line, func_def_node->childs[table_node->n_pointers + 1]->loc.first_column);
-          print_function_type(table_node);
-          printf(", expected ");
-          print_sym_array(cur_st_node);
-          printf(")\n");
+          print_conflicting_type = 1;
         }
 
-        return 1;
+        break;
       }
 
       declaration_node = cur_st_node;
@@ -1104,6 +1105,7 @@ int parse_func_definition(sym_t *st, node_t *func_def_node) {
     cur_st_node = cur_st_node->next;
   }
 
+  sym_t *temp = last;
   if (declaration_node == NULL) {
     declaration_node = create_node(FUNC_DECLARATION, table_node->id, table_node->type);
     declaration_node->n_pointers = table_node->n_pointers;
@@ -1112,6 +1114,20 @@ int parse_func_definition(sym_t *st, node_t *func_def_node) {
   }
 
   int error_given = st_add_definition(st, table_node, func_def_node, declaration_node);
+
+  if (print_conflicting_type) {
+    printf("Line %d, col %d: Conflicting types (got ", func_def_node->loc.first_line, func_def_node->childs[table_node->n_pointers + 1]->loc.first_column);
+    print_function_type(declaration_node);
+    printf(", expected ");
+    print_sym_array(cur_st_node);
+    printf(")\n");
+    error_given = 1;
+  }
+
+  if (error_given) {
+    last = temp;
+    temp->next = NULL;
+  }
 
   return error_given;
 }
