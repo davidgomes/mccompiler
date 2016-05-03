@@ -763,6 +763,8 @@ void parse_deref_node(sym_t *st, node_t *deref_node) {
 
   if (deref_node->childs[0]->an_type == TYPE_VOID && deref_node->childs[0]->an_n_pointers == 0) {
     operator_applied1(deref_node, deref_node->childs[0]);
+  } else if (deref_node->childs[0]->an_n_pointers == 0) {
+    operator_applied1(deref_node, deref_node->childs[0]);
   } else {
     deref_node->an_type = deref_node->childs[0]->an_type;
     deref_node->an_n_pointers = deref_node->childs[0]->an_n_pointers - 1;

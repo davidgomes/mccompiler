@@ -175,11 +175,11 @@ Expression: Expression ASSIGN Expression         { $$ = ast_insert_node(NODE_STO
           | Expression MINUS Expression          { $$ = ast_insert_node(NODE_SUB, 1, 2, $1, $3); $$->loc = @2; }
           | Expression DIV Expression            { $$ = ast_insert_node(NODE_DIV, 1, 2, $1, $3); $$->loc = @2; }
           | Expression MOD Expression            { $$ = ast_insert_node(NODE_MOD, 1, 2, $1, $3); $$->loc = @2; }
-          | AMP Expression                       { $$ = ast_insert_node(NODE_ADDR, 1, 1, $2); $$->loc = @2; }
-          | AST Expression          %prec NOT    { $$ = ast_insert_node(NODE_DEREF, 1, 1, $2); $$->loc = @2; }
-          | PLUS Expression         %prec NOT    { $$ = ast_insert_node(NODE_PLUS, 1, 1, $2); $$->loc = @2; }
-          | MINUS Expression        %prec NOT    { $$ = ast_insert_node(NODE_MINUS, 1, 1, $2); $$->loc = @2; }
-          | NOT Expression                       { $$ = ast_insert_node(NODE_NOT, 1, 1, $2); $$->loc = @2; }
+          | AMP Expression                       { $$ = ast_insert_node(NODE_ADDR, 1, 1, $2); $$->loc = @1; }
+          | AST Expression          %prec NOT    { $$ = ast_insert_node(NODE_DEREF, 1, 1, $2); $$->loc = @1; }
+          | PLUS Expression         %prec NOT    { $$ = ast_insert_node(NODE_PLUS, 1, 1, $2); $$->loc = @1; }
+          | MINUS Expression        %prec NOT    { $$ = ast_insert_node(NODE_MINUS, 1, 1, $2); $$->loc = @1; }
+          | NOT Expression                       { $$ = ast_insert_node(NODE_NOT, 1, 1, $2); $$->loc = @1; }
           | Expression LSQ CommaExpression RSQ   { node_t* add = ast_insert_node(NODE_ADD, 1, 2, $1, $3); $$ = ast_insert_node(NODE_DEREF, 1, 1, add); $$->loc = @1; }
           | Id LPAR ExpressionList RPAR          { $$ = ast_insert_node(NODE_CALL, 1, 2, $1, $3); $$->loc = @1; }
           | Id                                   { $$ = ast_insert_node(NODE_EXPRESSION, 0, 1, $1); $$->loc = @1; }
