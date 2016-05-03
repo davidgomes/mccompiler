@@ -714,6 +714,13 @@ void parse_minus_plus_node(sym_t *st, node_t *which_node, char *func_name) {
 }
 
 void parse_deref_node(sym_t *st, node_t *deref_node) {
+  sym_t *func_node = is_function(st, deref_node->childs[0]);
+
+  if (func_node != NULL) {
+    operator_applied1_function(deref_node, func_node);
+    return;
+  }
+
   if (deref_node->childs[0]->an_type == TYPE_VOID && deref_node->childs[0]->an_n_pointers == 0) {
     operator_applied1(deref_node, deref_node->childs[0]);
   } else {
