@@ -657,6 +657,46 @@ void parse_comp_node(sym_t *st, node_t *comp_node) {
   }
 }
 
+void parse_comma_node(sym_t *st, node_t *comma_node) {
+  sym_t *func_node1 = is_function(st, comma_node->childs[0]);
+  sym_t *func_node2 = is_function(st, comma_node->childs[1]);
+
+  if (func_node1 && !func_node2) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comma_node->loc.first_line, comma_node->loc.first_column, node_types[comma_node->type]);
+    print_function_type(func_node1);
+    printf(", ");
+    print_node_array(comma_node->childs[1]);
+    printf("\n");
+    return;
+  } else if (!func_node1 && func_node2) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comma_node->loc.first_line, comma_node->loc.first_column, node_types[comma_node->type]);
+    print_node_array(comma_node->childs[0]);
+    printf(", ");
+    print_function_type(func_node2);
+    printf("\n");
+    return;
+  } else if (func_node1 && func_node2) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comma_node->loc.first_line, comma_node->loc.first_column, node_types[comma_node->type]);
+    print_function_type(func_node1);
+    printf(", ");
+    print_function_type(func_node2);
+    printf("\n");
+    return;
+  }
+
+  int i;
+  for (i = 0; i < comma_node->n_childs; i++) {
+    if (comma_node->childs[i]->an_type != TYPE_UNKNOWN) {
+      comma_node->an_type = comma_node->childs[i]->an_type;
+      comma_node->an_n_pointers = comma_node->childs[i]->an_n_pointers;
+
+      if (comma_node->childs[i]->an_array_size >= 1) {
+        comma_node->an_n_pointers++;
+      }
+    }
+  }
+}
+
 void parse_not_node(sym_t *st, node_t *not_node) {
   sym_t *func_node = is_function(st, not_node->childs[0]);
 
@@ -1321,16 +1361,7 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an, int bad) {
   } else if (where->type == NODE_SUB) {
     parse_sub_node(st, where);
   } else if (where->type == NODE_COMMA) { // comma gets last child's value
-    for (i = 0; i < where->n_childs; i++) {
-      if (where->childs[i]->an_type != TYPE_UNKNOWN) {
-        where->an_type = where->childs[i]->an_type;
-        where->an_n_pointers = where->childs[i]->an_n_pointers;
-
-        if (where->childs[i]->an_array_size >= 1) {
-          where->an_n_pointers++;
-        }
-      }
-    }
+    parse_comma_node(st, where);
   } else if (where->type == NODE_MUL || where->type == NODE_DIV || where->type == NODE_MOD) {
     parse_mul_div_mod_node(st, where);
   } else if (where->type == NODE_GT || where->type == NODE_GE || where->type == NODE_EQ || where->type == NODE_LE || where->type == NODE_LT ||

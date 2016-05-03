@@ -1,5 +1,5 @@
-void v(int, char) {}
+void v(void) {}
 
 void main(void) {
-  *main;
+  v(), v;
 }

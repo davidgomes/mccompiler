@@ -153,7 +153,7 @@ ForCommaExpression: CommaExpression { $$ = $1; }
                   | /* empty */     { $$ = ast_insert_node(NODE_NULL, 1, 0); }
                   ;
 
-CommaExpression: CommaExpression COMMA CommaExpression { $$ = ast_insert_node(NODE_COMMA, 1, 2, $1, $3); }
+CommaExpression: CommaExpression COMMA CommaExpression { $$ = ast_insert_node(NODE_COMMA, 1, 2, $1, $3); $$->loc = @2; }
                | Expression                            { $$ = $1; }
                ;
 

@@ -1,4 +1,6 @@
 int main(void) {
-  int main = 0;
-  int a = main;
+  char **c;
+  int **i;
+
+  c = i;
 }
