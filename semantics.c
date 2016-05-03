@@ -661,6 +661,9 @@ void parse_comma_node(sym_t *st, node_t *comma_node) {
   sym_t *func_node1 = is_function(st, comma_node->childs[0]);
   sym_t *func_node2 = is_function(st, comma_node->childs[1]);
 
+  int first_undef = comma_node->childs[0]->an_type == TYPE_UNDEF;
+  int second_undef = comma_node->childs[1]->an_type == TYPE_UNDEF;
+
   if (func_node1 && !func_node2) {
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comma_node->loc.first_line, comma_node->loc.first_column, node_types_err[comma_node->type]);
     print_function_type(func_node1);
@@ -680,6 +683,30 @@ void parse_comma_node(sym_t *st, node_t *comma_node) {
     printf(", ");
     print_function_type(func_node2);
     printf("\n");
+    return;
+  }
+
+  if (first_undef && !second_undef) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comma_node->loc.first_line, comma_node->loc.first_column, node_types_err[comma_node->type]);
+    printf("undef");
+    printf(", ");
+    print_node_array(comma_node->childs[1]);
+    printf("\n");
+  } else if (!first_undef && second_undef) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comma_node->loc.first_line, comma_node->loc.first_column, node_types_err[comma_node->type]);
+    print_node_array(comma_node->childs[0]);
+    printf(", ");
+    printf("undef");
+    printf("\n");
+
+    return;
+  } else if (first_undef && second_undef) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comma_node->loc.first_line, comma_node->loc.first_column, node_types_err[comma_node->type]);
+    printf("undef");
+    printf(", ");
+    printf("undef");
+    printf("\n");
+
     return;
   }
 
