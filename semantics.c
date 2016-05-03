@@ -909,6 +909,15 @@ void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
 void parse_store_node(sym_t *st, node_t *store_node) {
   sym_t *func_node = is_function(st, store_node->childs[1]);
 
+  int id_found = store_node->childs[0]->type == NODE_ID ||
+                 (store_node->childs[0]->type == NODE_DEREF && store_node->childs[0]->an_type != TYPE_UNDEF &&
+                  store_node->childs[0]->an_type != TYPE_UNKNOWN);
+
+  if (!id_found) {
+    printf("Line %d, col %d: Lvalue required\n", store_node->loc.first_line, store_node->loc.first_column);
+    return;
+  }
+
   if (func_node != NULL) {
     printf("Line %d, col %d: Operator %s cannot be applied to types ", store_node->loc.first_line, store_node->loc.first_column, node_types_err[store_node->type]);
     print_node(store_node->childs[0]);
@@ -929,17 +938,9 @@ void parse_store_node(sym_t *st, node_t *store_node) {
     return;
   }
 
-  int id_found = store_node->childs[0]->type == NODE_ID ||
-                 (store_node->childs[0]->type == NODE_DEREF && store_node->childs[0]->an_type != TYPE_UNDEF &&
-                  store_node->childs[0]->an_type != TYPE_UNKNOWN);
-
-  if (!id_found) {
-    printf("Line %d, col %d: Lvalue required\n", store_node->loc.first_line, store_node->loc.first_column);
-  } else {
-    store_node->an_type = store_node->childs[0]->an_type;
-    store_node->an_n_pointers = store_node->childs[0]->an_n_pointers;
-    store_node->an_array_size = store_node->childs[0]->an_array_size;
-  }
+  store_node->an_type = store_node->childs[0]->an_type;
+  store_node->an_n_pointers = store_node->childs[0]->an_n_pointers;
+  store_node->an_array_size = store_node->childs[0]->an_array_size;
 }
 
 void parse_call_node(sym_t *st, node_t *call_node, int an) {
