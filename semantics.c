@@ -1022,16 +1022,45 @@ void parse_call_node(sym_t *st, node_t *call_node, int an) {
 
 void parse_return_node(sym_t *st, node_t *return_node, char *func_name) { // TODO accept return int[] when expects int*
   sym_t *cur_st_node = st;
-  type_t expected_type;
+  type_t expected_type = TYPE_UNKNOWN;
   int expected_pointers;
 
   while (cur_st_node != NULL) {
     if (!strcmp(cur_st_node->id, func_name)) {
       expected_type = cur_st_node->type;
       expected_pointers = cur_st_node->n_pointers;
+      break;
     }
 
     cur_st_node = cur_st_node->next;
+  }
+
+  sym_t *func_node = is_function(st, return_node->childs[0]);
+
+  if (func_node != NULL) {
+    printf("Line %d, col %d: Conflicting types (got ", return_node->loc.first_line, return_node->loc.first_column);
+
+    printf("%s", type_str[return_node->childs[0]->an_type]);
+    print_asterisks2(expected_pointers);
+    printf("(");
+
+    int i;
+    for (i = 0; i < return_node->childs[0]->an_n_params; i++) {
+      sym_t *arg = return_node->childs[0]->an_params[i];
+
+      printf("%s", type_str[arg->type]);
+      print_asterisks2(arg->n_pointers);
+
+      if (i != return_node->childs[0]->an_n_params - 1) printf(",");
+    }
+
+    printf(")");
+
+    printf(", expected ");
+    printf("%s", type_str[expected_type]);
+    print_asterisks2(expected_pointers);
+    printf(")\n");
+    return;
   }
 
   if (expected_type != return_node->childs[0]->an_type ||

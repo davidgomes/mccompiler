@@ -1,5 +1,13 @@
 void **v2;
 
-void main(void) {
+int k(void);
+
+void v(void) {
+
+}
+
+int main(void) {
   v2 - k;
+
+  return main;
 }
