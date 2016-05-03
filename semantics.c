@@ -465,85 +465,69 @@ void parse_sub_node(sym_t *st, node_t *sub_node) {
     return;
   }
 
-  if ((sub_node->childs[0]->an_type == TYPE_VOID && sub_node->childs[0]->an_n_pointers >= 1) ||
-      (sub_node->childs[1]->an_type == TYPE_VOID && sub_node->childs[1]->an_n_pointers >= 1)) { // subtracting void*s
-    if (first_pointers == 0) {
-      sub_node->an_type = TYPE_VOID;
-      sub_node->an_n_pointers = second_pointers;
-    } else if (second_pointers == 0) {
-      sub_node->an_type = TYPE_VOID;
-      sub_node->an_n_pointers = first_pointers;
-    } else if (first_pointers == 1 && second_pointers == 1) {
-      //operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
-    } else {
-      if (first_pointers == second_pointers) {
-        sub_node->an_type = TYPE_INT;
-        sub_node->an_n_pointers = first_pointers > second_pointers ? first_pointers : second_pointers;
-
-        if (first_pointers == second_pointers) {
-          sub_node->an_n_pointers = 0;
-        }
-      } else {
-        operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
-      }
-
-      //operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
+  if (first_pointers == 0 && second_pointers == 0) {
+    if (sub_node->childs[0]->an_type == TYPE_VOID || sub_node->childs[1]->an_type == TYPE_VOID) {
+      operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
+      return;
     }
-  } else if (first_pointers >= 1 && second_pointers == 0 && sub_node->childs[1]->an_type != TYPE_VOID) { // first is pointer, second is int, it's okay
-    sub_node->an_type = sub_node->childs[0]->an_type;
-    sub_node->an_n_pointers = first_pointers;
-  } else if (first_pointers == 0 && second_pointers >= 1) { // second is pointer, first is not, not okay
-    operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
-  } else if (sub_node->childs[0]->an_type == sub_node->childs[1]->an_type) {
-    if (first_pointers >= 1 && second_pointers >= 1 && first_pointers != second_pointers) {
+
+    sub_node->an_type = TYPE_INT;
+  } else if ((first_pointers >= 1 && second_pointers == 0) || (first_pointers == 0 && second_pointers >= 1)) {
+    node_t *is_pointer;
+    int is_pointer_n_pointers;
+
+    if (first_pointers >= 1) {
+      is_pointer = sub_node->childs[0];
+      is_pointer_n_pointers = first_pointers;
+    } else {
+      is_pointer = sub_node->childs[1];
+      is_pointer_n_pointers = second_pointers;
+    }
+
+    node_t *is_not_pointer;
+
+    if (first_pointers == 0) is_not_pointer = sub_node->childs[0];
+    else is_not_pointer = sub_node->childs[1];
+
+    if (is_not_pointer->an_type == TYPE_VOID) {
       operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
     } else {
-      if (sub_node->childs[0]->an_type == TYPE_CHAR) { // both are chars
-        if (first_pointers == 0 && second_pointers == 0) {
+      sub_node->an_type = is_pointer->an_type;
+      sub_node->an_n_pointers = is_pointer_n_pointers;
+    }
+  } else if (first_pointers >= 1 && second_pointers >= 1) {
+    if (first_pointers == second_pointers && sub_node->childs[0]->an_type == TYPE_VOID && sub_node->childs[1]->an_type == TYPE_VOID) {
+      sub_node->an_type = TYPE_INT;
+    } else {
+      if (sub_node->childs[0]->an_type == sub_node->childs[1]->an_type) {
+        if (first_pointers == second_pointers) {
           sub_node->an_type = TYPE_INT;
         } else {
-          sub_node->an_type = TYPE_CHAR;
+          operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
         }
-      } else if (sub_node->childs[0]->an_type == TYPE_VOID) {
-        operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
-      } else {
-        sub_node->an_type = sub_node->childs[0]->an_type;
-      }
+      } else { // multiple pointers, different type
+        node_t *is_there_void_asterisk = NULL;
+        node_t *is_not_void_asterisk = NULL;
+        int not_void_asterisk_pointers;
 
-      sub_node->an_n_pointers = first_pointers > second_pointers ? first_pointers : second_pointers;
+        if (sub_node->childs[0]->an_type == TYPE_VOID && first_pointers == 1) {
+          is_there_void_asterisk = sub_node->childs[0];
+          is_not_void_asterisk = sub_node->childs[1];
+          not_void_asterisk_pointers = second_pointers;
+        } else if (sub_node->childs[1]->an_type == TYPE_VOID && first_pointers == 1) {
+          is_there_void_asterisk = sub_node->childs[1];
+          is_not_void_asterisk = sub_node->childs[0];
+          not_void_asterisk_pointers = first_pointers;
+        }
 
-      if (first_pointers == second_pointers) {
-        sub_node->an_n_pointers = 0;
-      }
-    }
-  } else {
-    if ((sub_node->childs[0]->an_type == TYPE_CHAR && sub_node->childs[1]->an_type == TYPE_INT) ||
-        (sub_node->childs[0]->an_type == TYPE_INT && sub_node->childs[1]->an_type == TYPE_CHAR)) { // one is char, the other is int
-      if (sub_node->childs[0]->type == NODE_CHRLIT) {
-        sub_node->childs[0]->an_type = TYPE_INT;
-      }
-
-      if (sub_node->childs[1]->type == NODE_CHRLIT) {
-        sub_node->childs[1]->an_type = TYPE_INT;
-      }
-
-      sub_node->an_type = TYPE_INT;
-      sub_node->an_n_pointers = first_pointers > second_pointers ? first_pointers : second_pointers;
-
-      if (first_pointers == second_pointers) {
-        sub_node->an_n_pointers = 0;
-      } else if (first_pointers > second_pointers) {
-        sub_node->an_n_pointers = first_pointers;
-        sub_node->an_type = sub_node->childs[0]->an_type;
-      } else if (second_pointers > first_pointers) {
-        sub_node->an_n_pointers = second_pointers;
-        sub_node->an_type = sub_node->childs[1]->an_type;
+        if (is_there_void_asterisk) {
+          sub_node->an_type = is_not_void_asterisk->an_type;
+          sub_node->an_n_pointers = not_void_asterisk_pointers;
+        } else {
+          operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
+        }
       }
     }
-  }
-
-  if (sub_node->an_type == TYPE_CHAR && sub_node->an_n_pointers == 0) {
-    sub_node->an_type = TYPE_INT;
   }
 }
 
@@ -1041,7 +1025,7 @@ void parse_return_node(sym_t *st, node_t *return_node, char *func_name) { // TOD
     printf("Line %d, col %d: Conflicting types (got ", return_node->loc.first_line, return_node->loc.first_column);
 
     printf("%s", type_str[return_node->childs[0]->an_type]);
-    print_asterisks2(expected_pointers);
+    print_asterisks2(return_node->childs[0]->an_n_pointers);
     printf("(");
 
     int i;
@@ -1083,6 +1067,10 @@ void parse_return_node(sym_t *st, node_t *return_node, char *func_name) { // TOD
     }
 
     if (expected_type == TYPE_VOID && expected_pointers == 1 && return_node->childs[0]->an_n_pointers >= 1) {
+      return;
+    }
+
+    if (expected_pointers >= 1 && return_node->childs[0]->an_n_pointers == 1 && return_node->childs[0]->an_type == TYPE_VOID) {
       return;
     }
 
