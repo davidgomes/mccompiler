@@ -667,7 +667,6 @@ void parse_comma_node(sym_t *st, node_t *comma_node) {
     printf(", ");
     print_node_array(comma_node->childs[1]);
     printf("\n");
-    return;
   } else if (!func_node1 && func_node2) {
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comma_node->loc.first_line, comma_node->loc.first_column, node_types_err[comma_node->type]);
     print_node_array(comma_node->childs[0]);
@@ -763,12 +762,17 @@ void parse_deref_node(sym_t *st, node_t *deref_node) {
 
   if (deref_node->childs[0]->an_type == TYPE_VOID && deref_node->childs[0]->an_n_pointers == 0) {
     operator_applied1(deref_node, deref_node->childs[0]);
-  } else if (deref_node->childs[0]->an_n_pointers == 0) {
+  } else if (deref_node->childs[0]->an_n_pointers == 0 && ! (deref_node->childs[0]->an_array_size >= 1)) {
     operator_applied1(deref_node, deref_node->childs[0]);
   } else {
-    deref_node->an_type = deref_node->childs[0]->an_type;
-    deref_node->an_n_pointers = deref_node->childs[0]->an_n_pointers - 1;
-    deref_node->an_array_size = deref_node->childs[0]->an_array_size;
+    if (deref_node->childs[0]->an_array_size >= 0) {
+      deref_node->an_type = deref_node->childs[0]->an_type;
+      deref_node->an_n_pointers = deref_node->childs[0]->an_n_pointers + 1 - 1;
+    } else {
+      deref_node->an_type = deref_node->childs[0]->an_type;
+      deref_node->an_n_pointers = deref_node->childs[0]->an_n_pointers - 1;
+      deref_node->an_array_size = deref_node->childs[0]->an_array_size;
+    }
   }
 }
 

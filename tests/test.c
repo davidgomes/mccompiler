@@ -1,8 +1,12 @@
+#include <stdio.h>
+
 void v(void) {
 
 }
 
 int main(void) {
-  char c1;
-  void *v1 = *c1;
+  int buf[20];
+  buf[0] = 20;
+
+  printf("%d\n", *buf);
 }
