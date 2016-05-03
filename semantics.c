@@ -503,6 +503,16 @@ void parse_add_node(sym_t *st, node_t *add_node) {
     return;
   }
 
+  if ((add_node->childs[0]->an_type == TYPE_VOID && add_node->childs[0]->an_n_pointers == 0) ||
+      (add_node->childs[1]->an_type == TYPE_VOID && add_node->childs[1]->an_n_pointers == 0)) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types[add_node->type]);
+    print_node_array(add_node->childs[0]);
+    printf(", ");
+    print_node_array(add_node->childs[1]);
+    printf("\n");
+    return;
+  }
+
   if (first_pointers >= 1 || second_pointers >= 1) {
     if (first_pointers == 0) { // first is not pointer
       add_node->an_type = add_node->childs[1]->an_type;

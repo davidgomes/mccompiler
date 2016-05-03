@@ -1,7 +1,7 @@
-int **i2, *i1;
+void v(void) {}
 
 void main(void) {
-  i2 + i1;
-  main + i1;
-  i1 = main;
+  v() + v();
+  v() + 5;
+  5 + v();
 }
