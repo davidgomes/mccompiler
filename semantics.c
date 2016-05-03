@@ -938,9 +938,61 @@ void parse_store_node(sym_t *st, node_t *store_node) {
     return;
   }
 
-  store_node->an_type = store_node->childs[0]->an_type;
-  store_node->an_n_pointers = store_node->childs[0]->an_n_pointers;
-  store_node->an_array_size = store_node->childs[0]->an_array_size;
+  // verify if node can be stored or not
+
+  if (store_node->childs[1]->an_type == TYPE_UNDEF) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", store_node->loc.first_line, store_node->loc.first_column, node_types_err[store_node->type]);
+    print_node_array(store_node->childs[0]);
+    printf(", ");
+    print_node_array(store_node->childs[1]);
+    printf("\n");
+
+    return;
+  }
+
+  int first_pointers = store_node->childs[0]->an_n_pointers;
+  int second_pointers = store_node->childs[1]->an_n_pointers;
+
+  if (store_node->childs[0]->an_array_size >= 1) {
+    first_pointers++;
+  }
+
+  if (store_node->childs[1]->an_array_size >= 1) {
+    second_pointers++;
+  }
+
+  int error = 1;
+  if (store_node->childs[0]->an_type == store_node->childs[1]->an_type) {
+    if (((store_node->childs[0]->an_type == TYPE_INT && store_node->childs[0]->an_type == TYPE_CHAR) ||
+         (store_node->childs[0]->an_type == TYPE_CHAR && store_node->childs[0]->an_type == TYPE_INT)) &&
+        first_pointers == 0 && second_pointers == 0) {
+      error = 0;
+    }
+
+    if (first_pointers == second_pointers) {
+      error = 0;
+    }
+  } else if (store_node->childs[0]->an_type == TYPE_VOID && first_pointers == 1) {
+    if (second_pointers >= 1) {
+      error = 0;
+    }
+  } else if (store_node->childs[1]->an_type == TYPE_VOID && second_pointers == 1) {
+    if (first_pointers >= 1) {
+      error = 0;
+    }
+  }
+
+  if (error) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", store_node->loc.first_line, store_node->loc.first_column, node_types_err[store_node->type]);
+    print_node_array(store_node->childs[0]);
+    printf(", ");
+    print_node_array(store_node->childs[1]);
+    printf("\n");
+  } else {
+    store_node->an_type = store_node->childs[0]->an_type;
+    store_node->an_n_pointers = store_node->childs[0]->an_n_pointers;
+    store_node->an_array_size = store_node->childs[0]->an_array_size;
+  }
 }
 
 void parse_call_node(sym_t *st, node_t *call_node, int an) {
