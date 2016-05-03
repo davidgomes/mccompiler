@@ -962,13 +962,12 @@ void parse_store_node(sym_t *st, node_t *store_node) {
   }
 
   int error = 1;
-  if (store_node->childs[0]->an_type == store_node->childs[1]->an_type) {
-    if (((store_node->childs[0]->an_type == TYPE_INT && store_node->childs[0]->an_type == TYPE_CHAR) ||
-         (store_node->childs[0]->an_type == TYPE_CHAR && store_node->childs[0]->an_type == TYPE_INT)) &&
-        first_pointers == 0 && second_pointers == 0) {
-      error = 0;
-    }
 
+  if (((store_node->childs[0]->an_type == TYPE_INT && store_node->childs[0]->an_type == TYPE_CHAR) ||
+       (store_node->childs[0]->an_type == TYPE_CHAR && store_node->childs[0]->an_type == TYPE_INT)) &&
+      first_pointers == 0 && second_pointers == 0) {
+    error = 0;
+  } else if (store_node->childs[0]->an_type == store_node->childs[1]->an_type) {
     if (first_pointers == second_pointers) {
       error = 0;
     }
