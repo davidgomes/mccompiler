@@ -1,9 +1,12 @@
-int a(char);
-
-int a(int a) {
+void v(void) {
 
 }
 
-int a(char b) {
+void main(void) {
+  int a, b[20];
 
+  b * v;
+
+  b / v;
+  b / v();
 }

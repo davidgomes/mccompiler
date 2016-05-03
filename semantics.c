@@ -623,6 +623,32 @@ void parse_mul_div_mod_node(sym_t *st, node_t *which_node) {
 }
 
 void parse_comp_node(sym_t *st, node_t *comp_node) {
+  sym_t *func_node1 = is_function(st, comp_node->childs[0]);
+  sym_t *func_node2 = is_function(st, comp_node->childs[1]);
+
+  if (func_node1 && !func_node2) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types[comp_node->type]);
+    print_function_type(func_node1);
+    printf(", ");
+    print_node_array(comp_node->childs[1]);
+    printf("\n");
+    return;
+  } else if (!func_node1 && func_node2) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types[comp_node->type]);
+    print_node_array(comp_node->childs[0]);
+    printf(", ");
+    print_function_type(func_node2);
+    printf("\n");
+    return;
+  } else if (func_node1 && func_node2) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types[comp_node->type]);
+    print_function_type(func_node1);
+    printf(", ");
+    print_function_type(func_node2);
+    printf("\n");
+    return;
+  }
+
   if ((comp_node->childs[0]->an_type == TYPE_VOID && comp_node->childs[0]->an_n_pointers == 0) ||
       (comp_node->childs[1]->an_type == TYPE_VOID && comp_node->childs[1]->an_n_pointers == 0)) { // first is void or second is void
     operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]);
