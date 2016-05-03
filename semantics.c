@@ -541,6 +541,22 @@ void parse_add_node(sym_t *st, node_t *add_node) {
 
   if (add_node->childs[0]->an_array_size >= 1) {
     first_pointers++;
+
+    int child_n_pointers = add_node->childs[1]->an_n_pointers;
+
+    if (add_node->childs[1]->an_array_size >= 1) {
+      child_n_pointers++;
+    }
+
+    if (((add_node->childs[1]->an_type != TYPE_INT && add_node->childs[1]->an_type != TYPE_CHAR) || child_n_pointers >= 1) && add_node->loc2.first_line != 0 && add_node->loc2.first_column != 0) {
+      printf("Line %d, col %d: Operator [ cannot be applied to types ", add_node->loc2.first_line, add_node->loc2.first_column);
+      print_node_array(add_node->childs[0]);
+      printf(", ");
+      print_node_array(add_node->childs[1]);
+      printf("\n");
+
+      return;
+    }
   }
 
   if (add_node->childs[1]->an_array_size >= 1) {
@@ -856,6 +872,28 @@ void parse_deref_node(sym_t *st, node_t *deref_node) {
   if (func_node != NULL) {
     operator_applied1_function(deref_node, func_node);
     return;
+  }
+
+  if (deref_node->childs[0]->type == NODE_ADD && deref_node->childs[0]->an_type == TYPE_UNDEF) {
+    return;
+  }
+
+  int child_pointers = deref_node->childs[0]->an_n_pointers;
+
+  if (deref_node->childs[0]->an_array_size >= 1) {
+    child_pointers++;
+  }
+
+  if (child_pointers == 0) {
+    if (deref_node->childs[0]->type == NODE_ADD) {
+      printf("Line %d, col %d: Operator [ cannot be applied to types ", deref_node->childs[0]->loc2.first_line, deref_node->childs[0]->loc2.first_column);
+      print_node_array(deref_node->childs[0]->childs[0]);
+      printf(", ");
+      print_node_array(deref_node->childs[0]->childs[1]);
+      printf("\n");
+
+      return;
+    }
   }
 
   if (deref_node->childs[0]->an_type == TYPE_VOID && deref_node->childs[0]->an_n_pointers == 0) {

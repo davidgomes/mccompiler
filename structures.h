@@ -79,6 +79,7 @@ typedef struct node {
   sym_t **an_params;
 
   YYLTYPE loc;
+  YYLTYPE loc2;
 } node_t;
 
 

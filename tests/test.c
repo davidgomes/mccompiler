@@ -9,4 +9,6 @@ int main(void) {
   v2 = v1;
 
   v3 = v1;
+
+  v1[4];
 }
