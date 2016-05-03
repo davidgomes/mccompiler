@@ -398,6 +398,42 @@ void parse_sub_node(sym_t *st, node_t *sub_node) {
     second_pointers++;
   }
 
+  sym_t *func_node1 = is_function(st, sub_node->childs[0]);
+  sym_t *func_node2 = is_function(st, sub_node->childs[1]);
+
+  if (func_node1 && !func_node2) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types[sub_node->type]);
+    print_function_type(func_node1);
+    printf(", ");
+    print_node_array(sub_node->childs[1]);
+    printf("\n");
+    return;
+  } else if (!func_node1 && func_node2) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types[sub_node->type]);
+    print_node_array(sub_node->childs[0]);
+    printf(", ");
+    print_function_type(func_node2);
+    printf("\n");
+    return;
+  } else if (func_node1 && func_node2) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types[sub_node->type]);
+    print_function_type(func_node1);
+    printf(", ");
+    print_function_type(func_node2);
+    printf("\n");
+    return;
+  }
+
+  if ((sub_node->childs[0]->an_type == TYPE_VOID && sub_node->childs[0]->an_n_pointers == 0) ||
+      (sub_node->childs[1]->an_type == TYPE_VOID && sub_node->childs[1]->an_n_pointers == 0)) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types[sub_node->type]);
+    print_node_array(sub_node->childs[0]);
+    printf(", ");
+    print_node_array(sub_node->childs[1]);
+    printf("\n");
+    return;
+  }
+
   if ((sub_node->childs[0]->an_type == TYPE_VOID && sub_node->childs[0]->an_n_pointers >= 1) ||
       (sub_node->childs[1]->an_type == TYPE_VOID && sub_node->childs[1]->an_n_pointers >= 1)) { // subtracting void*s
     if (first_pointers == 0) {
