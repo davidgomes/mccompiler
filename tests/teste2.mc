@@ -1,9 +1,7 @@
-void v(void) {}
+int f(int, char);
 
 void main(void) {
-  5, (v, v);
-
-  (v, v), (v, v);
-
-  (v, v), 5;
+  if (f || f) {
+  
+  }
 }
