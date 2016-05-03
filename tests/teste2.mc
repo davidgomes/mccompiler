@@ -1,15 +1,9 @@
-void v(void) {}
+int a(char);
 
-void main(void) {
-  v() + v();
-  v() + 5;
-  5 + v();
+int a(int a) {
 
-  v() - v();
-  v() - 5;
-  5 - v();
+}
 
-  v - v;
-  v - 5;
-  5 - v;
+int a(char b) {
+
 }

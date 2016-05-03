@@ -179,17 +179,17 @@ void operator_applied1_function(node_t *operator, sym_t *decl_node) {
 
 void operator_applied2(node_t *operator, node_t *node1, node_t *node2) {
   printf("Line %d, col %d: Operator %s cannot be applied to types ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
-  print_node(node1);
+  print_node_array(node1);
   printf(", ");
-  print_node(node2);
+  print_node_array(node2);
   printf("\n");
 }
 
 void conflicting_types(node_t *node1, node_t *node2) {
   printf("Line %d, col %d: Conflicting types (got ", node1->loc.first_line, node2->loc.first_column);
-  print_node(node1);
+  print_node_array(node1);
   printf(", expected ");
-  print_node(node2);
+  print_node_array(node2);
   printf(")\n");
 }
 
@@ -585,6 +585,32 @@ void parse_add_node(sym_t *st, node_t *add_node) {
 }
 
 void parse_mul_div_mod_node(sym_t *st, node_t *which_node) {
+  sym_t *func_node1 = is_function(st, which_node->childs[0]);
+  sym_t *func_node2 = is_function(st, which_node->childs[1]);
+
+  if (func_node1 && !func_node2) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", which_node->loc.first_line, which_node->loc.first_column, node_types[which_node->type]);
+    print_function_type(func_node1);
+    printf(", ");
+    print_node_array(which_node->childs[1]);
+    printf("\n");
+    return;
+  } else if (!func_node1 && func_node2) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", which_node->loc.first_line, which_node->loc.first_column, node_types[which_node->type]);
+    print_node_array(which_node->childs[0]);
+    printf(", ");
+    print_function_type(func_node2);
+    printf("\n");
+    return;
+  } else if (func_node1 && func_node2) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", which_node->loc.first_line, which_node->loc.first_column, node_types[which_node->type]);
+    print_function_type(func_node1);
+    printf(", ");
+    print_function_type(func_node2);
+    printf("\n");
+    return;
+  }
+
   if ((which_node->childs[0]->an_type == TYPE_VOID && which_node->childs[0]->an_n_pointers == 0) ||
       (which_node->childs[1]->an_type == TYPE_VOID && which_node->childs[1]->an_n_pointers == 0)) { // first is void or second is void
     operator_applied2(which_node, which_node->childs[0], which_node->childs[1]);
