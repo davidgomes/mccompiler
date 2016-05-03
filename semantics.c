@@ -492,8 +492,12 @@ void parse_sub_node(sym_t *st, node_t *sub_node) {
     if (is_not_pointer->an_type == TYPE_VOID) {
       operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
     } else {
-      sub_node->an_type = is_pointer->an_type;
-      sub_node->an_n_pointers = is_pointer_n_pointers;
+      if (is_pointer == sub_node->childs[1]) {
+        operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
+      } else {
+        sub_node->an_type = is_pointer->an_type;
+        sub_node->an_n_pointers = is_pointer_n_pointers;
+      }
     }
   } else if (first_pointers >= 1 && second_pointers >= 1) {
     if (first_pointers == second_pointers && sub_node->childs[0]->an_type == TYPE_VOID && sub_node->childs[1]->an_type == TYPE_VOID) {
