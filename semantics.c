@@ -851,6 +851,13 @@ void parse_call_node(sym_t *st, node_t *call_node, int an) {
   while (cur_st_node != NULL) {
     if (!strcmp(cur_st_node->id, call_node->childs[0]->value)) {
       expected_args = cur_st_node->n_params;
+
+      if (expected_args == 1) {
+        if (cur_st_node->params[0]->type == TYPE_VOID) {
+          expected_args = 0;
+        }
+      }
+
       break;
     }
 
@@ -863,10 +870,8 @@ void parse_call_node(sym_t *st, node_t *call_node, int an) {
   }
 
   if (args_sent_in != expected_args) {
-    if (cur_st_node->params[0]->type != TYPE_VOID) {
-      printf("Line %d, col %d: Wrong number of arguments to function %s (got %d, required %d)\n", call_node->loc.first_line, call_node->loc.first_column, call_node->childs[0]->value, args_sent_in, expected_args);
-      return;
-    }
+    printf("Line %d, col %d: Wrong number of arguments to function %s (got %d, required %d)\n", call_node->loc.first_line, call_node->loc.first_column, call_node->childs[0]->value, args_sent_in, expected_args);
+    return;
   }
 
   int i;
