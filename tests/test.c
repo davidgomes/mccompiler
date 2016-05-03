@@ -5,8 +5,8 @@ void v(void) {
 }
 
 int main(void) {
-  int buf[20];
-  buf[0] = 20;
+  char *c;
+  &c;
 
   printf("%d\n", *buf);
 }

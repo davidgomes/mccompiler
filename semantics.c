@@ -100,6 +100,11 @@ void print_sym_node2(sym_t *which_node) {
 }
 
 void print_node_array(node_t *which) {
+  if (which->an_type == TYPE_UNDEF) {
+    printf("undef");
+    return;
+  }
+
   printf("%s", type_str[which->an_type]);
   print_asterisks2(which->an_n_pointers);
 
@@ -424,6 +429,32 @@ void parse_sub_node(sym_t *st, node_t *sub_node) {
     return;
   }
 
+  int first_undef = sub_node->childs[0]->an_type == TYPE_UNDEF;
+  int second_undef = sub_node->childs[1]->an_type == TYPE_UNDEF;
+
+  if (first_undef && !second_undef) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types_err[sub_node->type]);
+    printf("undef");
+    printf(", ");
+    print_node_array(sub_node->childs[1]);
+    printf("\n");
+    return;
+  } else if (!first_undef && second_undef) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types_err[sub_node->type]);
+    print_node_array(sub_node->childs[0]);
+    printf(", ");
+    printf("undef");
+    printf("\n");
+    return;
+  } else if (first_undef && second_undef) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types_err[sub_node->type]);
+    printf("undef");
+    printf(", ");
+    printf("undef");
+    printf("\n");
+    return;
+  }
+
   if ((sub_node->childs[0]->an_type == TYPE_VOID && sub_node->childs[0]->an_n_pointers == 0) ||
       (sub_node->childs[1]->an_type == TYPE_VOID && sub_node->childs[1]->an_n_pointers == 0)) {
     printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types_err[sub_node->type]);
@@ -443,32 +474,47 @@ void parse_sub_node(sym_t *st, node_t *sub_node) {
       sub_node->an_type = TYPE_VOID;
       sub_node->an_n_pointers = first_pointers;
     } else if (first_pointers == 1 && second_pointers == 1) {
+      //operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
+    } else {
+      if (first_pointers == second_pointers) {
+        sub_node->an_type = TYPE_INT;
+        sub_node->an_n_pointers = first_pointers > second_pointers ? first_pointers : second_pointers;
+
+        if (first_pointers == second_pointers) {
+          sub_node->an_n_pointers = 0;
+        }
+      } else {
+        operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
+      }
+
+      //operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
+    }
+  } else if (first_pointers >= 1 && second_pointers == 0 && sub_node->childs[1]->an_type != TYPE_VOID) { // first is pointer, second is int, it's okay
+    sub_node->an_type = sub_node->childs[0]->an_type;
+    sub_node->an_n_pointers = first_pointers;
+  } else if (first_pointers == 0 && second_pointers >= 1) { // second is pointer, first is not, not okay
+    operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
+  } else if (sub_node->childs[0]->an_type == sub_node->childs[1]->an_type) {
+    if (first_pointers >= 1 && second_pointers >= 1 && first_pointers != second_pointers) {
       operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
     } else {
-      sub_node->an_type = TYPE_INT;
+      if (sub_node->childs[0]->an_type == TYPE_CHAR) { // both are chars
+        if (first_pointers == 0 && second_pointers == 0) {
+          sub_node->an_type = TYPE_INT;
+        } else {
+          sub_node->an_type = TYPE_CHAR;
+        }
+      } else if (sub_node->childs[0]->an_type == TYPE_VOID) {
+        operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
+      } else {
+        sub_node->an_type = sub_node->childs[0]->an_type;
+      }
+
       sub_node->an_n_pointers = first_pointers > second_pointers ? first_pointers : second_pointers;
 
       if (first_pointers == second_pointers) {
         sub_node->an_n_pointers = 0;
       }
-    }
-  } else if (sub_node->childs[0]->an_type == sub_node->childs[1]->an_type) {
-    if (sub_node->childs[0]->an_type == TYPE_CHAR) { // both are chars
-      if (first_pointers == 0 && second_pointers == 0) {
-        sub_node->an_type = TYPE_INT;
-      } else {
-        sub_node->an_type = TYPE_CHAR;
-      }
-    } else if (sub_node->childs[0]->an_type == TYPE_VOID) {
-      operator_applied2(sub_node, sub_node->childs[0], sub_node->childs[1]);
-    } else {
-      sub_node->an_type = sub_node->childs[0]->an_type;
-    }
-
-    sub_node->an_n_pointers = first_pointers > second_pointers ? first_pointers : second_pointers;
-
-    if (first_pointers == second_pointers) {
-      sub_node->an_n_pointers = 0;
     }
   } else {
     if ((sub_node->childs[0]->an_type == TYPE_CHAR && sub_node->childs[1]->an_type == TYPE_INT) ||
@@ -535,6 +581,32 @@ void parse_add_node(sym_t *st, node_t *add_node) {
     print_function_type(func_node1);
     printf(", ");
     print_function_type(func_node2);
+    printf("\n");
+    return;
+  }
+
+  int first_undef = add_node->childs[0]->an_type == TYPE_UNDEF;
+  int second_undef = add_node->childs[1]->an_type == TYPE_UNDEF;
+
+  if (first_undef && !second_undef) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types_err[add_node->type]);
+    printf("undef");
+    printf(", ");
+    print_node_array(add_node->childs[1]);
+    printf("\n");
+    return;
+  } else if (!first_undef && second_undef) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types_err[add_node->type]);
+    print_node_array(add_node->childs[0]);
+    printf(", ");
+    printf("undef");
+    printf("\n");
+    return;
+  } else if (first_undef && second_undef) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types_err[add_node->type]);
+    printf("undef");
+    printf(", ");
+    printf("undef");
     printf("\n");
     return;
   }
@@ -737,11 +809,13 @@ void parse_not_node(sym_t *st, node_t *not_node) {
 
   if (func_node != NULL) {
     operator_applied1_function(not_node, func_node);
+    not_node->an_type = TYPE_INT;
     return;
   }
 
   if (not_node->childs[0]->an_type == TYPE_VOID && not_node->childs[0]->an_n_pointers == 0) {
     operator_applied1(not_node, not_node->childs[0]);
+    not_node->an_type = TYPE_INT;
   } else {
     not_node->an_type = TYPE_INT;
   }

@@ -1,2 +1,5 @@
-int a;
-int a(char, char);
+void **v2;
+
+void main(void) {
+  v2 - k;
+}
