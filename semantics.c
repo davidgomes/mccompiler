@@ -971,6 +971,11 @@ void parse_store_node(sym_t *st, node_t *store_node) {
     if (first_pointers == second_pointers) { // same type, same pointer
       error = 0;
     }
+
+    if ((store_node->childs[0]->an_type == TYPE_VOID && first_pointers == 1) ||
+        (store_node->childs[1]->an_type == TYPE_VOID && second_pointers == 1)) {
+      error = 0;
+    }
   } else if (store_node->childs[0]->an_type == TYPE_VOID && first_pointers == 1) {
     if (second_pointers >= 1) { // one is void* and the other is some sort of pointer
       error = 0;

@@ -1,12 +1,12 @@
 #include <stdio.h>
 
-void v(void) {
-
-}
+void v(void) {}
 
 int main(void) {
-  char *c;
-  &c;
+  void *v1, **v2, ***v3;
 
-  printf("%d\n", *buf);
+  v1 = v2;
+  v2 = v1;
+
+  v3 = v1;
 }
