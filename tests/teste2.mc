@@ -1,3 +1,7 @@
-void a(int x, void);
+int **i2, *i1;
 
-void a(int x, void) {}
+void main(void) {
+  i2 + i1;
+  main + i1;
+  i1 = main;
+}

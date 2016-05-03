@@ -477,6 +477,32 @@ void parse_add_node(sym_t *st, node_t *add_node) {
     second_pointers++;
   }
 
+  sym_t *func_node1 = is_function(st, add_node->childs[0]);
+  sym_t *func_node2 = is_function(st, add_node->childs[1]);
+
+  if (func_node1 && !func_node2) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types[add_node->type]);
+    print_function_type(func_node1);
+    printf(", ");
+    print_node_array(add_node->childs[1]);
+    printf("\n");
+    return;
+  } else if (!func_node1 && func_node2) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types[add_node->type]);
+    print_node_array(add_node->childs[0]);
+    printf(", ");
+    print_function_type(func_node2);
+    printf("\n");
+    return;
+  } else if (func_node1 && func_node2) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types[add_node->type]);
+    print_function_type(func_node1);
+    printf(", ");
+    print_function_type(func_node2);
+    printf("\n");
+    return;
+  }
+
   if (first_pointers >= 1 || second_pointers >= 1) {
     if (first_pointers == 0) { // first is not pointer
       add_node->an_type = add_node->childs[1]->an_type;
