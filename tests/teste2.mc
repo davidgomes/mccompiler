@@ -1,5 +1,9 @@
 void v(void) {}
 
+int buf[20];
+int **v2;
+
 void main(void) {
-  v(), v;
+  int buf [20];
+  buf + buf;
 }

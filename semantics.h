@@ -10,6 +10,7 @@
 #include "symbol_t.h"
 
 extern char* node_types[];
+extern char* node_types_err[];
 extern char* type_str[];
 
 void an_tree(node_t *where, sym_t *st, char *func_name, int an, int bad);

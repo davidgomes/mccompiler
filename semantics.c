@@ -122,7 +122,7 @@ void unknown_symbol(node_t *symbol) {
 }
 
 void operator_applied1(node_t *operator, node_t *node1) {
-  printf("Line %d, col %d: Operator %s cannot be applied to type ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
+  printf("Line %d, col %d: Operator %s cannot be applied to type ", operator->loc.first_line, operator->loc.first_column, node_types_err[operator->type]);
   print_node(node1);
   printf("\n");
 }
@@ -172,13 +172,13 @@ sym_t *is_sym_function(sym_t *st, sym_t *which_node) {
 }
 
 void operator_applied1_function(node_t *operator, sym_t *decl_node) {
-  printf("Line %d, col %d: Operator %s cannot be applied to type ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
+  printf("Line %d, col %d: Operator %s cannot be applied to type ", operator->loc.first_line, operator->loc.first_column, node_types_err[operator->type]);
   print_function_type(decl_node);
   printf("\n");
 }
 
 void operator_applied2(node_t *operator, node_t *node1, node_t *node2) {
-  printf("Line %d, col %d: Operator %s cannot be applied to types ", operator->loc.first_line, operator->loc.first_column, node_types[operator->type]);
+  printf("Line %d, col %d: Operator %s cannot be applied to types ", operator->loc.first_line, operator->loc.first_column, node_types_err[operator->type]);
   print_node_array(node1);
   printf(", ");
   print_node_array(node2);
@@ -402,21 +402,21 @@ void parse_sub_node(sym_t *st, node_t *sub_node) {
   sym_t *func_node2 = is_function(st, sub_node->childs[1]);
 
   if (func_node1 && !func_node2) {
-    printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types[sub_node->type]);
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types_err[sub_node->type]);
     print_function_type(func_node1);
     printf(", ");
     print_node_array(sub_node->childs[1]);
     printf("\n");
     return;
   } else if (!func_node1 && func_node2) {
-    printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types[sub_node->type]);
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types_err[sub_node->type]);
     print_node_array(sub_node->childs[0]);
     printf(", ");
     print_function_type(func_node2);
     printf("\n");
     return;
   } else if (func_node1 && func_node2) {
-    printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types[sub_node->type]);
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types_err[sub_node->type]);
     print_function_type(func_node1);
     printf(", ");
     print_function_type(func_node2);
@@ -426,7 +426,7 @@ void parse_sub_node(sym_t *st, node_t *sub_node) {
 
   if ((sub_node->childs[0]->an_type == TYPE_VOID && sub_node->childs[0]->an_n_pointers == 0) ||
       (sub_node->childs[1]->an_type == TYPE_VOID && sub_node->childs[1]->an_n_pointers == 0)) {
-    printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types[sub_node->type]);
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types_err[sub_node->type]);
     print_node_array(sub_node->childs[0]);
     printf(", ");
     print_node_array(sub_node->childs[1]);
@@ -517,21 +517,21 @@ void parse_add_node(sym_t *st, node_t *add_node) {
   sym_t *func_node2 = is_function(st, add_node->childs[1]);
 
   if (func_node1 && !func_node2) {
-    printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types[add_node->type]);
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types_err[add_node->type]);
     print_function_type(func_node1);
     printf(", ");
     print_node_array(add_node->childs[1]);
     printf("\n");
     return;
   } else if (!func_node1 && func_node2) {
-    printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types[add_node->type]);
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types_err[add_node->type]);
     print_node_array(add_node->childs[0]);
     printf(", ");
     print_function_type(func_node2);
     printf("\n");
     return;
   } else if (func_node1 && func_node2) {
-    printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types[add_node->type]);
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types_err[add_node->type]);
     print_function_type(func_node1);
     printf(", ");
     print_function_type(func_node2);
@@ -541,7 +541,7 @@ void parse_add_node(sym_t *st, node_t *add_node) {
 
   if ((add_node->childs[0]->an_type == TYPE_VOID && add_node->childs[0]->an_n_pointers == 0) ||
       (add_node->childs[1]->an_type == TYPE_VOID && add_node->childs[1]->an_n_pointers == 0)) {
-    printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types[add_node->type]);
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types_err[add_node->type]);
     print_node_array(add_node->childs[0]);
     printf(", ");
     print_node_array(add_node->childs[1]);
@@ -589,21 +589,21 @@ void parse_mul_div_mod_node(sym_t *st, node_t *which_node) {
   sym_t *func_node2 = is_function(st, which_node->childs[1]);
 
   if (func_node1 && !func_node2) {
-    printf("Line %d, col %d: Operator %s cannot be applied to types ", which_node->loc.first_line, which_node->loc.first_column, node_types[which_node->type]);
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", which_node->loc.first_line, which_node->loc.first_column, node_types_err[which_node->type]);
     print_function_type(func_node1);
     printf(", ");
     print_node_array(which_node->childs[1]);
     printf("\n");
     return;
   } else if (!func_node1 && func_node2) {
-    printf("Line %d, col %d: Operator %s cannot be applied to types ", which_node->loc.first_line, which_node->loc.first_column, node_types[which_node->type]);
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", which_node->loc.first_line, which_node->loc.first_column, node_types_err[which_node->type]);
     print_node_array(which_node->childs[0]);
     printf(", ");
     print_function_type(func_node2);
     printf("\n");
     return;
   } else if (func_node1 && func_node2) {
-    printf("Line %d, col %d: Operator %s cannot be applied to types ", which_node->loc.first_line, which_node->loc.first_column, node_types[which_node->type]);
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", which_node->loc.first_line, which_node->loc.first_column, node_types_err[which_node->type]);
     print_function_type(func_node1);
     printf(", ");
     print_function_type(func_node2);
@@ -627,21 +627,21 @@ void parse_comp_node(sym_t *st, node_t *comp_node) {
   sym_t *func_node2 = is_function(st, comp_node->childs[1]);
 
   if (func_node1 && !func_node2) {
-    printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types[comp_node->type]);
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
     print_function_type(func_node1);
     printf(", ");
     print_node_array(comp_node->childs[1]);
     printf("\n");
     return;
   } else if (!func_node1 && func_node2) {
-    printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types[comp_node->type]);
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
     print_node_array(comp_node->childs[0]);
     printf(", ");
     print_function_type(func_node2);
     printf("\n");
     return;
   } else if (func_node1 && func_node2) {
-    printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types[comp_node->type]);
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
     print_function_type(func_node1);
     printf(", ");
     print_function_type(func_node2);
@@ -662,21 +662,21 @@ void parse_comma_node(sym_t *st, node_t *comma_node) {
   sym_t *func_node2 = is_function(st, comma_node->childs[1]);
 
   if (func_node1 && !func_node2) {
-    printf("Line %d, col %d: Operator %s cannot be applied to types ", comma_node->loc.first_line, comma_node->loc.first_column, node_types[comma_node->type]);
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comma_node->loc.first_line, comma_node->loc.first_column, node_types_err[comma_node->type]);
     print_function_type(func_node1);
     printf(", ");
     print_node_array(comma_node->childs[1]);
     printf("\n");
     return;
   } else if (!func_node1 && func_node2) {
-    printf("Line %d, col %d: Operator %s cannot be applied to types ", comma_node->loc.first_line, comma_node->loc.first_column, node_types[comma_node->type]);
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comma_node->loc.first_line, comma_node->loc.first_column, node_types_err[comma_node->type]);
     print_node_array(comma_node->childs[0]);
     printf(", ");
     print_function_type(func_node2);
     printf("\n");
     return;
   } else if (func_node1 && func_node2) {
-    printf("Line %d, col %d: Operator %s cannot be applied to types ", comma_node->loc.first_line, comma_node->loc.first_column, node_types[comma_node->type]);
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comma_node->loc.first_line, comma_node->loc.first_column, node_types_err[comma_node->type]);
     print_function_type(func_node1);
     printf(", ");
     print_function_type(func_node2);
@@ -724,7 +724,7 @@ void parse_minus_plus_node(sym_t *st, node_t *which_node, char *func_name) {
     sym_t *array_node = is_array(st, which_node->childs[0], func_name);
 
     if (array_node != NULL) {
-      printf("Line %d, col %d: Operator %s cannot be applied to type ", which_node->loc.first_line, which_node->loc.first_column, node_types[which_node->type]);
+      printf("Line %d, col %d: Operator %s cannot be applied to type ", which_node->loc.first_line, which_node->loc.first_column, node_types_err[which_node->type]);
       printf("%s[%d]\n", type_str[array_node->type], array_node->array_size);
 
       return;
@@ -734,7 +734,7 @@ void parse_minus_plus_node(sym_t *st, node_t *which_node, char *func_name) {
   sym_t *array_node = is_array(st, which_node->childs[0], func_name);
 
   if (array_node) {
-    printf("Line %d, col %d: Operator %s cannot be applied to type ", which_node->loc.first_line, which_node->loc.first_column, node_types[which_node->type]);
+    printf("Line %d, col %d: Operator %s cannot be applied to type ", which_node->loc.first_line, which_node->loc.first_column, node_types_err[which_node->type]);
     printf("%s[%d]\n", type_str[array_node->type], array_node->array_size);
     return;
   }
@@ -793,7 +793,7 @@ void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
     }
 
     if (array_node) {
-      printf("Line %d, col %d: Operator %s cannot be applied to type ", addr_node->loc.first_line, addr_node->loc.first_column, node_types[addr_node->type]);
+      printf("Line %d, col %d: Operator %s cannot be applied to type ", addr_node->loc.first_line, addr_node->loc.first_column, node_types_err[addr_node->type]);
       printf("%s[%d]\n", type_str[array_node->type], array_node->array_size);
     } else {
       addr_node->an_type = addr_node->childs[0]->an_type;
