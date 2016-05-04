@@ -818,9 +818,50 @@ void parse_comp_node(sym_t *st, node_t *comp_node, char *func_name) {
     return;
   }
 
-  if ((comp_node->childs[0]->an_type == TYPE_VOID && comp_node->childs[0]->an_n_pointers == 0) ||
-      (comp_node->childs[1]->an_type == TYPE_VOID && comp_node->childs[1]->an_n_pointers == 0)) { // first is void or second is void
+  int first_pointers = comp_node->childs[0]->an_n_pointers;
+  int second_pointers = comp_node->childs[1]->an_n_pointers;
+
+  /*if (comp_node->childs[0]->an_array_size >= 1) {
+    first_pointers++;
+  }
+
+  if (comp_node->childs[1]->an_array_size >= 1) {
+    second_pointers++;
+  }*/
+
+  if ((comp_node->childs[0]->an_type == TYPE_VOID && first_pointers == 0) ||
+      (comp_node->childs[1]->an_type == TYPE_VOID && second_pointers == 0)) { // first is void or second is void
     operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]);
+    comp_node->an_type = TYPE_INT;
+  } else if (comp_node->childs[0]->an_type == TYPE_UNDEF || comp_node->childs[1]->an_type == TYPE_UNDEF) {
+    operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]);
+    comp_node->an_type = TYPE_INT;
+  } else if (comp_node->childs[0]->an_type != comp_node->childs[1]->an_type) {
+    if ((comp_node->childs[0]->an_type == TYPE_CHAR && comp_node->childs[1]->an_type == TYPE_INT) ||
+        (comp_node->childs[0]->an_type == TYPE_INT && comp_node->childs[1]->an_type == TYPE_CHAR)) {
+
+    } else if ((comp_node->childs[0]->an_type == TYPE_VOID && first_pointers >= 1) && second_pointers >= 1) {
+
+    } else if ((comp_node->childs[1]->an_type == TYPE_VOID && second_pointers >= 1) && first_pointers >= 1) {
+
+    } else {
+      operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]); // here
+    }
+
+    comp_node->an_type = TYPE_INT;
+  } else if (comp_node->childs[0]->an_type == comp_node->childs[1]->an_type) {
+    if (comp_node->childs[0]->an_type == TYPE_INT || comp_node->childs[0]->an_type == TYPE_CHAR) {
+      if (first_pointers != second_pointers) {
+        operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]); // here
+      }
+    } else { // void
+      if (first_pointers == second_pointers || first_pointers == 1 || second_pointers == 1) {
+
+      } else {
+        operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]);
+      }
+    }
+
     comp_node->an_type = TYPE_INT;
   } else {
     comp_node->an_type = TYPE_INT;

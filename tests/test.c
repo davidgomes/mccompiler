@@ -1,45 +1,23 @@
 #include <stdio.h>
 
-void v(void) {}
+void *v1, **v2, ***v3;
+char *c1;
+int *i1, i, **i2;
 
-char* g(void){}
 
 int main(void) {
-  /*void *v1, **v2, ***v3;
+  i == v2;
 
-  v1 = v2;
-  v2 = v1;
+  v2 == c1;
 
-  v3 = v1;
+  i2 == i1;
 
-  v1[4];*/
+  i1 == c1;
 
-  /*for (v();v();v()) {
+  v2 > v1;
 
-  }*/
+  v3 == i2;
 
-  &g();
 
-  for (;v;) {
-
-  }
-
-  if (v) {
-
-  }
-
-  int buffer[20];
-  void *hey;
-
-  buffer[buffer];
-  buffer[hey];
-
-  int x[10];
-  int *a1;
-
-  x = a1;
-
-  for (; hey; ) {
-    
-  }
+  i2 == i1;
 }
