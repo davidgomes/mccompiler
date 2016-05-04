@@ -2,6 +2,8 @@
 
 void v(void) {}
 
+char* g(void){}
+
 int main(void) {
   /*void *v1, **v2, ***v3;
 
@@ -12,7 +14,9 @@ int main(void) {
 
   v1[4];*/
 
-  for (v();v();v()) {
+  /*for (v();v();v()) {
 
-  }
+  }*/
+
+  &g();
 }
