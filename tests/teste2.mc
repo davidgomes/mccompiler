@@ -1,5 +1,7 @@
 void v(void) {}
 
+int f(int*);
+
 int main(int a) {
   /*int buffer[20];
   void *hey;
@@ -28,10 +30,14 @@ int main(int a) {
 
   }*/
 
-  int x;
+  /*int x;
   char *c;
 
   x * 1 = 10;
 
-  -c;
+  -c;*/
+
+  void *v1;
+
+  f(v1);
 }

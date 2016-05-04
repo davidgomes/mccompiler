@@ -621,7 +621,9 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
       printf("\n");
 
       if ((add_node->childs[0]->an_type == TYPE_INT && first_pointers == 0 && add_node->childs[1]->an_type == TYPE_INT && second_pointers == 0) ||
-          (add_node->childs[0]->an_type == TYPE_CHAR && first_pointers == 0 && add_node->childs[1]->an_type == TYPE_CHAR && second_pointers == 0)) {
+          (add_node->childs[0]->an_type == TYPE_CHAR && first_pointers == 0 && add_node->childs[1]->an_type == TYPE_CHAR && second_pointers == 0) ||
+          (add_node->childs[0]->an_type == TYPE_INT && first_pointers == 0 && add_node->childs[1]->an_type == TYPE_CHAR && second_pointers == 0) ||
+          (add_node->childs[0]->an_type == TYPE_CHAR && first_pointers == 0 && add_node->childs[1]->an_type == TYPE_INT && second_pointers == 0)) {
         add_node->an_type = TYPE_INT;
         add_node->has_given_error = 1;
       }
@@ -819,6 +821,7 @@ void parse_comp_node(sym_t *st, node_t *comp_node, char *func_name) {
   if ((comp_node->childs[0]->an_type == TYPE_VOID && comp_node->childs[0]->an_n_pointers == 0) ||
       (comp_node->childs[1]->an_type == TYPE_VOID && comp_node->childs[1]->an_n_pointers == 0)) { // first is void or second is void
     operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]);
+    comp_node->an_type = TYPE_INT;
   } else {
     comp_node->an_type = TYPE_INT;
   }
@@ -1070,6 +1073,10 @@ void parse_store_node(sym_t *st, node_t *store_node, char *func_name) {
   int id_found = store_node->childs[0]->type == NODE_ID ||
                  (store_node->childs[0]->type == NODE_DEREF && store_node->childs[0]->an_type != TYPE_UNDEF &&
                   store_node->childs[0]->an_type != TYPE_UNKNOWN);
+
+  store_node->an_type = store_node->childs[0]->an_type;
+  store_node->an_n_pointers = store_node->childs[0]->an_n_pointers;
+  store_node->an_array_size = store_node->childs[0]->an_array_size;
 
   if (!id_found) {
     printf("Line %d, col %d: Lvalue required\n", store_node->childs[0]->loc.first_line, store_node->childs[0]->loc.first_column);
