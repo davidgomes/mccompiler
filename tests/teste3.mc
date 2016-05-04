@@ -1,6 +1,7 @@
-int f(void*);
-void v(void);
+void *v1;
 
 void main(void) {
-  f(v());
+  for (; v1; ) {
+
+  }
 }

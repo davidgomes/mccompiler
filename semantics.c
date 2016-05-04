@@ -893,6 +893,8 @@ void parse_comma_node(sym_t *st, node_t *comma_node, char *func_name) {
 void parse_not_node(sym_t *st, node_t *not_node, char *func_name) {
   sym_t *func_node = is_function(st, not_node->childs[0], func_name);
 
+  not_node->an_type = TYPE_INT;
+
   if (not_node->childs[0]->an_type == TYPE_UNDEF) {
     not_node->an_type = TYPE_INT;
     operator_applied1(not_node, not_node->childs[0]);
@@ -915,6 +917,8 @@ void parse_not_node(sym_t *st, node_t *not_node, char *func_name) {
 
 void parse_minus_plus_node(sym_t *st, node_t *which_node, char *func_name) {
   sym_t *func_node = is_function(st, which_node->childs[0], func_name);
+
+  which_node->an_type = TYPE_INT;
 
   if (which_node->childs[0]->an_type == TYPE_UNDEF) {
     operator_applied1(which_node, which_node->childs[0]);
@@ -1039,12 +1043,6 @@ void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
                   addr_node->childs[0]->an_type != TYPE_UNKNOWN);
 
   if (!id_found) {
-    //operator_applied1(addr_node, addr_node->childs[0]);
-
-    // TODO O que o Professor responder a duvida sobre nao-lvalues no Addr Node
-
-    //printf("Line %d, col %d: Operator %s cannot be applied to type ", addr_node->childs[0]->loc.first_line, addr_node->childs[0]->loc.first_column, node_types_err[addr_node->type]);
-
     printf("Line %d, col %d: Lvalue required\n", addr_node->childs[0]->loc.first_line, addr_node->childs[0]->loc.first_column);
     addr_node->an_type = addr_node->childs[0]->an_type;
     addr_node->an_n_pointers = addr_node->childs[0]->an_n_pointers + 1;

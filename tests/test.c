@@ -38,4 +38,8 @@ int main(void) {
   int *a1;
 
   x = a1;
+
+  for (; hey; ) {
+    
+  }
 }
