@@ -33,4 +33,9 @@ int main(void) {
 
   buffer[buffer];
   buffer[hey];
+
+  int x[10];
+  int *a1;
+
+  x = a1;
 }

@@ -1,7 +1,7 @@
 void v(void) {}
 
 int main(int a) {
-  int buffer[20];
+  /*int buffer[20];
   void *hey;
 
   v[buffer];
@@ -17,5 +17,21 @@ int main(int a) {
 
   buffer[undef];
 
-  undef[buffer];
+  undef[buffer];*/
+
+  /* *undef;
+  &undef;
+
+  -undef;*/
+
+  /*if (undef + undef) {
+
+  }*/
+
+  int x;
+  char *c;
+
+  x * 1 = 10;
+
+  -c;
 }
