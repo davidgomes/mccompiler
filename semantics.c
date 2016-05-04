@@ -1095,6 +1095,16 @@ void parse_store_node(sym_t *st, node_t *store_node, char *func_name) {
     return;
   }
 
+  if (store_node->childs[0]->an_array_size >= 1) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", store_node->loc.first_line, store_node->loc.first_column, node_types_err[store_node->type]);
+    print_node_array(store_node->childs[0]);
+    printf(", ");
+    print_node_array(store_node->childs[1]);
+    printf("\n");
+
+    return;
+  }
+
   int first_pointers = store_node->childs[0]->an_n_pointers;
   int second_pointers = store_node->childs[1]->an_n_pointers;
 
@@ -1687,11 +1697,11 @@ void parse_if_node(sym_t *st, node_t *if_node, char *func_name) {
   }
 
   if (if_node->childs[0]->an_type == TYPE_UNDEF) {
-    printf("Line %d, col %d: Conflicting types (got undef, expected int)\n", if_node->loc.first_line, if_node->loc.first_column);
+    printf("Line %d, col %d: Conflicting types (got undef, expected int)\n", if_node->childs[0]->loc.first_line, if_node->childs[0]->loc.first_column);
   }
 
   if (if_node->childs[0]->an_type == TYPE_VOID && if_node->childs[0]->an_n_pointers == 0 && if_node->childs[0]->an_array_size < 1) {
-    printf("Line %d, col %d: Conflicting types (got void, expected int)\n", if_node->loc.first_line, if_node->loc.first_column);
+    printf("Line %d, col %d: Conflicting types (got void, expected int)\n", if_node->childs[0]->loc.first_line, if_node->childs[0]->loc.first_column);
   }
 }
 
@@ -1703,11 +1713,11 @@ void parse_for_node(sym_t *st, node_t *for_node, char *func_name) {
   }
 
   if (for_node->childs[1]->an_type == TYPE_UNDEF) {
-    printf("Line %d, col %d: Conflicting types (got undef, expected int)\n", for_node->loc.first_line, for_node->loc.first_column);
+    printf("Line %d, col %d: Conflicting types (got undef, expected int)\n", for_node->childs[0]->loc.first_line, for_node->childs[0]->loc.first_column);
   }
 
   if (for_node->childs[1]->an_type == TYPE_VOID && for_node->childs[1]->an_n_pointers == 0 && for_node->childs[1]->an_array_size < 1) {
-    printf("Line %d, col %d: Conflicting types (got void, expected int)\n", for_node->loc.first_line, for_node->loc.first_column);
+    printf("Line %d, col %d: Conflicting types (got void, expected int)\n", for_node->childs[0]->loc.first_line, for_node->childs[0]->loc.first_column);
   }
 }
 
