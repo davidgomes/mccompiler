@@ -149,7 +149,7 @@ StatementList: StatementList StatementCanError { if ($1 == NULL && $2 != NULL) {
              | StatementCanError               { $$ = ast_insert_node(NODE_STATLIST, 0, 1, $1); }
              ;
 
-ForCommaExpression: CommaExpression { $$ = $1; }
+ForCommaExpression: CommaExpression { $$ = $1; $$->loc = @1; }
                   | /* empty */     { $$ = ast_insert_node(NODE_NULL, 1, 0); }
                   ;
 
