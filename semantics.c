@@ -1179,8 +1179,6 @@ void parse_call_node(sym_t *st, node_t *call_node, int an, char *func_name) {
 
   int args_sent_in = call_node->n_childs - 1;
 
-  //printf("x: %d\n", args_sent_in);
-
   int expected_args;
 
   sym_t *cur_st_node = st;
@@ -1190,7 +1188,7 @@ void parse_call_node(sym_t *st, node_t *call_node, int an, char *func_name) {
       expected_args = cur_st_node->n_params;
 
       if (expected_args == 1) {
-        if (cur_st_node->params[0]->type == TYPE_VOID) {
+        if (cur_st_node->params[0]->type == TYPE_VOID && cur_st_node->params[0]->n_pointers == 0) {
           expected_args = 0;
         }
       }
@@ -1241,7 +1239,7 @@ void parse_call_node(sym_t *st, node_t *call_node, int an, char *func_name) {
         }
       }
 
-      if ((call_node->childs[1 + i]->an_type == TYPE_VOID && child_pointers == 1) || (cur_st_node->params[i]->type == TYPE_VOID && expected_pointers == 1)) {
+      if ((call_node->childs[1 + i]->an_type == TYPE_VOID && child_pointers == 1) && (cur_st_node->params[i]->type == TYPE_VOID && expected_pointers == 1)) {
         continue;
       }
 

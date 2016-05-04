@@ -1,7 +1,6 @@
-int main(void) {
-  if (main) {
+int f(void*);
+void v(void);
 
-  }
-
-  return 0;
+void main(void) {
+  f(v());
 }
