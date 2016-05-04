@@ -740,6 +740,7 @@ void parse_mul_div_mod_node(sym_t *st, node_t *which_node, char *func_name) {
     printf(", ");
     print_node_array(which_node->childs[1]);
     printf("\n");
+    which_node->an_type = TYPE_INT;
     return;
   } else if (!func_node1 && func_node2) {
     printf("Line %d, col %d: Operator %s cannot be applied to types ", which_node->loc.first_line, which_node->loc.first_column, node_types_err[which_node->type]);
@@ -747,6 +748,7 @@ void parse_mul_div_mod_node(sym_t *st, node_t *which_node, char *func_name) {
     printf(", ");
     print_function_type(func_node2);
     printf("\n");
+    which_node->an_type = TYPE_INT;
     return;
   } else if (func_node1 && func_node2) {
     printf("Line %d, col %d: Operator %s cannot be applied to types ", which_node->loc.first_line, which_node->loc.first_column, node_types_err[which_node->type]);
@@ -754,6 +756,7 @@ void parse_mul_div_mod_node(sym_t *st, node_t *which_node, char *func_name) {
     printf(", ");
     print_function_type(func_node2);
     printf("\n");
+    which_node->an_type = TYPE_INT;
     return;
   }
 
@@ -906,11 +909,13 @@ void parse_minus_plus_node(sym_t *st, node_t *which_node, char *func_name) {
 
   if (which_node->childs[0]->an_type == TYPE_UNDEF) {
     operator_applied1(which_node, which_node->childs[0]);
+    which_node->an_type = TYPE_INT;
     return;
   }
 
   if (func_node != NULL) {
     operator_applied1_function(which_node, func_node);
+    which_node->an_type = TYPE_INT;
     return;
   }
 
@@ -920,6 +925,7 @@ void parse_minus_plus_node(sym_t *st, node_t *which_node, char *func_name) {
     if (array_node != NULL) {
       printf("Line %d, col %d: Operator %s cannot be applied to type ", which_node->loc.first_line, which_node->loc.first_column, node_types_err[which_node->type]);
       printf("%s[%d]\n", type_str[array_node->type], array_node->array_size);
+      which_node->an_type = TYPE_INT;
 
       return;
     }
@@ -930,11 +936,13 @@ void parse_minus_plus_node(sym_t *st, node_t *which_node, char *func_name) {
   if (array_node) {
     printf("Line %d, col %d: Operator %s cannot be applied to type ", which_node->loc.first_line, which_node->loc.first_column, node_types_err[which_node->type]);
     printf("%s[%d]\n", type_str[array_node->type], array_node->array_size);
+    which_node->an_type = TYPE_INT;
     return;
   }
 
   if (which_node->childs[0]->an_n_pointers > 0) {
     operator_applied1(which_node, which_node->childs[0]);
+    which_node->an_type = TYPE_INT;
     return;
   }
 
@@ -1006,6 +1014,13 @@ void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
     return;
   }
 
+  if (addr_node->childs[0]->an_array_size >= 1) {
+    printf("Line %d, col %d: Operator %s cannot be applied to type ", addr_node->loc.first_line, addr_node->loc.first_column, node_types_err[addr_node->type]);
+    print_node_array(addr_node->childs[0]);
+    printf("\n");
+    return;
+  }
+
   int id_found = addr_node->childs[0]->type == NODE_ID ||
                  (addr_node->childs[0]->type == NODE_DEREF && addr_node->childs[0]->an_type != TYPE_UNDEF &&
                   addr_node->childs[0]->an_type != TYPE_UNKNOWN);
@@ -1044,7 +1059,7 @@ void parse_store_node(sym_t *st, node_t *store_node, char *func_name) {
                   store_node->childs[0]->an_type != TYPE_UNKNOWN);
 
   if (!id_found) {
-    printf("Line %d, col %d: Lvalue required\n", store_node->loc.first_line, store_node->loc.first_column);
+    printf("Line %d, col %d: Lvalue required\n", store_node->childs[0]->loc.first_line, store_node->childs[0]->loc.first_column);
     return;
   }
 
