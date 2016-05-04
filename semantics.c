@@ -564,11 +564,63 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
   if (add_node->loc2.first_line != 0 && add_node->loc2.first_column != 0) {
     sym_t *array_node = is_array(st, add_node->childs[0], func_name);
 
+    sym_t *func_node = is_function(st, add_node->childs[0], func_name);
+
+    if (second_pointers >= 1) {
+      if (func_node != NULL) {
+        printf("Line %d, col %d: Operator [ cannot be applied to types ", add_node->loc2.first_line, add_node->loc2.first_column);
+        print_function_type(func_node);
+        printf(", ");
+        print_node_array(add_node->childs[1]);
+        printf("\n");
+
+        return;
+      }
+
+      printf("Line %d, col %d: Operator [ cannot be applied to types ", add_node->loc2.first_line, add_node->loc2.first_column);
+      print_node_array(add_node->childs[0]);
+      printf(", ");
+      print_node_array(add_node->childs[1]);
+      printf("\n");
+      return;
+    }
+
+    if (func_node != NULL) {
+      sym_t *func_node2 = is_function(st, add_node->childs[1], func_name);
+
+      if (func_node2 != NULL) {
+        printf("Line %d, col %d: Operator [ cannot be applied to types ", add_node->loc2.first_line, add_node->loc2.first_column);
+        print_function_type(func_node);
+        printf(", ");
+        print_function_type(func_node2);
+        printf("\n");
+        return;
+      }
+
+      printf("Line %d, col %d: Operator [ cannot be applied to types ", add_node->loc2.first_line, add_node->loc2.first_column);
+      print_function_type(func_node);
+      printf(", ");
+      print_node_array(add_node->childs[1]);
+      printf("\n");
+      return;
+    }
+
     if (array_node == NULL && first_pointers == 0) {
       printf("Line %d, col %d: Operator [ cannot be applied to types ", add_node->loc2.first_line, add_node->loc2.first_column);
       print_node_array(add_node->childs[0]);
       printf(", ");
       print_node_array(add_node->childs[1]);
+      printf("\n");
+      return;
+    }
+
+    sym_t *func_node2 = is_function(st, add_node->childs[1], func_name);
+
+    if (func_node2 != NULL) {
+      printf("Line %d, col %d: Operator [ cannot be applied to types ", add_node->loc2.first_line, add_node->loc2.first_column);
+      print_node_array(add_node->childs[0]);
+      printf(", ");
+      print_function_type(func_node2);
       printf("\n");
       return;
     }
@@ -1616,12 +1668,32 @@ int parse_func_definition(sym_t *st, node_t *func_def_node) {
 }
 
 void parse_if_node(sym_t *st, node_t *if_node, char *func_name) {
+  sym_t *func_node = is_function(st, if_node->childs[0], func_name);
+
+  if (func_node != NULL) {
+    return;
+  }
+
+  if (if_node->childs[0]->an_type == TYPE_UNDEF) {
+    printf("Line %d, col %d: Conflicting types (got undef, expected int)\n", if_node->loc.first_line, if_node->loc.first_column);
+  }
+
   if (if_node->childs[0]->an_type == TYPE_VOID && if_node->childs[0]->an_n_pointers == 0 && if_node->childs[0]->an_array_size < 1) {
     printf("Line %d, col %d: Conflicting types (got void, expected int)\n", if_node->loc.first_line, if_node->loc.first_column);
   }
 }
 
 void parse_for_node(sym_t *st, node_t *for_node, char *func_name) {
+  sym_t *func_node = is_function(st, for_node->childs[1], func_name);
+
+  if (func_node != NULL) {
+    return;
+  }
+
+  if (for_node->childs[1]->an_type == TYPE_UNDEF) {
+    printf("Line %d, col %d: Conflicting types (got undef, expected int)\n", for_node->loc.first_line, for_node->loc.first_column);
+  }
+
   if (for_node->childs[1]->an_type == TYPE_VOID && for_node->childs[1]->an_n_pointers == 0 && for_node->childs[1]->an_array_size < 1) {
     printf("Line %d, col %d: Conflicting types (got void, expected int)\n", for_node->loc.first_line, for_node->loc.first_column);
   }

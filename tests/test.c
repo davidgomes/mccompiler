@@ -19,4 +19,18 @@ int main(void) {
   }*/
 
   &g();
+
+  for (;v;) {
+
+  }
+
+  if (v) {
+
+  }
+
+  int buffer[20];
+  void *hey;
+
+  buffer[buffer];
+  buffer[hey];
 }
