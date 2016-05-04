@@ -1,6 +1,8 @@
 void v(void) {}
 
 void *main(void) {
-  void *mm;
-  mm = buffer[mm];
+  int a, b;
+
+  &v;
+  &(a + b);
 }

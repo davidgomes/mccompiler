@@ -968,7 +968,11 @@ void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
                   addr_node->childs[0]->an_type != TYPE_UNKNOWN);
 
   if (!id_found) {
-    operator_applied1(addr_node, addr_node->childs[0]);
+    //operator_applied1(addr_node, addr_node->childs[0]);
+    //printf("Line %d, col %d: Operator %s cannot be applied to type ", addr_node->childs[0]->loc.first_line, addr_node->childs[0]->loc.first_column, node_types_err[addr_node->type]);
+    //print_
+
+    // TODO O que o Professor responder a duvida sobre nao-lvalues no Addr Node
   } else {
     // ver se childs[0] for o Id de uma array tambem se da erro
     sym_t *array_node = NULL;
