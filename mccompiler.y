@@ -140,7 +140,7 @@ Statement: CommaExpression SEMI                                                 
          | LBRACE error RBRACE                                                                        { $$ = NULL; }
          | IF LPAR CommaExpression RPAR Statement %prec THEN                                          { $3 = ast_fix_to_null($3); $5 = ast_fix_to_null($5); node_t *null_node = ast_insert_node(NODE_NULL, 1, 0); $$ = ast_insert_node(NODE_IF, 1, 3, $3, $5, null_node); $$->loc = @3; }
          | IF LPAR CommaExpression RPAR Statement ELSE Statement                                      { $3 = ast_fix_to_null($3); $5 = ast_fix_to_null($5); $7 = ast_fix_to_null($7); $$ = ast_insert_node(NODE_IF, 1, 3, $3, $5, $7); $$->loc = @3; }
-         | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { $9 = ast_fix_to_null($9); $$ = ast_insert_node(NODE_FOR, 1, 4, $3, $5, $7, $9); }
+         | FOR LPAR ForCommaExpression SEMI ForCommaExpression SEMI ForCommaExpression RPAR Statement { $9 = ast_fix_to_null($9); $$ = ast_insert_node(NODE_FOR, 1, 4, $3, $5, $7, $9); $$->loc2 = @5; }
          | RETURN CommaExpression SEMI                                                                { $$ = ast_insert_node(NODE_RETURN, 1, 1, $2); $$->loc = @2; }
          | RETURN SEMI                                                                                { node_t* null_node = ast_insert_node(NODE_NULL, 1, 0); $$ = ast_insert_node(NODE_RETURN, 1, 1, null_node); $$->loc = @1; }
          ;
@@ -149,7 +149,7 @@ StatementList: StatementList StatementCanError { if ($1 == NULL && $2 != NULL) {
              | StatementCanError               { $$ = ast_insert_node(NODE_STATLIST, 0, 1, $1); }
              ;
 
-ForCommaExpression: CommaExpression { $$ = $1; $$->loc = @1; }
+ForCommaExpression: CommaExpression { $$ = $1; }
                   | /* empty */     { $$ = ast_insert_node(NODE_NULL, 1, 0); }
                   ;
 
