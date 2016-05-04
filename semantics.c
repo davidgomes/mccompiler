@@ -1214,6 +1214,12 @@ void parse_call_node(sym_t *st, node_t *call_node, int an, char *func_name) {
     int expected_pointers = cur_st_node->params[i]->n_pointers;
 
     if ((expected_pointers != child_pointers || call_node->childs[1 + i]->an_type != cur_st_node->params[i]->type) || (call_node->childs[1 + i]->an_type == TYPE_VOID && child_pointers == 0)) {
+      if (call_node->childs[i + 1]->value != NULL && strlen(call_node->childs[i + 1]->value) >= 1) {
+        if (expected_pointers >= 1 && call_node->childs[i + 1]->value[0] == '0') {
+          continue;
+        }
+      }
+
       if ((call_node->childs[1 + i]->an_type == TYPE_VOID && child_pointers == 1) || (cur_st_node->params[i]->type == TYPE_VOID && expected_pointers == 1)) {
         continue;
       }
