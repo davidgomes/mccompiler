@@ -302,11 +302,44 @@ void parse_id_node(sym_t *st, node_t *node_id, char* func_name, int an) { // ler
 
   sym_t *cur_st_node = st->next;
 
+  cur_st_node = st->next;
+
+  if (func_name != NULL) {
+    while (cur_st_node != NULL) {
+      if (cur_st_node->id != NULL) {
+        if (!strcmp(cur_st_node->id, func_name) && cur_st_node->node_type == FUNC_DECLARATION) {
+          if (cur_st_node->definition == NULL) break;
+
+          cur_st_node = cur_st_node->definition->next;
+
+          while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
+            if (cur_st_node->id != NULL) {
+              if (!strcmp(cur_st_node->id, node_id->value)) {
+                node_id->an_type = cur_st_node->type;
+                node_id->an_n_pointers = cur_st_node->n_pointers;
+                node_id->an_array_size = cur_st_node->array_size;
+                return;
+              }
+            }
+
+            cur_st_node = cur_st_node->next;
+          }
+
+          break;
+        }
+      }
+
+      cur_st_node = cur_st_node->next;
+    }
+  }
+
+  cur_st_node = st->next;
   // first thing to do is verify if node_id corresponds to a function
   if (func_name != NULL) { // find declaration
-    while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
+    while (cur_st_node != NULL) {
       if (cur_st_node->node_type == FUNC_DECLARATION) {
         if (!strcmp(cur_st_node->id, node_id->value)) {
+
           node_id->an_type = cur_st_node->type;
           node_id->an_n_pointers = cur_st_node->n_pointers;
           node_id->an_params = cur_st_node->params;
@@ -328,62 +361,7 @@ void parse_id_node(sym_t *st, node_t *node_id, char* func_name, int an) { // ler
     }
   }
 
-  // if we got here, then it's not a function but yes a variable
-  cur_st_node = st->next;
-
-  if (func_name != NULL) { // find declaration
-    while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
-      if (cur_st_node->node_type == FUNC_DECLARATION) {
-        if (!strcmp(cur_st_node->id, func_name)) {
-          int i;
-
-          for (i = 0; i < cur_st_node->n_params; i++) {
-            if (cur_st_node->params[i]->id != NULL) {
-              if (!strcmp(cur_st_node->params[i]->id, node_id->value)) {
-                node_id->an_type = cur_st_node->params[i]->type;
-                node_id->an_n_pointers = cur_st_node->params[i]->n_pointers;
-                node_id->an_array_size = cur_st_node->params[i]->array_size;
-                return;
-              }
-            }
-          }
-        }
-      }
-
-      cur_st_node = cur_st_node->next;
-    }
-  }
-
   // check global variables
-
-  cur_st_node = st->next;
-
-  while (cur_st_node != NULL) {
-    if (cur_st_node->id != NULL) {
-      if (!strcmp(cur_st_node->id, func_name) && cur_st_node->node_type == FUNC_DECLARATION) {
-        if (cur_st_node->definition == NULL) break;
-
-        cur_st_node = cur_st_node->definition->next;
-
-        while (cur_st_node != NULL && cur_st_node->node_type != FUNC_TABLE) {
-          if (cur_st_node->id != NULL) {
-            if (!strcmp(cur_st_node->id, node_id->value)) {
-              node_id->an_type = cur_st_node->type;
-              node_id->an_n_pointers = cur_st_node->n_pointers;
-              node_id->an_array_size = cur_st_node->array_size;
-              return;
-            }
-          }
-
-          cur_st_node = cur_st_node->next;
-        }
-
-        break;
-      }
-    }
-
-    cur_st_node = cur_st_node->next;
-  }
 
   cur_st_node = st->next;
 

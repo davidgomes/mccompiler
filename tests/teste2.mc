@@ -1,8 +1,8 @@
-void v(void) {}
+char f(void);
 
-void *main(void) {
-  int a, b;
+int main(int a){
+  char d;
+  char* f;
 
-  &v;
-  &(a + b);
+  d - f;
 }
