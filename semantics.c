@@ -1244,7 +1244,7 @@ void parse_call_node(sym_t *st, node_t *call_node, int an, char *func_name) {
         }
       }
 
-      if ((call_node->childs[1 + i]->an_type == TYPE_VOID && child_pointers == 1) && (cur_st_node->params[i]->type == TYPE_VOID && expected_pointers == 1)) {
+      if ((call_node->childs[1 + i]->an_type == TYPE_VOID && child_pointers == 1) || (cur_st_node->params[i]->type == TYPE_VOID && expected_pointers == 1 && child_pointers >= 1)) {
         continue;
       }
 
