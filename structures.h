@@ -74,6 +74,9 @@ typedef struct node {
   int an_n_pointers;
   int an_array_size;
 
+  /* useful for array access */
+  int has_given_error;
+
   // for function ids in calls
   int an_n_params;
   sym_t **an_params;

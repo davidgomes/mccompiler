@@ -619,6 +619,13 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
       printf(", ");
       print_node_array(add_node->childs[1]);
       printf("\n");
+
+      if ((add_node->childs[0]->an_type == TYPE_INT && first_pointers == 0 && add_node->childs[1]->an_type == TYPE_INT && second_pointers == 0) ||
+          (add_node->childs[0]->an_type == TYPE_CHAR && first_pointers == 0 && add_node->childs[1]->an_type == TYPE_CHAR && second_pointers == 0)) {
+        add_node->an_type = TYPE_INT;
+        add_node->has_given_error = 1;
+      }
+
       return;
     }
 
@@ -733,6 +740,8 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
 void parse_mul_div_mod_node(sym_t *st, node_t *which_node, char *func_name) {
   sym_t *func_node1 = is_function(st, which_node->childs[0], func_name);
   sym_t *func_node2 = is_function(st, which_node->childs[1], func_name);
+
+  which_node->an_type = TYPE_INT;
 
   if (func_node1 && !func_node2) {
     printf("Line %d, col %d: Operator %s cannot be applied to types ", which_node->loc.first_line, which_node->loc.first_column, node_types_err[which_node->type]);
@@ -975,13 +984,17 @@ void parse_deref_node(sym_t *st, node_t *deref_node, char *func_name) {
 
   if (child_pointers == 0) {
     if (deref_node->childs[0]->type == NODE_ADD) {
-      printf("Line %d, col %d: Operator [ cannot be applied to types ", deref_node->childs[0]->loc2.first_line, deref_node->childs[0]->loc2.first_column);
-      print_node_array(deref_node->childs[0]->childs[0]);
-      printf(", ");
-      print_node_array(deref_node->childs[0]->childs[1]);
-      printf("\n");
+      if (!deref_node->childs[0]->has_given_error) {
+        printf("Line %d, col %d: Operator [ cannot be applied to types ", deref_node->childs[0]->loc2.first_line, deref_node->childs[0]->loc2.first_column);
+        print_node_array(deref_node->childs[0]->childs[0]);
+        printf(", ");
+        print_node_array(deref_node->childs[0]->childs[1]);
+        printf("\n");
 
-      return;
+        return;
+      } else {
+        return;
+      }
     }
   }
 
@@ -1062,6 +1075,9 @@ void parse_store_node(sym_t *st, node_t *store_node, char *func_name) {
 
   if (!id_found) {
     printf("Line %d, col %d: Lvalue required\n", store_node->childs[0]->loc.first_line, store_node->childs[0]->loc.first_column);
+    store_node->an_type = store_node->childs[0]->an_type;
+    store_node->an_n_pointers = store_node->childs[0]->an_n_pointers;
+    store_node->an_array_size = store_node->childs[0]->an_array_size;
     return;
   }
 
@@ -1162,6 +1178,9 @@ void parse_call_node(sym_t *st, node_t *call_node, int an, char *func_name) {
   }
 
   int args_sent_in = call_node->n_childs - 1;
+
+  //printf("x: %d\n", args_sent_in);
+
   int expected_args;
 
   sym_t *cur_st_node = st;
@@ -1701,6 +1720,9 @@ void parse_if_node(sym_t *st, node_t *if_node, char *func_name) {
   sym_t *func_node = is_function(st, if_node->childs[0], func_name);
 
   if (func_node != NULL) {
+    printf("Line %d, col %d: Conflicting types (got ", if_node->childs[0]->loc.first_line, if_node->childs[0]->loc.first_column);
+    print_function_type(func_node);
+    printf(", expected int)\n");
     return;
   }
 
