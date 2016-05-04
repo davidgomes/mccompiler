@@ -832,6 +832,12 @@ void parse_comma_node(sym_t *st, node_t *comma_node, char *func_name) {
 void parse_not_node(sym_t *st, node_t *not_node, char *func_name) {
   sym_t *func_node = is_function(st, not_node->childs[0], func_name);
 
+  if (not_node->childs[0]->an_type == TYPE_UNDEF) {
+    not_node->an_type = TYPE_INT;
+    operator_applied1(not_node, not_node->childs[0]);
+    return;
+  }
+
   if (func_node != NULL) {
     operator_applied1_function(not_node, func_node);
     not_node->an_type = TYPE_INT;
@@ -848,6 +854,11 @@ void parse_not_node(sym_t *st, node_t *not_node, char *func_name) {
 
 void parse_minus_plus_node(sym_t *st, node_t *which_node, char *func_name) {
   sym_t *func_node = is_function(st, which_node->childs[0], func_name);
+
+  if (which_node->childs[0]->an_type == TYPE_UNDEF) {
+    operator_applied1(which_node, which_node->childs[0]);
+    return;
+  }
 
   if (func_node != NULL) {
     operator_applied1_function(which_node, func_node);
