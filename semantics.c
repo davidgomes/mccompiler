@@ -1621,6 +1621,12 @@ int parse_func_definition(sym_t *st, node_t *func_def_node) {
   return error_given;
 }
 
+void parse_if_node(sym_t *st, node_t *if_node, char *func_name) {
+  if (if_node->childs[0]->an_type == TYPE_VOID && if_node->childs[0]->an_n_pointers == 0 && if_node->childs[0]->an_array_size < 1) {
+    printf("Line %d, col %d: Conflicting types (got void, expected int)\n", if_node->loc.first_line, if_node->loc.first_column);
+  }
+}
+
 void an_tree(node_t *where, sym_t *st, char *func_name, int an, int bad) {
   if (where->type == NODE_ARRAYDECLARATION || where->type == NODE_FUNCDECLARATION ||
       where->type == NODE_DECLARATION) {
@@ -1694,6 +1700,8 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an, int bad) {
     parse_call_node(st, where, an, func_name);
   } else if (where->type == NODE_DEREF) {
     parse_deref_node(st, where, func_name);
+  } else if (where->type == NODE_IF) {
+    parse_if_node(st, where, func_name);
   }
 
   if (where->type == NODE_FUNCDEFINITION || where->type == NODE_PROGRAM || where->type == NODE_FUNCBODY ||
