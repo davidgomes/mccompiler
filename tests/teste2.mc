@@ -9,4 +9,13 @@ int main(int a) {
   5[5];
   5[hey];
   hey[5];
+
+  undef[v];
+  v[undef];
+
+  undef[undef];
+
+  buffer[undef];
+
+  undef[buffer];
 }

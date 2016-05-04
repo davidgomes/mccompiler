@@ -565,6 +565,7 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
     sym_t *array_node = is_array(st, add_node->childs[0], func_name);
 
     sym_t *func_node = is_function(st, add_node->childs[0], func_name);
+    sym_t *func_node2 = is_function(st, add_node->childs[1], func_name);
 
     if (second_pointers >= 1) {
       if (func_node != NULL) {
@@ -586,8 +587,6 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
     }
 
     if (func_node != NULL) {
-      sym_t *func_node2 = is_function(st, add_node->childs[1], func_name);
-
       if (func_node2 != NULL) {
         printf("Line %d, col %d: Operator [ cannot be applied to types ", add_node->loc2.first_line, add_node->loc2.first_column);
         print_function_type(func_node);
@@ -605,22 +604,20 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
       return;
     }
 
-    if (array_node == NULL && first_pointers == 0) {
-      printf("Line %d, col %d: Operator [ cannot be applied to types ", add_node->loc2.first_line, add_node->loc2.first_column);
-      print_node_array(add_node->childs[0]);
-      printf(", ");
-      print_node_array(add_node->childs[1]);
-      printf("\n");
-      return;
-    }
-
-    sym_t *func_node2 = is_function(st, add_node->childs[1], func_name);
-
     if (func_node2 != NULL) {
       printf("Line %d, col %d: Operator [ cannot be applied to types ", add_node->loc2.first_line, add_node->loc2.first_column);
       print_node_array(add_node->childs[0]);
       printf(", ");
       print_function_type(func_node2);
+      printf("\n");
+      return;
+    }
+
+    if (array_node == NULL && first_pointers == 0) {
+      printf("Line %d, col %d: Operator [ cannot be applied to types ", add_node->loc2.first_line, add_node->loc2.first_column);
+      print_node_array(add_node->childs[0]);
+      printf(", ");
+      print_node_array(add_node->childs[1]);
       printf("\n");
       return;
     }
