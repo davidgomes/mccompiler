@@ -244,9 +244,40 @@ sym_t *is_array(sym_t *st, node_t *which_node, char *func_name) {
   return NULL;
 }
 
-sym_t *is_function(sym_t *st, node_t *which_node) {
+sym_t *is_function(sym_t *st, node_t *which_node, char *func_name) {
   sym_t *cur_st_node = st;
 
+  if (which_node->value == NULL) {
+    return NULL;
+  }
+
+  // first, see if there is an override of which->node->value inside function called "func_name"
+  if (func_name != NULL) {
+    while (cur_st_node != NULL) {
+      if (!strcmp(cur_st_node->id, func_name) && cur_st_node->node_type == FUNC_DECLARATION) {
+        if (cur_st_node->definition == NULL) break;
+
+        cur_st_node = cur_st_node->definition->next;
+
+        while (cur_st_node != NULL) {
+          if (cur_st_node->id != NULL) {
+            if (!strcmp(cur_st_node->id, which_node->value)) {
+              return NULL;
+            }
+          }
+
+          cur_st_node = cur_st_node->next;
+        }
+
+        break;
+      }
+
+      cur_st_node = cur_st_node->next;
+    }
+  }
+
+  // now check if func_name corresponds to some global function
+  cur_st_node = st;
   while (cur_st_node != NULL) {
     if (which_node->value != NULL) {
       if (!strcmp(cur_st_node->id, which_node->value) && cur_st_node->node_type == FUNC_DECLARATION) {
@@ -391,7 +422,7 @@ void set_function_type(sym_t *st, node_t *call_node) {
   }
 }
 
-void parse_sub_node(sym_t *st, node_t *sub_node) {
+void parse_sub_node(sym_t *st, node_t *sub_node, char *func_name) {
   int first_pointers = sub_node->childs[0]->an_n_pointers;
   int second_pointers = sub_node->childs[1]->an_n_pointers;
 
@@ -403,8 +434,8 @@ void parse_sub_node(sym_t *st, node_t *sub_node) {
     second_pointers++;
   }
 
-  sym_t *func_node1 = is_function(st, sub_node->childs[0]);
-  sym_t *func_node2 = is_function(st, sub_node->childs[1]);
+  sym_t *func_node1 = is_function(st, sub_node->childs[0], func_name);
+  sym_t *func_node2 = is_function(st, sub_node->childs[1], func_name);
 
   if (func_node1 && !func_node2) {
     printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types_err[sub_node->type]);
@@ -535,7 +566,7 @@ void parse_sub_node(sym_t *st, node_t *sub_node) {
   }
 }
 
-void parse_add_node(sym_t *st, node_t *add_node) {
+void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
   int first_pointers = add_node->childs[0]->an_n_pointers;
   int second_pointers = add_node->childs[1]->an_n_pointers;
 
@@ -563,8 +594,8 @@ void parse_add_node(sym_t *st, node_t *add_node) {
     second_pointers++;
   }
 
-  sym_t *func_node1 = is_function(st, add_node->childs[0]);
-  sym_t *func_node2 = is_function(st, add_node->childs[1]);
+  sym_t *func_node1 = is_function(st, add_node->childs[0], func_name);
+  sym_t *func_node2 = is_function(st, add_node->childs[1], func_name);
 
   if (func_node1 && !func_node2) {
     printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types_err[add_node->type]);
@@ -660,9 +691,9 @@ void parse_add_node(sym_t *st, node_t *add_node) {
   }
 }
 
-void parse_mul_div_mod_node(sym_t *st, node_t *which_node) {
-  sym_t *func_node1 = is_function(st, which_node->childs[0]);
-  sym_t *func_node2 = is_function(st, which_node->childs[1]);
+void parse_mul_div_mod_node(sym_t *st, node_t *which_node, char *func_name) {
+  sym_t *func_node1 = is_function(st, which_node->childs[0], func_name);
+  sym_t *func_node2 = is_function(st, which_node->childs[1], func_name);
 
   if (func_node1 && !func_node2) {
     printf("Line %d, col %d: Operator %s cannot be applied to types ", which_node->loc.first_line, which_node->loc.first_column, node_types_err[which_node->type]);
@@ -698,9 +729,9 @@ void parse_mul_div_mod_node(sym_t *st, node_t *which_node) {
   }
 }
 
-void parse_comp_node(sym_t *st, node_t *comp_node) {
-  sym_t *func_node1 = is_function(st, comp_node->childs[0]);
-  sym_t *func_node2 = is_function(st, comp_node->childs[1]);
+void parse_comp_node(sym_t *st, node_t *comp_node, char *func_name) {
+  sym_t *func_node1 = is_function(st, comp_node->childs[0], func_name);
+  sym_t *func_node2 = is_function(st, comp_node->childs[1], func_name);
 
   if (func_node1 && !func_node2) {
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
@@ -742,9 +773,9 @@ void parse_comp_node(sym_t *st, node_t *comp_node) {
   }
 }
 
-void parse_comma_node(sym_t *st, node_t *comma_node) {
-  sym_t *func_node1 = is_function(st, comma_node->childs[0]);
-  sym_t *func_node2 = is_function(st, comma_node->childs[1]);
+void parse_comma_node(sym_t *st, node_t *comma_node, char *func_name) {
+  sym_t *func_node1 = is_function(st, comma_node->childs[0], func_name);
+  sym_t *func_node2 = is_function(st, comma_node->childs[1], func_name);
 
   int first_undef = comma_node->childs[0]->an_type == TYPE_UNDEF;
   int second_undef = comma_node->childs[1]->an_type == TYPE_UNDEF;
@@ -808,8 +839,8 @@ void parse_comma_node(sym_t *st, node_t *comma_node) {
   }
 }
 
-void parse_not_node(sym_t *st, node_t *not_node) {
-  sym_t *func_node = is_function(st, not_node->childs[0]);
+void parse_not_node(sym_t *st, node_t *not_node, char *func_name) {
+  sym_t *func_node = is_function(st, not_node->childs[0], func_name);
 
   if (func_node != NULL) {
     operator_applied1_function(not_node, func_node);
@@ -826,7 +857,7 @@ void parse_not_node(sym_t *st, node_t *not_node) {
 }
 
 void parse_minus_plus_node(sym_t *st, node_t *which_node, char *func_name) {
-  sym_t *func_node = is_function(st, which_node->childs[0]);
+  sym_t *func_node = is_function(st, which_node->childs[0], func_name);
 
   if (func_node != NULL) {
     operator_applied1_function(which_node, func_node);
@@ -866,8 +897,8 @@ void parse_minus_plus_node(sym_t *st, node_t *which_node, char *func_name) {
   }
 }
 
-void parse_deref_node(sym_t *st, node_t *deref_node) {
-  sym_t *func_node = is_function(st, deref_node->childs[0]);
+void parse_deref_node(sym_t *st, node_t *deref_node, char *func_name) {
+  sym_t *func_node = is_function(st, deref_node->childs[0], func_name);
 
   if (func_node != NULL) {
     operator_applied1_function(deref_node, func_node);
@@ -913,7 +944,7 @@ void parse_deref_node(sym_t *st, node_t *deref_node) {
 }
 
 void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
-  sym_t *func_node = is_function(st, addr_node->childs[0]);
+  sym_t *func_node = is_function(st, addr_node->childs[0], func_name);
 
   if (func_node != NULL) {
     operator_applied1_function(addr_node, func_node);
@@ -944,8 +975,8 @@ void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
   }
 }
 
-void parse_store_node(sym_t *st, node_t *store_node) {
-  sym_t *func_node = is_function(st, store_node->childs[1]);
+void parse_store_node(sym_t *st, node_t *store_node, char *func_name) {
+  sym_t *func_node = is_function(st, store_node->childs[1], func_name);
 
   int id_found = store_node->childs[0]->type == NODE_ID ||
                  (store_node->childs[0]->type == NODE_DEREF && store_node->childs[0]->an_type != TYPE_UNDEF &&
@@ -1037,7 +1068,7 @@ void parse_store_node(sym_t *st, node_t *store_node) {
   }
 }
 
-void parse_call_node(sym_t *st, node_t *call_node, int an) {
+void parse_call_node(sym_t *st, node_t *call_node, int an, char *func_name) {
   if (an) {
     set_function_type(st, call_node);
   }
@@ -1081,10 +1112,23 @@ void parse_call_node(sym_t *st, node_t *call_node, int an) {
       child_pointers++;
     }
 
+    sym_t *func_node = is_function(st, call_node->childs[1 + i], func_name);
+
+    if (func_node != NULL) {
+      printf("Line %d, col %d: Conflicting types (got ", call_node->childs[i + 1]->loc.first_line, call_node->childs[i + 1]->loc.first_column);
+      print_function_type(func_node);
+      printf(", expected ");
+      printf("%s", type_str[cur_st_node->params[i]->type]);
+      print_asterisks2(cur_st_node->params[i]->n_pointers);
+      printf(")\n");
+
+      continue;
+    }
+
     int expected_pointers = cur_st_node->params[i]->n_pointers;
 
-    if (expected_pointers != child_pointers || call_node->childs[1 + i]->an_type != cur_st_node->params[i]->type) {
-      if (call_node->childs[1 + i]->an_type == TYPE_VOID || cur_st_node->params[i]->type == TYPE_VOID) {
+    if ((expected_pointers != child_pointers || call_node->childs[1 + i]->an_type != cur_st_node->params[i]->type) || (call_node->childs[1 + i]->an_type == TYPE_VOID && child_pointers == 0)) {
+      if ((call_node->childs[1 + i]->an_type == TYPE_VOID && child_pointers == 1) || (cur_st_node->params[i]->type == TYPE_VOID && expected_pointers == 1)) {
         continue;
       }
 
@@ -1093,7 +1137,7 @@ void parse_call_node(sym_t *st, node_t *call_node, int an) {
         continue;
       }
 
-      printf("Line %d, col %d: Conflicting types (got ", call_node->loc.first_line, call_node->loc.first_column);
+      printf("Line %d, col %d: Conflicting types (got ", call_node->childs[i + 1]->loc.first_line, call_node->childs[i + 1]->loc.first_column);
       print_node(call_node->childs[i + 1]);
       printf(", expected ");
       printf("%s", type_str[cur_st_node->params[i]->type]);
@@ -1118,7 +1162,7 @@ void parse_return_node(sym_t *st, node_t *return_node, char *func_name) { // TOD
     cur_st_node = cur_st_node->next;
   }
 
-  sym_t *func_node = is_function(st, return_node->childs[0]);
+  sym_t *func_node = is_function(st, return_node->childs[0], func_name);
 
   if (func_node != NULL) {
     printf("Line %d, col %d: Conflicting types (got ", return_node->loc.first_line, return_node->loc.first_column);
@@ -1195,7 +1239,7 @@ void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
   int duplicate = 0;
   sym_t *new_node = create_variable_node(decl_node);
 
-  func_node = is_function(st, decl_node->childs[1]);
+  func_node = is_function(st, decl_node->childs[1], func_name);
 
   if (func_node != NULL && func_name == NULL) {
     printf("Line %d, col %d: Conflicting types (got ", decl_node->loc.first_line, decl_node->loc.first_column);
@@ -1293,7 +1337,7 @@ void parse_array_decl(sym_t *st, node_t *decl_node, char *func_name) {
   int duplicate = 0;
   sym_t *new_node = create_array_node(decl_node);
 
-  func_node = is_function(st, decl_node->childs[1]);
+  func_node = is_function(st, decl_node->childs[1], func_name);
 
   if (func_node != NULL && func_name == NULL) {
     printf("Line %d, col %d: Conflicting types (got ", decl_node->loc.first_line, decl_node->loc.first_column);
@@ -1610,28 +1654,28 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an, int bad) {
   } else if (where->type == NODE_ID) {
     parse_id_node(st, where, func_name, an);
   } else if (where->type == NODE_ADD) {
-    parse_add_node(st, where);
+    parse_add_node(st, where, func_name);
   } else if (where->type == NODE_SUB) {
-    parse_sub_node(st, where);
+    parse_sub_node(st, where, func_name);
   } else if (where->type == NODE_COMMA) { // comma gets last child's value
-    parse_comma_node(st, where);
+    parse_comma_node(st, where, func_name);
   } else if (where->type == NODE_MUL || where->type == NODE_DIV || where->type == NODE_MOD) {
-    parse_mul_div_mod_node(st, where);
+    parse_mul_div_mod_node(st, where, func_name);
   } else if (where->type == NODE_GT || where->type == NODE_GE || where->type == NODE_EQ || where->type == NODE_LE || where->type == NODE_LT ||
              where->type == NODE_AND || where->type == NODE_OR || where->type == NODE_NE) {
-    parse_comp_node(st, where);
+    parse_comp_node(st, where, func_name);
   } else if (where->type == NODE_MINUS || where->type == NODE_PLUS) {
     parse_minus_plus_node(st, where, func_name);
   } else if (where->type == NODE_NOT) {
-    parse_not_node(st, where);
+    parse_not_node(st, where, func_name);
   } else if (where->type == NODE_ADDR) {
     parse_addr_node(st, where, func_name);
   } else if (where->type == NODE_STORE) {
-    parse_store_node(st, where);
+    parse_store_node(st, where, func_name);
   } else if (where->type == NODE_CALL) {
-    parse_call_node(st, where, an);
+    parse_call_node(st, where, an, func_name);
   } else if (where->type == NODE_DEREF) {
-    parse_deref_node(st, where);
+    parse_deref_node(st, where, func_name);
   }
 
   if (where->type == NODE_FUNCDEFINITION || where->type == NODE_PROGRAM || where->type == NODE_FUNCBODY ||
