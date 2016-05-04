@@ -22,6 +22,7 @@ void main(void) {
   void *k;
   k = &a;
   k = &z;
+  k = &(5 + 4);
 }
 
 int a(int, char);

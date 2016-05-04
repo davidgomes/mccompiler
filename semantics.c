@@ -213,6 +213,10 @@ sym_t *is_array(sym_t *st, node_t *which_node, char *func_name) {
     cur_st_node = cur_st_node->next;
   }
 
+  if (cur_st_node->definition == NULL) {
+    return NULL;
+  }
+
   cur_st_node = func_node->definition->next;
 
   while (cur_st_node != NULL) {
