@@ -845,7 +845,7 @@ void parse_comp_node(sym_t *st, node_t *comp_node, char *func_name) {
     } else if ((comp_node->childs[1]->an_type == TYPE_VOID && second_pointers >= 1) && first_pointers >= 1) {
 
     } else {
-      node_t* is_zero;
+      node_t* is_zero = NULL;
 
       if (first_pointers == 0 && comp_node->childs[0]->value != NULL && strlen(comp_node->childs[0]->value) >= 1) {
         if (second_pointers >= 1 && comp_node->childs[0]->value[0] == '0') {
@@ -867,7 +867,7 @@ void parse_comp_node(sym_t *st, node_t *comp_node, char *func_name) {
     comp_node->an_type = TYPE_INT;
   } else if (comp_node->childs[0]->an_type == comp_node->childs[1]->an_type) {
     if (first_pointers != second_pointers) {
-      node_t* is_zero;
+      node_t* is_zero = NULL;
 
       if (first_pointers == 0 && comp_node->childs[0]->value != NULL && strlen(comp_node->childs[0]->value) >= 1) {
         if (second_pointers >= 1 && comp_node->childs[0]->value[0] == '0') {
