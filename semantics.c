@@ -837,21 +837,53 @@ void parse_comp_node(sym_t *st, node_t *comp_node, char *func_name) {
     operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]);
     comp_node->an_type = TYPE_INT;
   } else if (comp_node->childs[0]->an_type != comp_node->childs[1]->an_type) {
-    if ((comp_node->childs[0]->an_type == TYPE_CHAR && comp_node->childs[1]->an_type == TYPE_INT) ||
-        (comp_node->childs[0]->an_type == TYPE_INT && comp_node->childs[1]->an_type == TYPE_CHAR)) {
+    if (((comp_node->childs[0]->an_type == TYPE_CHAR && comp_node->childs[1]->an_type == TYPE_INT) ||
+         (comp_node->childs[0]->an_type == TYPE_INT && comp_node->childs[1]->an_type == TYPE_CHAR)) && first_pointers == 0 && second_pointers == 0) {
 
     } else if ((comp_node->childs[0]->an_type == TYPE_VOID && first_pointers >= 1) && second_pointers >= 1) {
 
     } else if ((comp_node->childs[1]->an_type == TYPE_VOID && second_pointers >= 1) && first_pointers >= 1) {
 
     } else {
-      //operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]); // here
+      node_t* is_zero;
+
+      if (first_pointers == 0 && comp_node->childs[0]->value != NULL && strlen(comp_node->childs[0]->value) >= 1) {
+        if (second_pointers >= 1 && comp_node->childs[0]->value[0] == '0') {
+          is_zero = comp_node->childs[0];
+        }
+      }
+
+      if (second_pointers == 0 && comp_node->childs[1]->value != NULL && strlen(comp_node->childs[1]->value) >= 1) {
+        if (first_pointers >= 1 && comp_node->childs[1]->value[0] == '0') {
+          is_zero = comp_node->childs[1];
+        }
+      }
+
+      if (is_zero == NULL) {
+        operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]); // here
+      }
     }
 
     comp_node->an_type = TYPE_INT;
   } else if (comp_node->childs[0]->an_type == comp_node->childs[1]->an_type) {
-    if (comp_node->childs[0]->an_type == TYPE_INT || comp_node->childs[0]->an_type == TYPE_CHAR) {
+    if (first_pointers != second_pointers) {
+      node_t* is_zero;
 
+      if (first_pointers == 0 && comp_node->childs[0]->value != NULL && strlen(comp_node->childs[0]->value) >= 1) {
+        if (second_pointers >= 1 && comp_node->childs[0]->value[0] == '0') {
+          is_zero = comp_node->childs[0];
+        }
+      }
+
+      if (second_pointers == 0 && comp_node->childs[1]->value != NULL && strlen(comp_node->childs[1]->value) >= 1) {
+        if (first_pointers >= 1 && comp_node->childs[1]->value[0] == '0') {
+          is_zero = comp_node->childs[1];
+        }
+      }
+
+      if (is_zero == NULL) {
+        operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]); // here
+      }
     } else { // void
       if (first_pointers == second_pointers || first_pointers == 1 || second_pointers == 1) {
 
