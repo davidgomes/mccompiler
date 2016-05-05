@@ -782,6 +782,236 @@ void parse_mul_div_mod_node(sym_t *st, node_t *which_node, char *func_name) {
   }
 }
 
+void parse_comp_node2(sym_t *st, node_t *comp_node, char *func_name) {
+  sym_t *func_node1 = is_function(st, comp_node->childs[0], func_name);
+  sym_t *func_node2 = is_function(st, comp_node->childs[1], func_name);
+
+  comp_node->an_type = TYPE_INT;
+
+  int first_pointers = comp_node->childs[0]->an_n_pointers;
+  int second_pointers = comp_node->childs[1]->an_n_pointers;
+
+  if (comp_node->childs[0]->an_array_size >= 1) {
+    first_pointers++;
+  }
+
+  if (comp_node->childs[1]->an_array_size >= 0) {
+    second_pointers++;
+  }
+
+  int first_void = comp_node->childs[0]->an_type == TYPE_VOID && first_pointers == 0 && func_node1 == NULL;
+  int second_void = comp_node->childs[1]->an_type == TYPE_VOID && second_pointers == 0 && func_node2 == NULL;
+
+  if (first_void && second_void) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types void, void\n", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
+    return;
+  } else if (first_void && !second_void) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types void, ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
+
+    if (func_node2 != NULL) {
+      print_function_type(func_node2);
+    } else {
+      print_node_array(comp_node->childs[1]);
+    }
+
+    printf("\n");
+
+    return;
+  } else if (!first_void && second_void) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
+
+    if (func_node1 != NULL) {
+      print_function_type(func_node1);
+    } else {
+      print_node_array(comp_node->childs[0]);
+    }
+
+    printf(", void\n");
+    return;
+  }
+
+  if (func_node1 && !func_node2) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
+    print_function_type(func_node1);
+    printf(", ");
+    print_node_array(comp_node->childs[1]);
+    printf("\n");
+
+    comp_node->an_type = TYPE_INT;
+
+    return;
+  } else if (!func_node1 && func_node2) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
+    print_node_array(comp_node->childs[0]);
+    printf(", ");
+    print_function_type(func_node2);
+    printf("\n");
+
+    comp_node->an_type = TYPE_INT;
+
+    return;
+  } else if (func_node1 && func_node2) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
+    print_function_type(func_node1);
+    printf(", ");
+    print_function_type(func_node2);
+    printf("\n");
+
+    comp_node->an_type = TYPE_INT;
+
+    return;
+  }
+
+  int first_undef = comp_node->childs[0]->an_type == TYPE_UNDEF;
+  int second_undef = comp_node->childs[1]->an_type == TYPE_UNDEF;
+
+  if (first_undef && !second_undef) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
+    printf("undef");
+    printf(", ");
+    print_node_array(comp_node->childs[1]);
+    printf("\n");
+  } else if (!first_undef && second_undef) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
+    print_node_array(comp_node->childs[0]);
+    printf(", ");
+    printf("undef");
+    printf("\n");
+
+    return;
+  } else if (first_undef && second_undef) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
+    printf("undef");
+    printf(", ");
+    printf("undef");
+    printf("\n");
+
+    return;
+  }
+
+  comp_node->an_type = TYPE_INT;
+}
+
+void parse_comp_node3(sym_t *st, node_t *comp_node, char *func_name) {
+  sym_t *func_node1 = is_function(st, comp_node->childs[0], func_name);
+  sym_t *func_node2 = is_function(st, comp_node->childs[1], func_name);
+
+  if (func_node1 && !func_node2) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
+    print_function_type(func_node1);
+    printf(", ");
+    print_node_array(comp_node->childs[1]);
+    printf("\n");
+
+    comp_node->an_type = TYPE_INT;
+
+    return;
+  } else if (!func_node1 && func_node2) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
+    print_node_array(comp_node->childs[0]);
+    printf(", ");
+    print_function_type(func_node2);
+    printf("\n");
+
+    comp_node->an_type = TYPE_INT;
+
+    return;
+  } else if (func_node1 && func_node2) {
+    printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
+    print_function_type(func_node1);
+    printf(", ");
+    print_function_type(func_node2);
+    printf("\n");
+
+    comp_node->an_type = TYPE_INT;
+
+    return;
+  }
+
+  int first_pointers = comp_node->childs[0]->an_n_pointers;
+  int second_pointers = comp_node->childs[1]->an_n_pointers;
+
+  if (comp_node->childs[0]->an_array_size >= 1) {
+    first_pointers++;
+  }
+
+  if (comp_node->childs[1]->an_array_size >= 1) {
+    second_pointers++;
+  }
+
+  if (((comp_node->childs[0]->an_type == TYPE_VOID && first_pointers == 0) ||
+       (comp_node->childs[1]->an_type == TYPE_VOID && second_pointers == 0)) && first_pointers == 0 && second_pointers == 0) { // first is void or second is void
+    operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]);
+    comp_node->an_type = TYPE_INT;
+  } else if (comp_node->childs[0]->an_type == TYPE_UNDEF || comp_node->childs[1]->an_type == TYPE_UNDEF) {
+    operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]);
+    comp_node->an_type = TYPE_INT;
+  } else if (comp_node->childs[0]->an_type != comp_node->childs[1]->an_type) {
+    if (((comp_node->childs[0]->an_type == TYPE_CHAR && comp_node->childs[1]->an_type == TYPE_INT) ||
+         (comp_node->childs[0]->an_type == TYPE_INT && comp_node->childs[1]->an_type == TYPE_CHAR)) && first_pointers == 0 && second_pointers == 0) {
+
+    } else if ((comp_node->childs[0]->an_type == TYPE_VOID && first_pointers >= 1) && second_pointers >= 1) {
+
+    } else if ((comp_node->childs[1]->an_type == TYPE_VOID && second_pointers >= 1) && first_pointers >= 1) {
+
+    } else {
+      node_t* is_zero = NULL;
+
+      if (first_pointers == 0 && comp_node->childs[0]->value != NULL && strlen(comp_node->childs[0]->value) >= 1) {
+        if (second_pointers >= 1 && comp_node->childs[0]->value[0] == '0') {
+          is_zero = comp_node->childs[0];
+        }
+      }
+
+      if (second_pointers == 0 && comp_node->childs[1]->value != NULL && strlen(comp_node->childs[1]->value) >= 1) {
+        if (first_pointers >= 1 && comp_node->childs[1]->value[0] == '0') {
+          is_zero = comp_node->childs[1];
+        }
+      }
+
+      if (is_zero == NULL) {
+        operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]); // here
+      }
+
+      comp_node->an_type = TYPE_INT;
+    }
+
+    comp_node->an_type = TYPE_INT;
+  } else if (comp_node->childs[0]->an_type == comp_node->childs[1]->an_type) {
+    if (first_pointers != second_pointers) {
+      node_t* is_zero = NULL;
+
+      if (first_pointers == 0 && comp_node->childs[0]->value != NULL && strlen(comp_node->childs[0]->value) >= 1) {
+        if (second_pointers >= 1 && comp_node->childs[0]->value[0] == '0') {
+          is_zero = comp_node->childs[0];
+        }
+      }
+
+      if (second_pointers == 0 && comp_node->childs[1]->value != NULL && strlen(comp_node->childs[1]->value) >= 1) {
+        if (first_pointers >= 1 && comp_node->childs[1]->value[0] == '0') {
+          is_zero = comp_node->childs[1];
+        }
+      }
+
+      if (is_zero == NULL) {
+        operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]); // here
+      }
+
+      comp_node->an_type = TYPE_INT;
+    } else { // void
+      if (first_pointers == second_pointers || first_pointers == 1 || second_pointers == 1) {
+
+      } else {
+        operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]);
+      }
+    }
+
+    comp_node->an_type = TYPE_INT;
+  } else {
+    comp_node->an_type = TYPE_INT;
+  }
+}
+
 void parse_comp_node(sym_t *st, node_t *comp_node, char *func_name) {
   sym_t *func_node1 = is_function(st, comp_node->childs[0], func_name);
   sym_t *func_node2 = is_function(st, comp_node->childs[1], func_name);
@@ -829,8 +1059,8 @@ void parse_comp_node(sym_t *st, node_t *comp_node, char *func_name) {
     second_pointers++;
   }
 
-  if ((comp_node->childs[0]->an_type == TYPE_VOID && first_pointers == 0) ||
-      (comp_node->childs[1]->an_type == TYPE_VOID && second_pointers == 0)) { // first is void or second is void
+  if (((comp_node->childs[0]->an_type == TYPE_VOID && first_pointers == 0) ||
+       (comp_node->childs[1]->an_type == TYPE_VOID && second_pointers == 0)) && first_pointers == 0 && second_pointers == 0) { // first is void or second is void
     operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]);
     comp_node->an_type = TYPE_INT;
   } else if (comp_node->childs[0]->an_type == TYPE_UNDEF || comp_node->childs[1]->an_type == TYPE_UNDEF) {
@@ -862,6 +1092,8 @@ void parse_comp_node(sym_t *st, node_t *comp_node, char *func_name) {
       if (is_zero == NULL) {
         operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]); // here
       }
+
+      comp_node->an_type = TYPE_INT;
     }
 
     comp_node->an_type = TYPE_INT;
@@ -881,9 +1113,17 @@ void parse_comp_node(sym_t *st, node_t *comp_node, char *func_name) {
         }
       }
 
-      if (is_zero == NULL) {
-        operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]); // here
+      if ((comp_node->childs[0]->an_type == TYPE_VOID && first_pointers >= 1) && second_pointers >= 1) {
+
+      } else if ((comp_node->childs[1]->an_type == TYPE_VOID && second_pointers >= 1) && first_pointers >= 1) {
+
+      } else {
+        if (is_zero == NULL) {
+          operator_applied2(comp_node, comp_node->childs[0], comp_node->childs[1]); // here
+        }
       }
+
+      comp_node->an_type = TYPE_INT;
     } else { // void
       if (first_pointers == second_pointers || first_pointers == 1 || second_pointers == 1) {
 
@@ -1900,9 +2140,12 @@ void an_tree(node_t *where, sym_t *st, char *func_name, int an, int bad) {
     parse_comma_node(st, where, func_name);
   } else if (where->type == NODE_MUL || where->type == NODE_DIV || where->type == NODE_MOD) {
     parse_mul_div_mod_node(st, where, func_name);
-  } else if (where->type == NODE_GT || where->type == NODE_GE || where->type == NODE_EQ || where->type == NODE_LE || where->type == NODE_LT ||
-             where->type == NODE_AND || where->type == NODE_OR || where->type == NODE_NE) {
+  } else if (where->type == NODE_EQ || where->type == NODE_NE) {
     parse_comp_node(st, where, func_name);
+  } else if (where->type == NODE_AND || where->type == NODE_OR) {
+    parse_comp_node2(st, where, func_name);
+  } else if (where->type == NODE_GE || where->type == NODE_GT || where->type == NODE_LE || where->type == NODE_LT) {
+    parse_comp_node3(st, where, func_name);
   } else if (where->type == NODE_MINUS || where->type == NODE_PLUS) {
     parse_minus_plus_node(st, where, func_name);
   } else if (where->type == NODE_NOT) {

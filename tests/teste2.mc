@@ -1,13 +1,7 @@
 int main(int a) {
-  int *i1;
+  void *v1, **v2;
   char *c1;
-  void *v1;
-  void **v2;
-  int i;
+  int i1;
 
-  i1 == i;
-  c1 == i;
-  i == i1;
-  i == c1;
-  i == v2;
+  v1 <= v2;
 }
