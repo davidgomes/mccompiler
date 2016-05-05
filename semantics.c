@@ -1216,6 +1216,7 @@ void parse_store_node(sym_t *st, node_t *store_node, char *func_name) {
        (store_node->childs[0]->an_type == TYPE_CHAR && store_node->childs[1]->an_type == TYPE_INT)) &&
       first_pointers == 0 && second_pointers == 0) { // one is int, other is char
     error = 0;
+
   } else if (store_node->childs[0]->an_type == store_node->childs[1]->an_type) {
     if (first_pointers == second_pointers) { // same type, same pointer
       error = 0;
@@ -1225,12 +1226,24 @@ void parse_store_node(sym_t *st, node_t *store_node, char *func_name) {
         (store_node->childs[1]->an_type == TYPE_VOID && second_pointers == 1)) {
       error = 0;
     }
+
+    if (first_pointers >= 1 && store_node->childs[1]->value != NULL && strlen(store_node->childs[1]->value) >= 1 && second_pointers == 0 && store_node->childs[1]->value[0] == '0') {
+      error = 0;
+    }
   } else if (store_node->childs[0]->an_type == TYPE_VOID && first_pointers == 1) {
     if (second_pointers >= 1) { // one is void* and the other is some sort of pointer
       error = 0;
     }
+
+    if (first_pointers >= 1 && store_node->childs[1]->value != NULL && strlen(store_node->childs[1]->value) >= 1 && second_pointers == 0 && store_node->childs[1]->value[0] == '0') {
+      error = 0;
+    }
   } else if (store_node->childs[1]->an_type == TYPE_VOID && second_pointers == 1) {
     if (first_pointers >= 1) { // one is void* and the other is some sort of pointer
+      error = 0;
+    }
+  } else {
+    if (first_pointers >= 1 && store_node->childs[1]->value != NULL && strlen(store_node->childs[1]->value) >= 1 && second_pointers == 0 && store_node->childs[1]->value[0] == '0') {
       error = 0;
     }
   }
