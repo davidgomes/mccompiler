@@ -15,3 +15,4 @@ symbol_t
 mccompiler.dSYM/
 semantics
 tests/test
+code_gen
