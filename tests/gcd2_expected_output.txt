@@ -1,0 +1,99 @@
+Program
+..ArrayDeclaration
+....Char
+....Id(buffer)
+....IntLit(20)
+..FuncDefinition
+....Int
+....Id(gcd)
+....ParamList
+......ParamDeclaration
+........Int
+........Id(a)
+......ParamDeclaration
+........Int
+........Id(b)
+....FuncBody
+......If
+........Eq - int
+..........Id(a) - int
+..........IntLit(0) - int
+........Return
+..........Id(b) - int
+........StatList
+..........For
+............Null
+............Gt - int
+..............Id(b) - int
+..............IntLit(0) - int
+............Null
+............If
+..............Gt - int
+................Id(a) - int
+................Id(b) - int
+..............Store - int
+................Id(a) - int
+................Sub - int
+..................Id(a) - int
+..................Id(b) - int
+..............Store - int
+................Id(b) - int
+................Sub - int
+..................Id(b) - int
+..................Id(a) - int
+..........Return
+............Id(a) - int
+..FuncDefinition
+....Int
+....Id(main)
+....ParamList
+......ParamDeclaration
+........Int
+........Id(argc)
+......ParamDeclaration
+........Char
+........Pointer
+........Pointer
+........Id(argv)
+....FuncBody
+......Declaration
+........Int
+........Id(a)
+......Declaration
+........Int
+........Id(b)
+......If
+........Gt - int
+..........Id(argc) - int
+..........IntLit(2) - int
+........StatList
+..........Store - int
+............Id(a) - int
+............Call - int
+..............Id(atoi) - int(char*)
+..............Deref - char*
+................Add - char**
+..................Id(argv) - char**
+..................IntLit(1) - int
+..........Store - int
+............Id(b) - int
+............Call - int
+..............Id(atoi) - int(char*)
+..............Deref - char*
+................Add - char**
+..................Id(argv) - char**
+..................IntLit(2) - int
+..........Call - int
+............Id(puts) - int(char*)
+............Call - char*
+..............Id(itoa) - char*(int,char*)
+..............Call - int
+................Id(gcd) - int(int,int)
+................Id(a) - int
+................Id(b) - int
+..............Id(buffer) - char[20]
+........Call - int
+..........Id(puts) - int(char*)
+..........StrLit("Error: two parameters required.") - char[32]
+......Return
+........IntLit(0) - int

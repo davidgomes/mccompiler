@@ -1,14 +1,14 @@
-%{
-  #define YY_USER_ACTION col+=yyleng; //YY_USER_ACTION -  action which is always executed prior to the matched rule's action
+%option yylineno
 
-  #ifdef __APPLE__
-    #include "mccompiler.tab.h"
-  #else
-    #include "y.tab.h"
-  #endif
+%{
+  #include "y.tab.h"
+  #define YY_USER_ACTION col+=yyleng; yylloc.first_line = yylineno; yylloc.first_column = col-(int)yyleng; yylval.str=(char *) strdup(yytext);
 
   #include <stdarg.h>
+
   #include "ast.h"
+  #include "symbol_t.h"
+  #include "semantics.h"
 
   int col = 1, comment_start_col, comment_start_line;
   int flag_yylex = 0;
@@ -21,8 +21,6 @@
     va_end(args);
   }
 %}
-
-%option yylineno
 
 %X  COMMENT
 %X  ERRORS
@@ -195,23 +193,47 @@ int main(int argc, char **argv) {
     } else if (!strcmp(argv[1], "-1")) {
       flag_errors = 1;
       BEGIN ERRORS;
-      while(flag_errors)
+
+      while (flag_errors) {
         yylex();
+      }
+    } else if (!strcmp(argv[1], "-2")) {
+      flag_errors = 1;
+      BEGIN ERRORS;
+      yyparse();
     } else if (!strcmp(argv[1], "-t")) {
       flag_errors = 1;
       BEGIN ERRORS;
       yyparse();
 
-      if (!where_there_errors) {
+      if (!were_there_errors) {
         ast_print_tree(ast, 0);
       }
 
-      ast_destroy(ast);
+      //ast_destroy(ast);
+    } else if (!strcmp(argv[1], "-s")) {
+      flag_errors = 1;
+      BEGIN ERRORS;
+      yyparse();
+
+      if (!were_there_errors) {
+        init_st();
+
+        an_tree(ast, st, NULL, 1, 0);
+        st_print_table(st);
+        printf("\n");
+        print_an_tree(ast, 0, 1);
+      }
     }
   } else {
     flag_errors = 1;
     BEGIN ERRORS;
     yyparse();
+
+    if (!were_there_errors) {
+      init_st();
+      an_tree(ast, st, NULL, 1, 0);
+    }
   }
 
   return 0;

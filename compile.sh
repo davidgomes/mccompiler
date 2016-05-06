@@ -1,6 +1,9 @@
 lex mccompiler.l
-/usr/local/bin/bison -v -d mccompiler.y
+yacc -d --locations mccompiler.y
 gcc -g -c ast.c -o ast
-gcc -g -o mccompiler ast mccompiler.tab.c lex.yy.c -ll -ly
+gcc -g -c symbol_t.c -o symbol_t
+gcc -g -c semantics.c -o semantics
+gcc -o mccompiler y.tab.c lex.yy.c ast symbol_t semantics -ly -g
 rm mccompiler.zip
-zip mccompiler.zip mccompiler.l mccompiler.y ast.c ast.h
+zip mccompiler.zip mccompiler.l mccompiler.y ast.c ast.h symbol_t.c symbol_t.h semantics.c semantics.h structures.h
+rm -rf mccompiler.dSYM

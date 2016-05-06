@@ -1,9 +1,64 @@
-#include "ast.h"
 #include <stdarg.h>
 #include <string.h>
 
+#include "ast.h"
+
 node_t *merge_nodes[2048];
-int where_there_errors = 0;
+int were_there_errors = 0;
+
+char *node_types_err[] = {
+  "Program",
+  "Declaration",
+  "ArrayDeclaration",
+  "FuncDeclaration",
+  "FuncDefinition",
+  "ParamList",
+  "FuncBody",
+  "ParamDeclaration",
+  "StatList",
+  "If",
+  "For",
+  "Return",
+  "||",
+  "&&",
+  "==",
+  "!=",
+  "<",
+  ">",
+  "<=",
+  ">=",
+  "+",
+  "-",
+  "*",
+  "/",
+  "%",
+  "!",
+  "-",
+  "+",
+  "&",
+  "*",
+  "=",
+  ",",
+  "Call",
+  "Char",
+  "ChrLit",
+  "Id",
+  "Int",
+  "IntLit",
+  "Pointer",
+  "StrLit",
+  "Void",
+  "Null",
+  "Declarator",
+  "FuncDeclarator",
+  "FunctionBodyDeclaration",
+  "FunctionBodyStatement",
+  "Statement",
+  "ArrayDeclarator",
+  "Block",
+  "ProgramBlock",
+  "NodeExpresion"
+};
 
 char* node_types[] = {
   "Program",
@@ -59,6 +114,18 @@ char* node_types[] = {
   "NodeExpresion"
 };
 
+char *type_str[] = {
+  "int",
+  "char",
+  "void",
+
+  "char",
+  "int",
+
+  "unknown",
+  "undef"
+};
+
 node_t* ast_insert_node(nodetype_t nodetype, int to_use, int node_operands, ...) {
   //printf("Inserting new node: %s\n", node_types[nodetype]);
   node_t *new_node, **tmp;
@@ -112,6 +179,15 @@ node_t* ast_create_node(nodetype_t nodetype, int to_use) {
   self->to_use = to_use;
   self->n_childs = 0;
   self->childs = NULL;
+
+  self->an_type = TYPE_UNKNOWN;
+  self->an_n_pointers = 0;
+  self->an_array_size = -1;
+  self->has_given_error = 0;
+
+  self->an_n_params = 0;
+  self->an_params = (sym_t**) malloc(sizeof(sym_t*));
+
   return self;
 }
 
@@ -164,38 +240,6 @@ void ast_print_node(node_t* n) {
   }
 }
 
-int _ast_count_not_nulls(node_t *list, int cur) {
-  int i;
-
-  for (i = 0; i < list->n_childs; i++) {
-    if (list->childs[i] != NULL) {
-      cur++;
-      cur += _ast_count_not_nulls(list->childs[i], cur);
-    }
-  }
-
-  return cur;
-}
-
-int ast_count_statement_childs(node_t* which) {
-  int res = 0;
-  int i;
-  for (i = 0; i < which->n_childs; i++) {
-    if (strcmp(node_types[which->childs[i]->type], "Statement") == 0) {
-      res++;
-    }
-  }
-  return res;
-}
-
-int ast_count_not_nulls(node_t *list, node_t *st) {
-  int res = 0;
-  if (st != NULL) res++;
-  if (list == NULL) return res;
-
-  return _ast_count_not_nulls(list, 1);
-}
-
 void ast_destroy(node_t *where) {
   if (where != NULL) {
     int i;
@@ -216,6 +260,6 @@ void ast_print_tree(node_t* n, int d) {
   ast_print_node(n);
 
   for (i = 0; i < n->n_childs; i++) {
-    ast_print_tree(n->childs[i], d+1);
+    ast_print_tree(n->childs[i], d + 1);
   }
 }
