@@ -1383,7 +1383,7 @@ void parse_store_node(sym_t *st, node_t *store_node, char *func_name) {
 
   int id_found = store_node->childs[0]->type == NODE_ID ||
                  (store_node->childs[0]->type == NODE_DEREF && store_node->childs[0]->an_type != TYPE_UNDEF &&
-                  store_node->childs[0]->an_type != TYPE_UNKNOWN);
+                 store_node->childs[0]->an_type != TYPE_UNKNOWN);
 
   store_node->an_type = store_node->childs[0]->an_type;
   store_node->an_n_pointers = store_node->childs[0]->an_n_pointers;
@@ -1573,7 +1573,7 @@ void parse_call_node(sym_t *st, node_t *call_node, int an, char *func_name) {
       }
 
       if (((call_node->childs[1 + i]->an_type == TYPE_INT && cur_st_node->params[i]->type == TYPE_CHAR) ||
-          (call_node->childs[1 + i]->an_type == TYPE_CHAR && cur_st_node->params[i]->type == TYPE_INT)) && expected_pointers == 0 && child_pointers == 0) {
+           (call_node->childs[1 + i]->an_type == TYPE_CHAR && cur_st_node->params[i]->type == TYPE_INT)) && expected_pointers == 0 && child_pointers == 0) {
         continue;
       }
 

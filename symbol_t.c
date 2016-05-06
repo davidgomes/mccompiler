@@ -63,31 +63,32 @@ sym_t* create_variable_node(node_t *cur_node) {
   return new_node;
 }
 
-int ipow(int base, int exp)
-{
-    int result = 1;
-    while (exp)
-    {
-        if (exp & 1)
-            result *= base;
-        exp >>= 1;
-        base *= base;
+int ipow(int base, int exp) {
+  int result = 1;
+
+  while (exp) {
+    if (exp & 1) {
+      result *= base;
     }
 
-    return result;
+    exp >>= 1;
+    base *= base;
+  }
+
+  return result;
 }
 
-int octal_decimal(int n) /* Function to convert octal to decimal */
-{
-    int decimal=0, i=0, rem;
-    while (n!=0)
-    {
-        rem = n%10;
-        n/=10;
-        decimal += rem*ipow(8,i);
-        ++i;
-    }
-    return decimal;
+int octal_decimal(int n) {
+  int decimal=0, i=0, rem;
+
+  while (n != 0) {
+    rem = n % 10;
+    n /= 10;
+    decimal += rem * ipow(8, i);
+    ++i;
+  }
+
+  return decimal;
 }
 
 sym_t* create_array_node(node_t *cur_node) {
