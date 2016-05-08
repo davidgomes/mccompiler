@@ -16,3 +16,4 @@ mccompiler.dSYM/
 semantics
 tests/test
 code_gen
+temp.ll
