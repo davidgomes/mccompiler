@@ -21,7 +21,7 @@ void code_gen_func_definition(node_t *func_def_node) {
 }
 
 void code_gen_return(node_t *return_node) {
-  printf("ret i32 0\n");
+  printf("ret i32 %s\n", return_node->childs[0]->value);
 }
 
 void code_gen(node_t *which) {
