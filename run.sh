@@ -1,2 +1,2 @@
-./mccompiler < $1 > temp.ll
+./mccompiler > temp.ll
 lli temp.ll
