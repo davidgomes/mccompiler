@@ -1,3 +1,5 @@
 int main(void) {
-  return 0;
+  puts("hey");
+  puts("ho");
+  return 1;
 }

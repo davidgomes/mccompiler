@@ -10,7 +10,7 @@ typedef enum { NODE_PROGRAM, NODE_DECLARATION, NODE_ARRAYDECLARATION, NODE_FUNCD
                NODE_COMMA, NODE_CALL, NODE_CHAR, NODE_CHRLIT, NODE_ID, NODE_INT, NODE_INTLIT, NODE_POINTER,
                NODE_STRLIT, NODE_VOID, NODE_NULL, NODE_DECLARATOR, NODE_FUNCDECLARATOR, NODE_FUNCBODYDECLARATION,
                NODE_FUNCTIONBODYSTATEMENT, NODE_STATEMENT, NODE_ARRAYDECLARATOR, NODE_BLOCK, NODE_PROGRAM_BLOCK,
-               NODE_EXPRESSION} nodetype_t;
+               NODE_EXPRESSION } nodetype_t;
 
 typedef enum {
   TYPE_INT,
@@ -83,7 +83,8 @@ typedef struct node {
 
   YYLTYPE loc;
   YYLTYPE loc2;
-} node_t;
 
+  int str_id; // we hold the string id (0, 1, 2, 3, ...) to tell LLVM which string to print
+} node_t;
 
 #endif

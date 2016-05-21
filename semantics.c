@@ -334,12 +334,12 @@ void parse_id_node(sym_t *st, node_t *node_id, char* func_name, int an) { // ler
   }
 
   cur_st_node = st->next;
-  // first thing to do is verify if node_id corresponds to a function
+
+  // second thing to do is verify if node_id corresponds to a function
   if (func_name != NULL) { // find declaration
     while (cur_st_node != NULL) {
       if (cur_st_node->node_type == FUNC_DECLARATION) {
         if (!strcmp(cur_st_node->id, node_id->value)) {
-
           node_id->an_type = cur_st_node->type;
           node_id->an_n_pointers = cur_st_node->n_pointers;
           node_id->an_params = cur_st_node->params;
