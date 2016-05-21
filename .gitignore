@@ -17,3 +17,4 @@ semantics
 tests/test
 code_gen
 temp.ll
+tests4/hello
