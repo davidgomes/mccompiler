@@ -59,9 +59,9 @@ void code_gen_call(node_t *call_node) {
   //%cast210 = getelementptr [13 x i8]* @.str, i64 0, i64 0
 
   int i;
-  for (i = 1; i < call_node->n_childs)
+  for (i = 0; i < call_node->n_childs; i++) {
 
-  printf("%%cast210 = getelementptr [13 x i8]* @.str, i64 0, i64 0");
+  }
 
   //call i32 @puts(i8* %cast210)
 }
