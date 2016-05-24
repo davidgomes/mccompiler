@@ -50,6 +50,7 @@ void find_and_save_strings(node_t *which) {
 
 void code_gen_program(node_t *program_node, char *func_name) {
   printf("declare i32 @puts(i8* nocapture) nounwind\n");
+  printf("declare i32 @atoi(i8*) nounwind readonly\n");
 
   find_and_save_strings(program_node);
 
