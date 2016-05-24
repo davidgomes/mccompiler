@@ -78,6 +78,13 @@ void code_gen_call(node_t *call_node, char *func_name) {
   for (i = 1; i < call_node->n_childs; i++) {
     code_gen(call_node->childs[i], func_name);
   }
+
+  char res[100] = "";
+  node_llvm_type(call_node, res, func_name);
+
+  printf("call %s @%s(i8* %%%d)\n", res, call_node->childs[0]->value, call_node->childs[1]->reg);
+
+  //call i32 (i8*, ...) bitcast (i32 (...)* @puts to i32 (i8*, ...)*)(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i32 0, i32 0))
 }
 
 void code_gen_declaration(node_t *decl_node, char *func_name) {
@@ -92,6 +99,12 @@ void code_gen_store(node_t *store_node, char *func_name) {
   code_gen(store_node->childs[1], func_name);
   int which_reg = store_node->childs[1]->reg;
   printf("store %s %%%d, %s* %%%s\n", type2llvm(store_node->childs[0]->an_type), which_reg, type2llvm(store_node->childs[0]->an_type), store_node->childs[0]->value);
+}
+
+void code_gen_strlit(node_t *strlit_node, char *func_name) {
+  int new_reg = r_count++;
+  printf("%%%d = getelementptr [%d x i8]* @.str.%d, i64 0, i64 0\n", new_reg, (int) strlen(strlit_node->value), strlit_node->str_id);
+  strlit_node->reg = new_reg;
 }
 
 void code_gen_intlit(node_t *intlit_node, char *func_name) {
@@ -128,9 +141,7 @@ void code_gen(node_t *which, char *func_name) {
       code_gen(which->childs[i], func_name);
     }
   } else if (which->type == NODE_STRLIT) {
-    //int new_reg = r_count++;
-    //printf("%%%d = add [%d x i8]* %s\", 0\n", new_reg, (int) strlen(which->value), which->value);
-    //printf("i8* getelementptr inbounds ([%d x i8]* @.str.%d, i32 0, i32 0)", (int) strlen(which->value), which->str_id);
+    code_gen_strlit(which, func_name);
   } else if (which->type == NODE_INTLIT) {
     code_gen_intlit(which, func_name);
   } else if (which->type == NODE_CHRLIT) {

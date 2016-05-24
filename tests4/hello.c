@@ -1,4 +1,11 @@
+void f(int a) {
+
+}
+
 int main(void) {
-  char a[] = "hey";
+  int a = 5;
+  puts("hey");
+  f(a);
+
   return 0;
 }
