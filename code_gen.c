@@ -7,7 +7,9 @@ char* type2llvm(type_t type) {
   if (type == TYPE_INT) {
     return "i32";
   } else if (type == TYPE_CHAR) {
-    return "i32";
+    return "i8";
+  } else if (type == TYPE_VOID) {
+    return "void";
   } else {
     return "undefined";
   }
@@ -17,7 +19,13 @@ void node_llvm_type(node_t *which, char *res, char *func_name) {
   if (which->an_type != TYPE_UNKNOWN) {
     strcat(res, type2llvm(which->an_type));
 
-    for (int i = 0; i < which->an_n_pointers; i++) {
+    int n_pointers = which->an_n_pointers;
+
+    if (which->an_array_size >= 1) {
+      n_pointers++;
+    }
+
+    for (int i = 0; i < n_pointers; i++) {
       strcat(res, "*");
     }
   } else { // declarations and such
@@ -25,6 +33,22 @@ void node_llvm_type(node_t *which, char *res, char *func_name) {
     strcat(res, type2llvm(which->an_type));
 
     for (int i = 0; i < which->an_n_pointers; i++) {
+      strcat(res, "*");
+    }
+  }
+}
+
+void sym_t_llvm_type(sym_t *which, char *res, char *func_name) {
+  if (which->type != TYPE_UNKNOWN) {
+    strcat(res, type2llvm(which->type));
+
+    int n_pointers = which->n_pointers;
+
+    if (which->array_size >= 1) {
+      n_pointers++;
+    }
+
+    for (int i = 0; i < n_pointers; i++) {
       strcat(res, "*");
     }
   }
@@ -60,12 +84,36 @@ void code_gen_program(node_t *program_node, char *func_name) {
   }
 }
 
+void code_gen_func_declaration(node_t *func_decl_node, char *func_name) {
+
+}
+
 void code_gen_func_definition(node_t *func_def_node, char *func_name) {
   sym_t *table_node = create_func_table_node(func_def_node);
-
-  printf("define %s @%s() {\n", type2llvm(table_node->type), table_node->id);
-
   int i;
+
+  printf("define %s @%s(", type2llvm(table_node->type), table_node->id);
+
+  parse_id_node(st, func_def_node->childs[func_def_node->n_childs - 3], func_name, 1);
+
+  //printf("here: %d\n", func_def_node->childs[func_def_node->n_childs - 3]->an_n_params);
+
+  for (i = 0; i < func_def_node->childs[func_def_node->n_childs - 3]->an_n_params; i++) {
+    char arg_res[100] = "";
+    //printf("here: %s\n", func_def_node->childs[func_def_node->n_childs - 3]->an_params[i]->id);
+    sym_t_llvm_type(func_def_node->childs[func_def_node->n_childs - 3]->an_params[i], arg_res, func_name);
+
+    printf("%s", arg_res);
+
+    if (i != func_def_node->childs[func_def_node->n_childs - 3]->an_n_params - 1) {
+      printf(",");
+    }
+  }
+
+  printf(") {\n");
+
+  r_count = 1;
+
   for (i = 0; i < func_def_node->n_childs; i++) {
     code_gen(func_def_node->childs[i], func_name);
   }
@@ -82,14 +130,44 @@ void code_gen_call(node_t *call_node, char *func_name) {
   char res[100] = "";
   node_llvm_type(call_node, res, func_name);
 
-  printf("call %s @%s(i8* %%%d)\n", res, call_node->childs[0]->value, call_node->childs[1]->reg);
+  int new_reg = r_count++;
+  printf("%%%d = call %s (", new_reg, res);
 
-  //call i32 (i8*, ...) bitcast (i32 (...)* @puts to i32 (i8*, ...)*)(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i32 0, i32 0))
+  for (i = 1; i < call_node->n_childs; i++) {
+    char arg_res[100] = "";
+    node_llvm_type(call_node->childs[i], arg_res, func_name);
+
+    printf("%s", arg_res);
+
+    if (i != call_node->n_childs - 1) {
+      printf(",");
+    }
+  }
+
+  printf(")* ");
+
+  printf("@%s(", call_node->childs[0]->value);
+  call_node->reg = new_reg;
+
+  for (i = 1; i < call_node->n_childs; i++) {
+    char arg_res[100] = "";
+    node_llvm_type(call_node->childs[i], arg_res, func_name);
+
+    printf("%s %%%d", arg_res, call_node->childs[i]->reg);
+
+    if (i != call_node->n_childs - 1) {
+      printf(",");
+    }
+  }
+
+  printf(")\n");
 }
 
 void code_gen_declaration(node_t *decl_node, char *func_name) {
   char res[100] = "";
   node_llvm_type(decl_node->childs[decl_node->n_childs - 1], res, func_name);
+
+  r_count++; // i should not have to do this, ask Professor
 
   printf("%%%s = alloca %s, align 4\n", decl_node->childs[decl_node->n_childs - 1]->value, res);
   printf("store %s 0, %s* %%%s\n", res, res, decl_node->childs[decl_node->n_childs - 1]->value);
@@ -148,5 +226,12 @@ void code_gen(node_t *which, char *func_name) {
     code_gen_chrlit(which, func_name);
   } else if (which->type == NODE_STORE) {
     code_gen_store(which, func_name);
+  } else if (which->type == NODE_PARAMLIST) {
+    int i;
+    for (i = 0; i < which->n_childs; i++) {
+      code_gen(which->childs[i], func_name);
+    }
+  } else if (which->type == NODE_PARAMDECLARATION) {
+    code_gen_declaration(which, func_name);
   }
 }
