@@ -99,6 +99,12 @@ void code_gen_intlit(node_t *intlit_node, char *func_name) {
   intlit_node->reg = new_reg;
 }
 
+void code_gen_chrlit(node_t *chrlit_node, char *func_name) {
+  int new_reg = r_count++;
+  printf("%%%d = add i32 %d, 0\n", new_reg, atoi(chrlit_node->value));
+  chrlit_node->reg = new_reg;
+}
+
 void code_gen_return(node_t *return_node) {
   printf("ret i32 %s\n", return_node->childs[0]->value);
 }
@@ -126,6 +132,8 @@ void code_gen(node_t *which, char *func_name) {
     //printf("i8* getelementptr inbounds ([%d x i8]* @.str.%d, i32 0, i32 0)", (int) strlen(which->value), which->str_id);
   } else if (which->type == NODE_INTLIT) {
     code_gen_intlit(which, func_name);
+  } else if (which->type == NODE_CHRLIT) {
+    code_gen_chrlit(which, func_name);
   } else if (which->type == NODE_STORE) {
     code_gen_store(which, func_name);
   }
