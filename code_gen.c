@@ -15,6 +15,21 @@ char* type2llvm(type_t type) {
   }
 }
 
+char *get_var(node_t* which) {
+  char res[100] = "";
+
+  // TODO Implement is_global
+
+  //if (is_global(p)) {
+  //	sprintf(res, "@_%s", p->value);
+  //} else {
+  sprintf(res, "%%%s", which->value);
+  //}
+
+  return strdup(res);
+}
+
+
 void node_llvm_type(node_t *which, char *res, char *func_name) {
   if (which->an_type != TYPE_UNKNOWN) {
     strcat(res, type2llvm(which->an_type));
@@ -75,6 +90,23 @@ void find_and_save_strings(node_t *which) {
 void code_gen_program(node_t *program_node, char *func_name) {
   printf("declare i32 @puts(i8* nocapture) nounwind\n");
   printf("declare i32 @atoi(i8*) nounwind readonly\n");
+  printf("declare i32 @__sprintf_chk(i8*, i32, i64, i8*, ...) #1\n");
+  printf("@.str = private unnamed_addr constant [3 x i8] c\"%%d\\00\", align 1\n");
+  printf("declare i64 @llvm.objectsize.i64.p0i8(i8*, i1) #2\n");
+
+  printf("define i8* @itoa(i32 %%n, i8* %%buf) #0 {\n");
+    printf("%%1 = alloca i32, align 4\n");
+    printf("%%2 = alloca i8*, align 8\n");
+    printf("store i32 %%n, i32* %%1, align 4\n");
+    printf("store i8* %%buf, i8** %%2, align 8\n");
+    printf("%%3 = load i8** %%2, align 8\n");
+    printf("%%4 = load i8** %%2, align 8\n");
+    printf("%%5 = call i64 @llvm.objectsize.i64.p0i8(i8* %%4, i1 false)\n");
+    printf("%%6 = load i32* %%1, align 4\n");
+    printf("%%7 = call i32 (i8*, i32, i64, i8*, ...)* @__sprintf_chk(i8* %%3, i32 0, i64 %%5, i8* getelementptr inbounds ([3 x i8]* @.str, i32 0, i32 0), i32 %%6)\n");
+    printf("%%8 = load i8** %%2, align 8\n");
+    printf("ret i8* %%8\n");
+  printf("}\n");
 
   find_and_save_strings(program_node);
 
@@ -121,10 +153,23 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
   printf("}\n");
 }
 
+void code_gen_id(node_t *node_id, char *func_name) {
+  int new_reg = r_count++;
+  char res[100] = "";
+  node_llvm_type(node_id, res, func_name);
+
+  printf("%%%d = load %s* %s\n", new_reg, res, get_var(node_id));
+  node_id->reg = new_reg;
+}
+
 void code_gen_call(node_t *call_node, char *func_name) {
   int i;
   for (i = 1; i < call_node->n_childs; i++) {
-    code_gen(call_node->childs[i], func_name);
+    if (call_node->childs[i]->type == NODE_ID) {
+      code_gen_id(call_node->childs[i], func_name);
+    } else {
+      code_gen(call_node->childs[i], func_name);
+    }
   }
 
   char res[100] = "";
@@ -167,7 +212,7 @@ void code_gen_declaration(node_t *decl_node, char *func_name) {
   char res[100] = "";
   node_llvm_type(decl_node->childs[decl_node->n_childs - 1], res, func_name);
 
-  r_count++; // i should not have to do this, ask Professor
+  //r_count++; // i should not have to do this, ask Professor
 
   printf("%%%s = alloca %s, align 4\n", decl_node->childs[decl_node->n_childs - 1]->value, res);
   printf("store %s 0, %s* %%%s\n", res, res, decl_node->childs[decl_node->n_childs - 1]->value);
@@ -176,7 +221,11 @@ void code_gen_declaration(node_t *decl_node, char *func_name) {
 void code_gen_store(node_t *store_node, char *func_name) {
   code_gen(store_node->childs[1], func_name);
   int which_reg = store_node->childs[1]->reg;
-  printf("store %s %%%d, %s* %%%s\n", type2llvm(store_node->childs[0]->an_type), which_reg, type2llvm(store_node->childs[0]->an_type), store_node->childs[0]->value);
+
+  char res[100] = "";
+  node_llvm_type(store_node->childs[0], res, func_name);
+
+  printf("store %s %%%d, %s* %%%s\n", res, which_reg, res, store_node->childs[0]->value);
 }
 
 void code_gen_strlit(node_t *strlit_node, char *func_name) {
@@ -232,6 +281,7 @@ void code_gen(node_t *which, char *func_name) {
       code_gen(which->childs[i], func_name);
     }
   } else if (which->type == NODE_PARAMDECLARATION) {
+    r_count++;
     code_gen_declaration(which, func_name);
   }
 }
