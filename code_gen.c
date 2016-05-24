@@ -66,7 +66,6 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
 
   int i;
   for (i = 0; i < func_def_node->n_childs; i++) {
-    printf("  ");
     code_gen(func_def_node->childs[i], func_name);
   }
 
