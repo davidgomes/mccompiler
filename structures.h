@@ -85,6 +85,7 @@ typedef struct node {
   YYLTYPE loc2;
 
   int str_id; // we hold the string id (0, 1, 2, 3, ...) to tell LLVM which string to print
+  int reg;
 } node_t;
 
 #endif

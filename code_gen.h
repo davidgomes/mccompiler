@@ -7,6 +7,6 @@
 #include "semantics.h"
 #include "structures.h"
 
-void code_gen(node_t *which);
+void code_gen(node_t *which, char *func_name);
 
 #endif

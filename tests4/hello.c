@@ -1,5 +1,4 @@
 int main(void) {
-  puts("hey");
-  puts("ho");
+  char a[] = "hey";
   return 0;
 }
