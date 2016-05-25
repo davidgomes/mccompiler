@@ -126,18 +126,28 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
 
   printf("define %s @%s(", type2llvm(table_node->type), table_node->id);
 
-  parse_id_node(st, func_def_node->childs[func_def_node->n_childs - 3], func_name, 1);
+  sym_t *cur_st_node = st;
+  sym_t *func_node = NULL;
 
-  //printf("here: %d\n", func_def_node->childs[func_def_node->n_childs - 3]->an_n_params);
+  while (cur_st_node != NULL) {
+    if (!strcmp(cur_st_node->id, table_node->id)) {
+      func_node = cur_st_node;
+      break;
+    }
 
-  for (i = 0; i < func_def_node->childs[func_def_node->n_childs - 3]->an_n_params; i++) {
+    cur_st_node = cur_st_node->next;
+  }
+
+  //printf("%s %d %s\n", func_node->id, func_node->n_params, func_node->params[0]->id);
+
+  for (i = 0; i < func_node->n_params; i++) {
     char arg_res[100] = "";
     //printf("here: %s\n", func_def_node->childs[func_def_node->n_childs - 3]->an_params[i]->id);
-    sym_t_llvm_type(func_def_node->childs[func_def_node->n_childs - 3]->an_params[i], arg_res, func_name);
+    sym_t_llvm_type(func_node->params[i], arg_res, func_name);
 
-    printf("%s", arg_res);
+    printf("%s %%%s", arg_res, func_node->params[i]->id);
 
-    if (i != func_def_node->childs[func_def_node->n_childs - 3]->an_n_params - 1) {
+    if (i != func_node->n_params - 1) {
       printf(",");
     }
   }
@@ -154,22 +164,20 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
 }
 
 void code_gen_id(node_t *node_id, char *func_name) {
-  int new_reg = r_count++;
-  char res[100] = "";
-  node_llvm_type(node_id, res, func_name);
+  if (node_id->an_type != TYPE_UNKNOWN) {
+    int new_reg = r_count++;
+    char res[100] = "";
+    node_llvm_type(node_id, res, func_name);
 
-  printf("%%%d = load %s* %s\n", new_reg, res, get_var(node_id));
-  node_id->reg = new_reg;
+    printf("%%%d = load %s* %s\n", new_reg, res, get_var(node_id));
+    node_id->reg = new_reg;
+  }
 }
 
 void code_gen_call(node_t *call_node, char *func_name) {
   int i;
   for (i = 1; i < call_node->n_childs; i++) {
-    if (call_node->childs[i]->type == NODE_ID) {
-      code_gen_id(call_node->childs[i], func_name);
-    } else {
-      code_gen(call_node->childs[i], func_name);
-    }
+    code_gen(call_node->childs[i], func_name);
   }
 
   char res[100] = "";
@@ -215,7 +223,16 @@ void code_gen_declaration(node_t *decl_node, char *func_name) {
   //r_count++; // i should not have to do this, ask Professor
 
   printf("%%%s = alloca %s, align 4\n", decl_node->childs[decl_node->n_childs - 1]->value, res);
-  printf("store %s 0, %s* %%%s\n", res, res, decl_node->childs[decl_node->n_childs - 1]->value);
+
+  int n_pointers = decl_node->childs[decl_node->n_childs - 1]->an_n_pointers;
+
+  if (decl_node->childs[decl_node->n_childs - 1]->an_array_size >= 1) {
+    n_pointers++;
+  }
+
+  if (n_pointers == 0) {
+    printf("store %s 0, %s* %%%s\n", res, res, decl_node->childs[decl_node->n_childs - 1]->value);
+  }
 }
 
 void code_gen_store(node_t *store_node, char *func_name) {
@@ -246,8 +263,9 @@ void code_gen_chrlit(node_t *chrlit_node, char *func_name) {
   chrlit_node->reg = new_reg;
 }
 
-void code_gen_return(node_t *return_node) {
-  printf("ret i32 %s\n", return_node->childs[0]->value);
+void code_gen_return(node_t *return_node, char *func_name) {
+  code_gen(return_node->childs[0], func_name);
+  printf("ret i32 %%%d\n", return_node->childs[0]->reg);
 }
 
 void code_gen(node_t *which, char *func_name) {
@@ -261,7 +279,7 @@ void code_gen(node_t *which, char *func_name) {
   } else if (which->type == NODE_CALL) {
     code_gen_call(which, func_name);
   } else if (which->type == NODE_RETURN) {
-    code_gen_return(which);
+    code_gen_return(which, func_name);
   } else if (which->type == NODE_FUNCBODY) {
     int i;
     for (i = 0; i < which->n_childs; i++) {
@@ -281,7 +299,8 @@ void code_gen(node_t *which, char *func_name) {
       code_gen(which->childs[i], func_name);
     }
   } else if (which->type == NODE_PARAMDECLARATION) {
-    r_count++;
-    code_gen_declaration(which, func_name);
+    //code_gen_declaration(which, func_name);
+  } else if (which->type == NODE_ID) {
+    code_gen_id(which, func_name);
   }
 }
