@@ -6,7 +6,11 @@ int returned = 0;
 
 char* type2llvm(type_t type, int n_pointers) {
   if (type == TYPE_INT) {
-    return "i32";
+    if (n_pointers == 0) {
+      return "i32";
+    } else {
+      return "i8";
+    }
   } else if (type == TYPE_CHAR) {
     return "i8";
   } else if (type == TYPE_VOID) {
