@@ -31,5 +31,7 @@ int main(int argc) {
   a = b;
   a = 0;
 
+  puts("\n");
+
   return a;
 }

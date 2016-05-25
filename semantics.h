@@ -13,6 +13,7 @@ extern char* node_types[];
 extern char* node_types_err[];
 extern char* type_str[];
 
+int mystrlen(const char *str);
 char *get_function_name(node_t *definition_node);
 void parse_id_node(sym_t *st, node_t *node_id, char* func_name, int an);
 void an_tree(node_t *where, sym_t *st, char *func_name, int an, int bad);

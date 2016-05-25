@@ -74,7 +74,7 @@ void find_and_save_strings(node_t *which) {
     // remove first character of ->value (the opening quote)
     which->value = which->value++;
     // remove last character of ->value (the closing quote) and put in a null byte
-    which->value[strlen(which->value) - 1] = 0;
+    which->value[mystrlen(which->value) - 2 + 1] = 0;
 
     printf("@.str.%d = private unnamed_addr constant [%d x i8] c%s\\00\"\n", current_str_id, (int) strlen(which->value), which->value);
     which->str_id = current_str_id;
@@ -138,7 +138,6 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
     cur_st_node = cur_st_node->next;
   }
 
-  //printf("%s %d %s\n", func_node->id, func_node->n_params, func_node->params[0]->id);
 
   for (i = 0; i < func_node->n_params; i++) {
     char arg_res[100] = "";
