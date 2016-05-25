@@ -9,7 +9,7 @@ char* type2llvm(type_t type) {
   } else if (type == TYPE_CHAR) {
     return "i8";
   } else if (type == TYPE_VOID) {
-    return "void";
+    return "i8";
   } else {
     return "undefined";
   }
