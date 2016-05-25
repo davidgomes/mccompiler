@@ -1,48 +1,5 @@
-/*int f(int k, int k2) {
-  puts("hey");
-  return 2;
-}
-
-int main(int argc) {
-  int a;
-  char c;
-  a = 4;
-  c = 'h';
-  puts("hey");
-  puts("he");
-  return 1;
-
-  int b;
-  char c;
-  char *buf;
-  b = f(5, 7);
-  buf = itoa(b, buf);
-
-  puts();
+int main(void) {
+  puts("h \5 \59 \n \t \\ ey\080");
 
   return 0;
-}*/
-
-int g(int k, int k2);
-int l(void);
-
-int l(void) {
-  
-}
-
-int f(int k, int k2) {
-  g(k, k2);
-  l();
-  return 2;
-}
-
-int main(int argc) {
-  int a;
-  int b;
-  char *buf;
-
-  a = b;
-  a = 0;
-
-  return a;
 }

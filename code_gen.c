@@ -92,11 +92,63 @@ void sym_t_llvm_type(sym_t *which, char *res, char *func_name) {
 void find_and_save_strings(node_t *which) {
   if (which->type == NODE_STRLIT) {
     // remove first character of ->value (the opening quote)
-    which->value = which->value++;
+    which->value++;
     // remove last character of ->value (the closing quote) and put in a null byte
-    which->value[mystrlen(which->value) - 2 + 1] = 0;
+    which->value[strlen(which->value) - 1] = 0;
 
-    printf("@.str.%d = private unnamed_addr constant [%d x i8] c%s\\00\"\n", current_str_id, mystrlen(which->value) - 2 + 1, which->value);
+    printf("@.str.%d = private unnamed_addr constant [%d x i8] c\"", current_str_id, mystrlen(which->value) + 1);
+
+    int i = 0;
+    int previous_slash = 0;
+    int slash_block = 0;
+    while (i < strlen(which->value)) {
+      if (slash_block) {
+        if (which->value[i] >= '0' && which->value[i] <= '7') {
+          if (previous_slash) {
+            printf("0");
+          }
+
+        } else if (which->value[i] >= '7' && which->value[i] <= '9') {
+          slash_block = 0;
+        } else {
+          if (previous_slash) {
+            if (which->value[i] == 'n') {
+              printf("0A");
+            } else if (which->value[i] == '\'') {
+              printf("27");
+            } else if (which->value[i] == '\\') {
+              printf("5C");
+            } else if (which->value[i] == 't') {
+              printf("09");
+            } else if (which->value[i] == '\"') {
+              printf("22");
+            }
+          } else {
+            printf("%c", which->value[i]);
+          }
+
+          slash_block = 0;
+          previous_slash = 0;
+
+          i++;
+          continue;
+        }
+
+        previous_slash = 0;
+      }
+
+      if (which->value[i] == '\\') {
+        previous_slash = 1;
+        slash_block = 1;
+      }
+
+      printf("%c", which->value[i]);
+
+      i++;
+    }
+
+    printf("\\00\"\n");
+
     which->str_id = current_str_id;
     current_str_id++;
   }
@@ -327,7 +379,7 @@ void code_gen_store(node_t *store_node, char *func_name) {
 
 void code_gen_strlit(node_t *strlit_node, char *func_name) {
   int new_reg = r_count++;
-  printf("%%%d = getelementptr [%d x i8]* @.str.%d, i64 0, i64 0\n", new_reg, (int) strlen(strlit_node->value), strlit_node->str_id);
+  printf("%%%d = getelementptr [%d x i8]* @.str.%d, i64 0, i64 0\n", new_reg, (int) mystrlen(strlit_node->value) + 1, strlit_node->str_id);
   strlit_node->reg = new_reg;
 }
 
