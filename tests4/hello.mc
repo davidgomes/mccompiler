@@ -23,6 +23,23 @@ int main(int argc) {
   return 0;
 }*/
 
+int g(int k, int k2);
+int l(void);
+
+int l(void) {
+  return 1;
+}
+
+/*int g(int v, int v2) {
+  return v;
+}*/
+
+int f(int k, int k2) {
+  /*g(k, k2);*/
+  l();
+  return l();
+}
+
 int main(int argc) {
   int a;
   int b;
@@ -30,8 +47,7 @@ int main(int argc) {
 
   a = b;
   a = 0;
-
-  puts("\n");
+  a = l();
 
   return a;
 }

@@ -76,7 +76,7 @@ void find_and_save_strings(node_t *which) {
     // remove last character of ->value (the closing quote) and put in a null byte
     which->value[mystrlen(which->value) - 2 + 1] = 0;
 
-    printf("@.str.%d = private unnamed_addr constant [%d x i8] c%s\\00\"\n", current_str_id, mystrlen(which->value), which->value);
+    printf("@.str.%d = private unnamed_addr constant [%d x i8] c%s\\00\"\n", current_str_id, mystrlen(which->value) - 2 + 1, which->value);
     which->str_id = current_str_id;
     current_str_id++;
   }
@@ -118,6 +118,42 @@ void code_gen_program(node_t *program_node, char *func_name) {
 
 void code_gen_func_declaration(node_t *func_decl_node, char *func_name) {
 
+  // declare i32 @g(i32, i32)
+  sym_t *declaration_node_temp = create_declaration_node(func_decl_node);
+
+  sym_t *cur_st_node = st;
+  sym_t *actual_decl_node = NULL;
+
+  while (cur_st_node != NULL) {
+    if (!strcmp(cur_st_node->id, declaration_node_temp->id)) {
+      actual_decl_node = cur_st_node;
+      break;
+    }
+
+    cur_st_node = cur_st_node->next;
+  }
+
+  if (actual_decl_node->definition != NULL) { // review this with Professor
+    return;
+  }
+
+  char res[100] = "";
+  sym_t_llvm_type(actual_decl_node, res, func_name);
+
+  printf("declare %s @%s(", res, actual_decl_node->id);
+
+  int i;
+  for (i = 0; i < actual_decl_node->n_params; i++) {
+    char arg_res[100] = "";
+    sym_t_llvm_type(actual_decl_node->params[i], arg_res, func_name);
+    printf("%s", arg_res);
+
+    if (i != actual_decl_node->n_params - 1) {
+      printf(",");
+    }
+  }
+
+  printf(")\n");
 }
 
 void code_gen_func_definition(node_t *func_def_node, char *func_name) {
@@ -138,12 +174,15 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
     cur_st_node = cur_st_node->next;
   }
 
-
   for (i = 0; i < func_node->n_params; i++) {
     char arg_res[100] = "";
     sym_t_llvm_type(func_node->params[i], arg_res, func_name);
 
-    printf("%s %%%s", arg_res, func_node->params[i]->id);
+    if (func_node->params[i]->type == TYPE_VOID && func_node->params[i]->n_pointers == 0) {
+      continue;
+    }
+
+    printf("%s %%.%s", arg_res, func_node->params[i]->id);
 
     if (i != func_node->n_params - 1) {
       printf(",");
@@ -272,6 +311,8 @@ void code_gen(node_t *which, char *func_name) {
     code_gen_func_definition(which, func_name);
   } else if (which->type == NODE_DECLARATION) {
     code_gen_declaration(which, func_name);
+  } else if (which->type == NODE_FUNCDECLARATION) {
+    code_gen_func_declaration(which, func_name);
   } else if (which->type == NODE_CALL) {
     code_gen_call(which, func_name);
   } else if (which->type == NODE_RETURN) {
@@ -295,7 +336,24 @@ void code_gen(node_t *which, char *func_name) {
       code_gen(which->childs[i], func_name);
     }
   } else if (which->type == NODE_PARAMDECLARATION) {
-    //code_gen_declaration(which, func_name);
+    char res[100] = "";
+
+    sym_t *param_temp = create_variable_node(which);
+    sym_t_llvm_type(param_temp, res, func_name);
+
+    int n_pointers = param_temp->n_pointers;
+
+    if (param_temp->type == TYPE_VOID && param_temp->n_pointers == 0) {
+      return;
+    }
+
+    printf("%%%s = alloca %s, align 4\n", param_temp->id, res);
+
+    if (n_pointers == 0) {
+      printf("store %s 0, %s* %%%s\n", res, res, param_temp->id);
+    }
+
+    printf("store %s %%.%s, %s* %%%s", res, param_temp->id, res, param_temp->id);
   } else if (which->type == NODE_ID) {
     code_gen_id(which, func_name);
   }
