@@ -2,6 +2,7 @@
 
 int current_str_id = 1;
 int r_count = 1;
+int returned = 0;
 
 char* type2llvm(type_t type) {
   if (type == TYPE_INT) {
@@ -9,7 +10,7 @@ char* type2llvm(type_t type) {
   } else if (type == TYPE_CHAR) {
     return "i8";
   } else if (type == TYPE_VOID) {
-    return "i8";
+    return "void";
   } else {
     return "undefined";
   }
@@ -197,8 +198,13 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
 
   r_count = 1;
 
+  returned = 0;
   for (i = 0; i < func_def_node->n_childs; i++) {
     code_gen(func_def_node->childs[i], func_name);
+  }
+
+  if (!returned) {
+    printf("ret void\n");
   }
 
   printf("}\n");
@@ -303,8 +309,20 @@ void code_gen_chrlit(node_t *chrlit_node, char *func_name) {
 }
 
 void code_gen_return(node_t *return_node, char *func_name) {
-  code_gen(return_node->childs[0], func_name);
-  printf("ret i32 %%%d\n", return_node->childs[0]->reg);
+  returned = 1;
+
+  int n_pointers = return_node->childs[0]->an_n_pointers;
+
+  if (return_node->an_array_size >= 1) {
+    n_pointers++;
+  }
+
+  if ((return_node->childs[0]->an_type == TYPE_VOID && n_pointers == 0) || return_node->childs[0]->type == NODE_NULL) {
+    printf("ret void\n");
+  } else {
+    code_gen(return_node->childs[0], func_name);
+    printf("ret i32 %%%d\n", return_node->childs[0]->reg);
+  }
 }
 
 void code_gen(node_t *which, char *func_name) {
