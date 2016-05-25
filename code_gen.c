@@ -95,17 +95,17 @@ void code_gen_program(node_t *program_node, char *func_name) {
   printf("declare i64 @llvm.objectsize.i64.p0i8(i8*, i1) #2\n");
 
   printf("define i8* @itoa(i32 %%n, i8* %%buf) #0 {\n");
-    printf("%%1 = alloca i32, align 4\n");
-    printf("%%2 = alloca i8*, align 8\n");
-    printf("store i32 %%n, i32* %%1, align 4\n");
-    printf("store i8* %%buf, i8** %%2, align 8\n");
-    printf("%%3 = load i8** %%2, align 8\n");
-    printf("%%4 = load i8** %%2, align 8\n");
-    printf("%%5 = call i64 @llvm.objectsize.i64.p0i8(i8* %%4, i1 false)\n");
-    printf("%%6 = load i32* %%1, align 4\n");
-    printf("%%7 = call i32 (i8*, i32, i64, i8*, ...)* @__sprintf_chk(i8* %%3, i32 0, i64 %%5, i8* getelementptr inbounds ([3 x i8]* @.str, i32 0, i32 0), i32 %%6)\n");
-    printf("%%8 = load i8** %%2, align 8\n");
-    printf("ret i8* %%8\n");
+  printf("%%1 = alloca i32, align 4\n");
+  printf("%%2 = alloca i8*, align 8\n");
+  printf("store i32 %%n, i32* %%1, align 4\n");
+  printf("store i8* %%buf, i8** %%2, align 8\n");
+  printf("%%3 = load i8** %%2, align 8\n");
+  printf("%%4 = load i8** %%2, align 8\n");
+  printf("%%5 = call i64 @llvm.objectsize.i64.p0i8(i8* %%4, i1 false)\n");
+  printf("%%6 = load i32* %%1, align 4\n");
+  printf("%%7 = call i32 (i8*, i32, i64, i8*, ...)* @__sprintf_chk(i8* %%3, i32 0, i64 %%5, i8* getelementptr inbounds ([3 x i8]* @.str, i32 0, i32 0), i32 %%6)\n");
+  printf("%%8 = load i8** %%2, align 8\n");
+  printf("ret i8* %%8\n");
   printf("}\n");
 
   find_and_save_strings(program_node);
