@@ -142,7 +142,6 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
 
   for (i = 0; i < func_node->n_params; i++) {
     char arg_res[100] = "";
-    //printf("here: %s\n", func_def_node->childs[func_def_node->n_childs - 3]->an_params[i]->id);
     sym_t_llvm_type(func_node->params[i], arg_res, func_name);
 
     printf("%s %%%s", arg_res, func_node->params[i]->id);
@@ -219,8 +218,6 @@ void code_gen_call(node_t *call_node, char *func_name) {
 void code_gen_declaration(node_t *decl_node, char *func_name) {
   char res[100] = "";
   node_llvm_type(decl_node->childs[decl_node->n_childs - 1], res, func_name);
-
-  //r_count++; // i should not have to do this, ask Professor
 
   printf("%%%s = alloca %s, align 4\n", decl_node->childs[decl_node->n_childs - 1]->value, res);
 
