@@ -24,20 +24,31 @@ char* type2llvm(type_t type, int n_pointers) {
   }
 }
 
+int is_global(char *id) {
+  sym_t *cur_st_node = st;
+
+  while (cur_st_node != NULL) {
+    if (!strcmp(id, cur_st_node->id) && cur_st_node->node_type == VARIABLE) {
+      return 1;
+    }
+
+    cur_st_node = cur_st_node->next;
+  }
+
+  return 0;
+}
+
 char *get_var(node_t* which) {
   char res[100] = "";
 
-  // TODO Implement is_global
-
-  //if (is_global(p)) {
-  //	sprintf(res, "@_%s", p->value);
-  //} else {
-  sprintf(res, "%%%s", which->value);
-  //}
+  if (is_global(which->value)) {
+  	sprintf(res, "@%s", which->value);
+  } else {
+    sprintf(res, "%%%s", which->value);
+  }
 
   return strdup(res);
 }
-
 
 void node_llvm_type(node_t *which, char *res, char *func_name) {
   if (which->an_type != TYPE_UNKNOWN) {
@@ -287,16 +298,20 @@ void code_gen_declaration(node_t *decl_node, char *func_name) {
   char res[100] = "";
   node_llvm_type(decl_node->childs[decl_node->n_childs - 1], res, func_name);
 
-  printf("%%%s = alloca %s, align 4\n", decl_node->childs[decl_node->n_childs - 1]->value, res);
+  if (is_global(decl_node->childs[decl_node->n_childs - 1]->value)) {
+    printf("@%s = global %s %s\n", decl_node->childs[decl_node->n_childs - 1]->value, res, "0");
+  } else {
+    printf("%%%s = alloca %s, align 4\n", decl_node->childs[decl_node->n_childs - 1]->value, res);
 
-  int n_pointers = decl_node->childs[decl_node->n_childs - 1]->an_n_pointers;
+    int n_pointers = decl_node->childs[decl_node->n_childs - 1]->an_n_pointers;
 
-  if (decl_node->childs[decl_node->n_childs - 1]->an_array_size >= 1) {
-    n_pointers++;
-  }
+    if (decl_node->childs[decl_node->n_childs - 1]->an_array_size >= 1) {
+      n_pointers++;
+    }
 
-  if (n_pointers == 0) {
-    printf("store %s 0, %s* %%%s\n", res, res, decl_node->childs[decl_node->n_childs - 1]->value);
+    if (n_pointers == 0) {
+      printf("store %s 0, %s* %%%s\n", res, res, decl_node->childs[decl_node->n_childs - 1]->value);
+    }
   }
 }
 
@@ -307,7 +322,7 @@ void code_gen_store(node_t *store_node, char *func_name) {
   char res[100] = "";
   node_llvm_type(store_node->childs[0], res, func_name);
 
-  printf("store %s %%%d, %s* %%%s\n", res, which_reg, res, store_node->childs[0]->value);
+  printf("store %s %%%d, %s* %s\n", res, which_reg, res, get_var(store_node->childs[0]));
 }
 
 void code_gen_strlit(node_t *strlit_node, char *func_name) {
