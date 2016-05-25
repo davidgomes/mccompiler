@@ -76,7 +76,7 @@ void find_and_save_strings(node_t *which) {
     // remove last character of ->value (the closing quote) and put in a null byte
     which->value[mystrlen(which->value) - 2 + 1] = 0;
 
-    printf("@.str.%d = private unnamed_addr constant [%d x i8] c%s\\00\"\n", current_str_id, (int) strlen(which->value), which->value);
+    printf("@.str.%d = private unnamed_addr constant [%d x i8] c%s\\00\"\n", current_str_id, mystrlen(which->value), which->value);
     which->str_id = current_str_id;
     current_str_id++;
   }
