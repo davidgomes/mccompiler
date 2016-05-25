@@ -30,14 +30,14 @@ int l(void) {
   return 1;
 }
 
-/*int g(int v, int v2) {
+int g(int v, int v2) {
   return v;
-}*/
+}
 
 int f(int k, int k2) {
-  /*g(k, k2);*/
-  l();
-  return l();
+  return g(k, k2);
+  /*l();
+  return l();*/
 }
 
 int main(int argc) {
@@ -47,7 +47,7 @@ int main(int argc) {
 
   a = b;
   a = 0;
-  a = l();
+  a = f(0, 4);
 
   return a;
 }

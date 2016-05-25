@@ -117,8 +117,6 @@ void code_gen_program(node_t *program_node, char *func_name) {
 }
 
 void code_gen_func_declaration(node_t *func_decl_node, char *func_name) {
-
-  // declare i32 @g(i32, i32)
   sym_t *declaration_node_temp = create_declaration_node(func_decl_node);
 
   sym_t *cur_st_node = st;
@@ -174,19 +172,25 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
     cur_st_node = cur_st_node->next;
   }
 
+  if (func_node->n_params != 0) {
+    cur_st_node = func_node->definition->next->next; // first parameter
+  }
+
   for (i = 0; i < func_node->n_params; i++) {
     char arg_res[100] = "";
-    sym_t_llvm_type(func_node->params[i], arg_res, func_name);
+    sym_t_llvm_type(cur_st_node, arg_res, func_name);
 
-    if (func_node->params[i]->type == TYPE_VOID && func_node->params[i]->n_pointers == 0) {
+    if (cur_st_node->type == TYPE_VOID && cur_st_node->n_pointers == 0) {
       continue;
     }
 
-    printf("%s %%.%s", arg_res, func_node->params[i]->id);
+    printf("%s %%.%s", arg_res, cur_st_node->id);
 
     if (i != func_node->n_params - 1) {
       printf(",");
     }
+
+    cur_st_node = cur_st_node->next;
   }
 
   printf(") {\n");
@@ -353,7 +357,7 @@ void code_gen(node_t *which, char *func_name) {
       printf("store %s 0, %s* %%%s\n", res, res, param_temp->id);
     }
 
-    printf("store %s %%.%s, %s* %%%s", res, param_temp->id, res, param_temp->id);
+    printf("store %s %%.%s, %s* %%%s\n", res, param_temp->id, res, param_temp->id);
   } else if (which->type == NODE_ID) {
     code_gen_id(which, func_name);
   }
