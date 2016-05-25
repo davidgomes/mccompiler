@@ -4,13 +4,17 @@ int current_str_id = 1;
 int r_count = 1;
 int returned = 0;
 
-char* type2llvm(type_t type) {
+char* type2llvm(type_t type, int n_pointers) {
   if (type == TYPE_INT) {
     return "i32";
   } else if (type == TYPE_CHAR) {
     return "i8";
   } else if (type == TYPE_VOID) {
-    return "void";
+    if (n_pointers == 0) {
+      return "void";
+    } else {
+      return "i8";
+    }
   } else {
     return "undefined";
   }
@@ -33,20 +37,20 @@ char *get_var(node_t* which) {
 
 void node_llvm_type(node_t *which, char *res, char *func_name) {
   if (which->an_type != TYPE_UNKNOWN) {
-    strcat(res, type2llvm(which->an_type));
-
     int n_pointers = which->an_n_pointers;
 
     if (which->an_array_size >= 1) {
       n_pointers++;
     }
 
+    strcat(res, type2llvm(which->an_type, n_pointers));
+
     for (int i = 0; i < n_pointers; i++) {
       strcat(res, "*");
     }
   } else { // declarations and such
     parse_id_node(st, which, func_name, 1);
-    strcat(res, type2llvm(which->an_type));
+    strcat(res, type2llvm(which->an_type, which->an_n_pointers));
 
     for (int i = 0; i < which->an_n_pointers; i++) {
       strcat(res, "*");
@@ -56,13 +60,13 @@ void node_llvm_type(node_t *which, char *res, char *func_name) {
 
 void sym_t_llvm_type(sym_t *which, char *res, char *func_name) {
   if (which->type != TYPE_UNKNOWN) {
-    strcat(res, type2llvm(which->type));
-
     int n_pointers = which->n_pointers;
 
     if (which->array_size >= 1) {
       n_pointers++;
     }
+
+    strcat(res, type2llvm(which->type, n_pointers));
 
     for (int i = 0; i < n_pointers; i++) {
       strcat(res, "*");
@@ -159,7 +163,10 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
   sym_t *table_node = create_func_table_node(func_def_node);
   int i;
 
-  printf("define %s @%s(", type2llvm(table_node->type), table_node->id);
+  char res[100] = "";
+  sym_t_llvm_type(table_node, res, func_name);
+
+  printf("define %s @%s(", res, table_node->id);
 
   sym_t *cur_st_node = st;
   sym_t *func_node = NULL;
