@@ -230,8 +230,14 @@ void code_gen_call(node_t *call_node, char *func_name) {
   char res[100] = "";
   node_llvm_type(call_node, res, func_name);
 
-  int new_reg = r_count++;
-  printf("%%%d = call %s (", new_reg, res);
+  int new_reg = -1;
+
+  if (call_node->an_type == TYPE_VOID && call_node->an_n_pointers == 0) {
+    printf("call %s (", res);
+  } else {
+    new_reg = r_count++;
+    printf("%%%d = call %s (", new_reg, res);
+  }
 
   for (i = 1; i < call_node->n_childs; i++) {
     char arg_res[100] = "";
@@ -247,7 +253,10 @@ void code_gen_call(node_t *call_node, char *func_name) {
   printf(")* ");
 
   printf("@%s(", call_node->childs[0]->value);
-  call_node->reg = new_reg;
+
+  if (new_reg != -1) {
+    call_node->reg = new_reg;
+  }
 
   for (i = 1; i < call_node->n_childs; i++) {
     char arg_res[100] = "";
