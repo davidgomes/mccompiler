@@ -24,24 +24,51 @@ char* type2llvm(type_t type, int n_pointers) {
   }
 }
 
-int is_global(char *id) {
+int is_global(char *id, char *func_name) {
   sym_t *cur_st_node = st;
+  int global = 0;
 
   while (cur_st_node != NULL) {
     if (!strcmp(id, cur_st_node->id) && cur_st_node->node_type == VARIABLE) {
-      return 1;
+      global = 1;
+      break;
     }
 
     cur_st_node = cur_st_node->next;
   }
 
-  return 0;
+  if (func_name != NULL) {
+    cur_st_node = st;
+
+    while (cur_st_node != NULL) {
+      if (!strcmp(func_name, cur_st_node->id)) {
+        break;
+      }
+
+      cur_st_node = cur_st_node->next;
+    }
+
+    cur_st_node = cur_st_node->definition->next;
+
+    while (cur_st_node != NULL) {
+      if (cur_st_node->id != NULL) {
+        if (!strcmp(id, cur_st_node->id) && cur_st_node->node_type == VARIABLE) {
+          global = 0;
+          break;
+        }
+      }
+
+      cur_st_node = cur_st_node->next;
+    }
+  }
+
+  return global;
 }
 
-char *get_var(node_t* which) {
+char *get_var(node_t* which, char *func_name) {
   char res[100] = "";
 
-  if (is_global(which->value)) {
+  if (is_global(which->value, func_name)) {
   	sprintf(res, "@%s", which->value);
   } else {
     sprintf(res, "%%%s", which->value);
@@ -290,7 +317,7 @@ void code_gen_id(node_t *node_id, char *func_name) {
     char res[100] = "";
     node_llvm_type(node_id, res, func_name);
 
-    printf("%%%d = load %s* %s\n", new_reg, res, get_var(node_id));
+    printf("%%%d = load %s* %s\n", new_reg, res, get_var(node_id, func_name));
     node_id->reg = new_reg;
   }
 }
@@ -350,8 +377,14 @@ void code_gen_declaration(node_t *decl_node, char *func_name) {
   char res[100] = "";
   node_llvm_type(decl_node->childs[decl_node->n_childs - 1], res, func_name);
 
-  if (is_global(decl_node->childs[decl_node->n_childs - 1]->value)) {
-    printf("@%s = global %s %s\n", decl_node->childs[decl_node->n_childs - 1]->value, res, "0");
+  if (is_global(decl_node->childs[decl_node->n_childs - 1]->value, func_name)) {
+    int n_pointers = decl_node->childs[decl_node->n_childs - 1]->an_n_pointers;
+
+    if (n_pointers == 0) {
+      printf("@%s = global %s %s\n", decl_node->childs[decl_node->n_childs - 1]->value, res, "0");
+    } else {
+      printf("@%s = global %s null\n", decl_node->childs[decl_node->n_childs - 1]->value, res);
+    }
   } else {
     printf("%%%s = alloca %s, align 4\n", decl_node->childs[decl_node->n_childs - 1]->value, res);
 
@@ -374,7 +407,7 @@ void code_gen_store(node_t *store_node, char *func_name) {
   char res[100] = "";
   node_llvm_type(store_node->childs[0], res, func_name);
 
-  printf("store %s %%%d, %s* %s\n", res, which_reg, res, get_var(store_node->childs[0]));
+  printf("store %s %%%d, %s* %s\n", res, which_reg, res, get_var(store_node->childs[0], func_name));
 }
 
 void code_gen_strlit(node_t *strlit_node, char *func_name) {
