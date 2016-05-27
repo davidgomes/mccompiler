@@ -632,6 +632,43 @@ void code_gen_array_declaration(node_t *array_decl_node, char *func_name) {
   }
 }
 
+void code_gen_binary_op(node_t *op_node, char *func_name){
+  code_gen(op_node->childs[0], func_name);
+  code_gen(op_node->childs[1], func_name);
+
+  int pointers0 = op_node->childs[0]->an_n_pointers;
+  if (op_node->childs[0]->an_array_size >= 1) {
+    pointers0++;
+  }
+
+  int pointers1 = op_node->childs[1]->an_n_pointers;
+  if (op_node->childs[1]->an_array_size >= 1) {
+    pointers1++;
+  }
+
+  char res[100] = "";
+  node_llvm_type(op_node, res, func_name);
+  int new_reg = r_count++;
+  op_node->reg = new_reg;
+
+  if (pointers0 >= 1 || pointers1 >= 1) {
+    int is_pointer = 0;
+    int is_not_pointer = 1;
+
+    if (pointers0 == 0) {
+      is_pointer = 1;
+      is_not_pointer = 0;
+    }
+
+    char pointer_res[100] = "";
+    node_llvm_type(op_node->childs[is_pointer], pointer_res, func_name);
+
+    printf("%%%d = getelementptr inbounds %s %%%d, i64 %s\n", new_reg, pointer_res, op_node->childs[is_pointer]->reg, op_node->childs[is_not_pointer]->value);
+  } else {
+    printf("%%%d = add %s %%%d, %%%d\n", new_reg, res, op_node->childs[0]->reg, op_node->childs[1]->reg);
+  }
+}
+
 void code_gen(node_t *which, char *func_name) {
   if (which->type == NODE_PROGRAM) {
     code_gen_program(which, func_name);
@@ -686,40 +723,7 @@ void code_gen(node_t *which, char *func_name) {
   } else if (which->type == NODE_ID) {
     code_gen_id(which, func_name);
   } else if (which->type == NODE_ADD) {
-    code_gen(which->childs[0], func_name);
-    code_gen(which->childs[1], func_name);
-
-    int pointers0 = which->childs[0]->an_n_pointers;
-    if (which->childs[0]->an_array_size >= 1) {
-      pointers0++;
-    }
-
-    int pointers1 = which->childs[1]->an_n_pointers;
-    if (which->childs[1]->an_array_size >= 1) {
-      pointers1++;
-    }
-
-    char res[100] = "";
-    node_llvm_type(which, res, func_name);
-    int new_reg = r_count++;
-    which->reg = new_reg;
-
-    if (pointers0 >= 1 || pointers1 >= 1) {
-      int is_pointer = 0;
-      int is_not_pointer = 1;
-
-      if (pointers0 == 0) {
-        is_pointer = 1;
-        is_not_pointer = 0;
-      }
-
-      char pointer_res[100] = "";
-      node_llvm_type(which->childs[is_pointer], pointer_res, func_name);
-
-      printf("%%%d = getelementptr inbounds %s %%%d, i64 %s\n", new_reg, pointer_res, which->childs[is_pointer]->reg, which->childs[is_not_pointer]->value);
-    } else {
-      printf("%%%d = add %s %%%d, %%%d\n", new_reg, res, which->childs[0]->reg, which->childs[1]->reg);
-    }
+    code_gen_binary_op(which, func_name);
   } else if (which->type == NODE_DEREF) {
     code_gen(which->childs[0], func_name);
     int new_reg = r_count++;
