@@ -1,23 +1,21 @@
-void v(void) {
-  return v();
+int chico(void) {
+  puts("hey");
+  return 0;
 }
 
-void f(void) {
-  return v();
-}
+int main(int argc, char **argv) {
+  int k;
+  char buffer[20];
 
-int main(int arc, char **argv) {
-  /*void **v2;*/
-  char *buf;
-  void *v1;
-  int *i1;
-  v1 = i1;
-  i1 = v1;
-  v1 = buf;
-  buf = v1;
-  itoa(5, buf);
-  f();
-  puts(buf);
-  /*puts("hey");*/
+  puts(argv[1]);
+
+  k = atoi(argv[2]);
+  k = k + 1;
+
+
+  chico();
+  /*itoa(k, buffer);
+  puts(buffer);*/
+
   return 0;
 }
