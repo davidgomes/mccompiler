@@ -236,7 +236,9 @@ int main(int argc, char **argv) {
       an_tree(ast, st, NULL, 1, 0);
 
       // todo maybe only call code_gen if there were no syntactic errors
-      code_gen(ast, NULL);
+      if (!semantic_errors) {
+        code_gen(ast, NULL);
+      }
     }
   }
 

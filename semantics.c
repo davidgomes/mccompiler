@@ -1,5 +1,7 @@
 #include "semantics.h"
 
+int semantic_errors = 0;
+
 void print_asterisks2(int n_pointers) {
   int i;
 
@@ -123,10 +125,12 @@ void print_sym_array(sym_t *which) {
 }
 
 void unknown_symbol(node_t *symbol) {
+  semantic_errors = 1;
   printf("Line %d, col %d: Unknown symbol %s\n", symbol->loc.first_line, symbol->loc.first_column, symbol->value);
 }
 
 void operator_applied1(node_t *operator, node_t *node1) {
+  semantic_errors = 1;
   printf("Line %d, col %d: Operator %s cannot be applied to type ", operator->loc.first_line, operator->loc.first_column, node_types_err[operator->type]);
   print_node(node1);
   printf("\n");
@@ -177,12 +181,14 @@ sym_t *is_sym_function(sym_t *st, sym_t *which_node) {
 }
 
 void operator_applied1_function(node_t *operator, sym_t *decl_node) {
+  semantic_errors = 1;
   printf("Line %d, col %d: Operator %s cannot be applied to type ", operator->loc.first_line, operator->loc.first_column, node_types_err[operator->type]);
   print_function_type(decl_node);
   printf("\n");
 }
 
 void operator_applied2(node_t *operator, node_t *node1, node_t *node2) {
+  semantic_errors = 1;
   printf("Line %d, col %d: Operator %s cannot be applied to types ", operator->loc.first_line, operator->loc.first_column, node_types_err[operator->type]);
   print_node_array(node1);
   printf(", ");
@@ -191,6 +197,7 @@ void operator_applied2(node_t *operator, node_t *node1, node_t *node2) {
 }
 
 void conflicting_types(node_t *node1, node_t *node2) {
+  semantic_errors = 1;
   printf("Line %d, col %d: Conflicting types (got ", node1->loc.first_line, node2->loc.first_column);
   print_node_array(node1);
   printf(", expected ");
@@ -420,6 +427,7 @@ void parse_sub_node(sym_t *st, node_t *sub_node, char *func_name) {
   sym_t *func_node2 = is_function(st, sub_node->childs[1], func_name);
 
   if (func_node1 && !func_node2) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types_err[sub_node->type]);
     print_function_type(func_node1);
     printf(", ");
@@ -427,6 +435,7 @@ void parse_sub_node(sym_t *st, node_t *sub_node, char *func_name) {
     printf("\n");
     return;
   } else if (!func_node1 && func_node2) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types_err[sub_node->type]);
     print_node_array(sub_node->childs[0]);
     printf(", ");
@@ -434,6 +443,7 @@ void parse_sub_node(sym_t *st, node_t *sub_node, char *func_name) {
     printf("\n");
     return;
   } else if (func_node1 && func_node2) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types_err[sub_node->type]);
     print_function_type(func_node1);
     printf(", ");
@@ -446,6 +456,7 @@ void parse_sub_node(sym_t *st, node_t *sub_node, char *func_name) {
   int second_undef = sub_node->childs[1]->an_type == TYPE_UNDEF;
 
   if (first_undef && !second_undef) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types_err[sub_node->type]);
     printf("undef");
     printf(", ");
@@ -453,6 +464,7 @@ void parse_sub_node(sym_t *st, node_t *sub_node, char *func_name) {
     printf("\n");
     return;
   } else if (!first_undef && second_undef) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types_err[sub_node->type]);
     print_node_array(sub_node->childs[0]);
     printf(", ");
@@ -460,6 +472,7 @@ void parse_sub_node(sym_t *st, node_t *sub_node, char *func_name) {
     printf("\n");
     return;
   } else if (first_undef && second_undef) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types_err[sub_node->type]);
     printf("undef");
     printf(", ");
@@ -470,6 +483,7 @@ void parse_sub_node(sym_t *st, node_t *sub_node, char *func_name) {
 
   if ((sub_node->childs[0]->an_type == TYPE_VOID && sub_node->childs[0]->an_n_pointers == 0) ||
       (sub_node->childs[1]->an_type == TYPE_VOID && sub_node->childs[1]->an_n_pointers == 0)) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", sub_node->loc.first_line, sub_node->loc.first_column, node_types_err[sub_node->type]);
     print_node_array(sub_node->childs[0]);
     printf(", ");
@@ -569,6 +583,7 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
 
     if (second_pointers >= 1) {
       if (func_node != NULL) {
+        semantic_errors = 1;
         printf("Line %d, col %d: Operator [ cannot be applied to types ", add_node->loc2.first_line, add_node->loc2.first_column);
         print_function_type(func_node);
         printf(", ");
@@ -578,6 +593,7 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
         return;
       }
 
+      semantic_errors = 1;
       printf("Line %d, col %d: Operator [ cannot be applied to types ", add_node->loc2.first_line, add_node->loc2.first_column);
       print_node_array(add_node->childs[0]);
       printf(", ");
@@ -588,6 +604,7 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
 
     if (func_node != NULL) {
       if (func_node2 != NULL) {
+        semantic_errors = 1;
         printf("Line %d, col %d: Operator [ cannot be applied to types ", add_node->loc2.first_line, add_node->loc2.first_column);
         print_function_type(func_node);
         printf(", ");
@@ -596,6 +613,7 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
         return;
       }
 
+      semantic_errors = 1;
       printf("Line %d, col %d: Operator [ cannot be applied to types ", add_node->loc2.first_line, add_node->loc2.first_column);
       print_function_type(func_node);
       printf(", ");
@@ -605,6 +623,7 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
     }
 
     if (func_node2 != NULL) {
+      semantic_errors = 1;
       printf("Line %d, col %d: Operator [ cannot be applied to types ", add_node->loc2.first_line, add_node->loc2.first_column);
       print_node_array(add_node->childs[0]);
       printf(", ");
@@ -614,6 +633,7 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
     }
 
     if (array_node == NULL && first_pointers == 0) {
+      semantic_errors = 1;
       printf("Line %d, col %d: Operator [ cannot be applied to types ", add_node->loc2.first_line, add_node->loc2.first_column);
       print_node_array(add_node->childs[0]);
       printf(", ");
@@ -632,6 +652,7 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
     }
 
     if (add_node->childs[1]->an_type != TYPE_INT && add_node->childs[1]->an_type != TYPE_CHAR) {
+      semantic_errors = 1;
       printf("Line %d, col %d: Operator [ cannot be applied to types ", add_node->loc2.first_line, add_node->loc2.first_column);
       print_node_array(add_node->childs[0]);
       printf(", ");
@@ -646,6 +667,7 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
   sym_t *func_node2 = is_function(st, add_node->childs[1], func_name);
 
   if (func_node1 && !func_node2) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types_err[add_node->type]);
     print_function_type(func_node1);
     printf(", ");
@@ -653,6 +675,7 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
     printf("\n");
     return;
   } else if (!func_node1 && func_node2) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types_err[add_node->type]);
     print_node_array(add_node->childs[0]);
     printf(", ");
@@ -660,6 +683,7 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
     printf("\n");
     return;
   } else if (func_node1 && func_node2) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types_err[add_node->type]);
     print_function_type(func_node1);
     printf(", ");
@@ -672,6 +696,7 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
   int second_undef = add_node->childs[1]->an_type == TYPE_UNDEF;
 
   if (first_undef && !second_undef) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types_err[add_node->type]);
     printf("undef");
     printf(", ");
@@ -679,6 +704,7 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
     printf("\n");
     return;
   } else if (!first_undef && second_undef) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types_err[add_node->type]);
     print_node_array(add_node->childs[0]);
     printf(", ");
@@ -686,6 +712,7 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
     printf("\n");
     return;
   } else if (first_undef && second_undef) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types_err[add_node->type]);
     printf("undef");
     printf(", ");
@@ -696,6 +723,7 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
 
   if ((add_node->childs[0]->an_type == TYPE_VOID && add_node->childs[0]->an_n_pointers == 0) ||
       (add_node->childs[1]->an_type == TYPE_VOID && add_node->childs[1]->an_n_pointers == 0)) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", add_node->loc.first_line, add_node->loc.first_column, node_types_err[add_node->type]);
     print_node_array(add_node->childs[0]);
     printf(", ");
@@ -746,6 +774,7 @@ void parse_mul_div_mod_node(sym_t *st, node_t *which_node, char *func_name) {
   which_node->an_type = TYPE_INT;
 
   if (func_node1 && !func_node2) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", which_node->loc.first_line, which_node->loc.first_column, node_types_err[which_node->type]);
     print_function_type(func_node1);
     printf(", ");
@@ -754,6 +783,7 @@ void parse_mul_div_mod_node(sym_t *st, node_t *which_node, char *func_name) {
     which_node->an_type = TYPE_INT;
     return;
   } else if (!func_node1 && func_node2) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", which_node->loc.first_line, which_node->loc.first_column, node_types_err[which_node->type]);
     print_node_array(which_node->childs[0]);
     printf(", ");
@@ -762,6 +792,7 @@ void parse_mul_div_mod_node(sym_t *st, node_t *which_node, char *func_name) {
     which_node->an_type = TYPE_INT;
     return;
   } else if (func_node1 && func_node2) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", which_node->loc.first_line, which_node->loc.first_column, node_types_err[which_node->type]);
     print_function_type(func_node1);
     printf(", ");
@@ -803,9 +834,11 @@ void parse_comp_node2(sym_t *st, node_t *comp_node, char *func_name) {
   int second_void = comp_node->childs[1]->an_type == TYPE_VOID && second_pointers == 0 && func_node2 == NULL;
 
   if (first_void && second_void) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types void, void\n", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
     return;
   } else if (first_void && !second_void) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types void, ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
 
     if (func_node2 != NULL) {
@@ -818,6 +851,7 @@ void parse_comp_node2(sym_t *st, node_t *comp_node, char *func_name) {
 
     return;
   } else if (!first_void && second_void) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
 
     if (func_node1 != NULL) {
@@ -831,6 +865,7 @@ void parse_comp_node2(sym_t *st, node_t *comp_node, char *func_name) {
   }
 
   if (func_node1 && !func_node2) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
     print_function_type(func_node1);
     printf(", ");
@@ -841,6 +876,7 @@ void parse_comp_node2(sym_t *st, node_t *comp_node, char *func_name) {
 
     return;
   } else if (!func_node1 && func_node2) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
     print_node_array(comp_node->childs[0]);
     printf(", ");
@@ -851,6 +887,7 @@ void parse_comp_node2(sym_t *st, node_t *comp_node, char *func_name) {
 
     return;
   } else if (func_node1 && func_node2) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
     print_function_type(func_node1);
     printf(", ");
@@ -866,12 +903,14 @@ void parse_comp_node2(sym_t *st, node_t *comp_node, char *func_name) {
   int second_undef = comp_node->childs[1]->an_type == TYPE_UNDEF;
 
   if (first_undef && !second_undef) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
     printf("undef");
     printf(", ");
     print_node_array(comp_node->childs[1]);
     printf("\n");
   } else if (!first_undef && second_undef) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
     print_node_array(comp_node->childs[0]);
     printf(", ");
@@ -880,6 +919,7 @@ void parse_comp_node2(sym_t *st, node_t *comp_node, char *func_name) {
 
     return;
   } else if (first_undef && second_undef) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
     printf("undef");
     printf(", ");
@@ -897,6 +937,7 @@ void parse_comp_node3(sym_t *st, node_t *comp_node, char *func_name) {
   sym_t *func_node2 = is_function(st, comp_node->childs[1], func_name);
 
   if (func_node1 && !func_node2) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
     print_function_type(func_node1);
     printf(", ");
@@ -907,6 +948,7 @@ void parse_comp_node3(sym_t *st, node_t *comp_node, char *func_name) {
 
     return;
   } else if (!func_node1 && func_node2) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
     print_node_array(comp_node->childs[0]);
     printf(", ");
@@ -917,6 +959,7 @@ void parse_comp_node3(sym_t *st, node_t *comp_node, char *func_name) {
 
     return;
   } else if (func_node1 && func_node2) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
     print_function_type(func_node1);
     printf(", ");
@@ -1017,6 +1060,7 @@ void parse_comp_node(sym_t *st, node_t *comp_node, char *func_name) {
   sym_t *func_node2 = is_function(st, comp_node->childs[1], func_name);
 
   if (func_node1 && !func_node2) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
     print_function_type(func_node1);
     printf(", ");
@@ -1027,6 +1071,7 @@ void parse_comp_node(sym_t *st, node_t *comp_node, char *func_name) {
 
     return;
   } else if (!func_node1 && func_node2) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
     print_node_array(comp_node->childs[0]);
     printf(", ");
@@ -1037,6 +1082,7 @@ void parse_comp_node(sym_t *st, node_t *comp_node, char *func_name) {
 
     return;
   } else if (func_node1 && func_node2) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comp_node->loc.first_line, comp_node->loc.first_column, node_types_err[comp_node->type]);
     print_function_type(func_node1);
     printf(", ");
@@ -1146,12 +1192,14 @@ void parse_comma_node(sym_t *st, node_t *comma_node, char *func_name) {
   int second_undef = comma_node->childs[1]->an_type == TYPE_UNDEF;
 
   if (func_node1 && !func_node2) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comma_node->loc.first_line, comma_node->loc.first_column, node_types_err[comma_node->type]);
     print_function_type(func_node1);
     printf(", ");
     print_node_array(comma_node->childs[1]);
     printf("\n");
   } else if (!func_node1 && func_node2) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comma_node->loc.first_line, comma_node->loc.first_column, node_types_err[comma_node->type]);
     print_node_array(comma_node->childs[0]);
     printf(", ");
@@ -1159,6 +1207,7 @@ void parse_comma_node(sym_t *st, node_t *comma_node, char *func_name) {
     printf("\n");
     return;
   } else if (func_node1 && func_node2) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comma_node->loc.first_line, comma_node->loc.first_column, node_types_err[comma_node->type]);
     print_function_type(func_node1);
     printf(", ");
@@ -1168,12 +1217,14 @@ void parse_comma_node(sym_t *st, node_t *comma_node, char *func_name) {
   }
 
   if (first_undef && !second_undef) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comma_node->loc.first_line, comma_node->loc.first_column, node_types_err[comma_node->type]);
     printf("undef");
     printf(", ");
     print_node_array(comma_node->childs[1]);
     printf("\n");
   } else if (!first_undef && second_undef) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comma_node->loc.first_line, comma_node->loc.first_column, node_types_err[comma_node->type]);
     print_node_array(comma_node->childs[0]);
     printf(", ");
@@ -1182,6 +1233,7 @@ void parse_comma_node(sym_t *st, node_t *comma_node, char *func_name) {
 
     return;
   } else if (first_undef && second_undef) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", comma_node->loc.first_line, comma_node->loc.first_column, node_types_err[comma_node->type]);
     printf("undef");
     printf(", ");
@@ -1250,6 +1302,7 @@ void parse_minus_plus_node(sym_t *st, node_t *which_node, char *func_name) {
     sym_t *array_node = is_array(st, which_node->childs[0], func_name);
 
     if (array_node != NULL) {
+      semantic_errors = 1;
       printf("Line %d, col %d: Operator %s cannot be applied to type ", which_node->loc.first_line, which_node->loc.first_column, node_types_err[which_node->type]);
       printf("%s[%d]\n", type_str[array_node->type], array_node->array_size);
       which_node->an_type = TYPE_INT;
@@ -1261,6 +1314,7 @@ void parse_minus_plus_node(sym_t *st, node_t *which_node, char *func_name) {
   sym_t *array_node = is_array(st, which_node->childs[0], func_name);
 
   if (array_node) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to type ", which_node->loc.first_line, which_node->loc.first_column, node_types_err[which_node->type]);
     printf("%s[%d]\n", type_str[array_node->type], array_node->array_size);
     which_node->an_type = TYPE_INT;
@@ -1303,6 +1357,7 @@ void parse_deref_node(sym_t *st, node_t *deref_node, char *func_name) {
   if (child_pointers == 0) {
     if (deref_node->childs[0]->type == NODE_ADD) {
       if (!deref_node->childs[0]->has_given_error) {
+        semantic_errors = 1;
         printf("Line %d, col %d: Operator [ cannot be applied to types ", deref_node->childs[0]->loc2.first_line, deref_node->childs[0]->loc2.first_column);
         print_node_array(deref_node->childs[0]->childs[0]);
         printf(", ");
@@ -1346,6 +1401,7 @@ void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
   }
 
   if (addr_node->childs[0]->an_array_size >= 1) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to type ", addr_node->loc.first_line, addr_node->loc.first_column, node_types_err[addr_node->type]);
     print_node_array(addr_node->childs[0]);
     printf("\n");
@@ -1357,6 +1413,7 @@ void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
                   addr_node->childs[0]->an_type != TYPE_UNKNOWN);
 
   if (!id_found) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Lvalue required\n", addr_node->childs[0]->loc.first_line, addr_node->childs[0]->loc.first_column);
     addr_node->an_type = addr_node->childs[0]->an_type;
     addr_node->an_n_pointers = addr_node->childs[0]->an_n_pointers + 1;
@@ -1369,6 +1426,7 @@ void parse_addr_node(sym_t *st, node_t *addr_node, char *func_name) {
     }
 
     if (array_node) {
+      semantic_errors = 1;
       printf("Line %d, col %d: Operator %s cannot be applied to type ", addr_node->loc.first_line, addr_node->loc.first_column, node_types_err[addr_node->type]);
       printf("%s[%d]\n", type_str[array_node->type], array_node->array_size);
     } else {
@@ -1390,6 +1448,7 @@ void parse_store_node(sym_t *st, node_t *store_node, char *func_name) {
   store_node->an_array_size = store_node->childs[0]->an_array_size;
 
   if (!id_found) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Lvalue required\n", store_node->childs[0]->loc.first_line, store_node->childs[0]->loc.first_column);
     store_node->an_type = store_node->childs[0]->an_type;
     store_node->an_n_pointers = store_node->childs[0]->an_n_pointers;
@@ -1398,6 +1457,7 @@ void parse_store_node(sym_t *st, node_t *store_node, char *func_name) {
   }
 
   if (func_node != NULL) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", store_node->loc.first_line, store_node->loc.first_column, node_types_err[store_node->type]);
     print_node(store_node->childs[0]);
     printf(", ");
@@ -1408,6 +1468,7 @@ void parse_store_node(sym_t *st, node_t *store_node, char *func_name) {
   }
 
   if (store_node->childs[1]->an_type == TYPE_VOID && store_node->childs[1]->an_n_pointers == 0) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", store_node->loc.first_line, store_node->loc.first_column, node_types_err[store_node->type]);
     print_node_array(store_node->childs[0]);
     printf(", ");
@@ -1420,6 +1481,7 @@ void parse_store_node(sym_t *st, node_t *store_node, char *func_name) {
   // verify if node can be stored or not
 
   if (store_node->childs[1]->an_type == TYPE_UNDEF) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", store_node->loc.first_line, store_node->loc.first_column, node_types_err[store_node->type]);
     print_node_array(store_node->childs[0]);
     printf(", ");
@@ -1430,6 +1492,7 @@ void parse_store_node(sym_t *st, node_t *store_node, char *func_name) {
   }
 
   if (store_node->childs[0]->an_array_size >= 1) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", store_node->loc.first_line, store_node->loc.first_column, node_types_err[store_node->type]);
     print_node_array(store_node->childs[0]);
     printf(", ");
@@ -1489,6 +1552,7 @@ void parse_store_node(sym_t *st, node_t *store_node, char *func_name) {
   }
 
   if (error) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Operator %s cannot be applied to types ", store_node->loc.first_line, store_node->loc.first_column, node_types_err[store_node->type]);
     print_node_array(store_node->childs[0]);
     printf(", ");
@@ -1529,11 +1593,13 @@ void parse_call_node(sym_t *st, node_t *call_node, int an, char *func_name) {
   }
 
   if (cur_st_node == NULL) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Symbol %s is not a function\n", call_node->loc.first_line, call_node->loc.first_column, call_node->childs[0]->value);
     return;
   }
 
   if (args_sent_in != expected_args) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Wrong number of arguments to function %s (got %d, required %d)\n", call_node->loc.first_line, call_node->loc.first_column, call_node->childs[0]->value, args_sent_in, expected_args);
     return;
   }
@@ -1549,6 +1615,7 @@ void parse_call_node(sym_t *st, node_t *call_node, int an, char *func_name) {
     sym_t *func_node = is_function(st, call_node->childs[1 + i], func_name);
 
     if (func_node != NULL) {
+      semantic_errors = 1;
       printf("Line %d, col %d: Conflicting types (got ", call_node->childs[i + 1]->loc.first_line, call_node->childs[i + 1]->loc.first_column);
       print_function_type(func_node);
       printf(", expected ");
@@ -1577,6 +1644,7 @@ void parse_call_node(sym_t *st, node_t *call_node, int an, char *func_name) {
         continue;
       }
 
+      semantic_errors = 1;
       printf("Line %d, col %d: Conflicting types (got ", call_node->childs[i + 1]->loc.first_line, call_node->childs[i + 1]->loc.first_column);
       print_node(call_node->childs[i + 1]);
       printf(", expected ");
@@ -1605,6 +1673,7 @@ void parse_return_node(sym_t *st, node_t *return_node, char *func_name) { // TOD
   sym_t *func_node = is_function(st, return_node->childs[0], func_name);
 
   if (func_node != NULL) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Conflicting types (got ", return_node->loc.first_line, return_node->loc.first_column);
 
     printf("%s", type_str[return_node->childs[0]->an_type]);
@@ -1657,6 +1726,7 @@ void parse_return_node(sym_t *st, node_t *return_node, char *func_name) { // TOD
       return;
     }
 
+    semantic_errors = 1;
     printf("Line %d, col %d: Conflicting types (got ", return_node->loc.first_line, return_node->loc.first_column);
 
     if (return_node->childs[0]->an_type == TYPE_UNKNOWN) {
@@ -1682,6 +1752,7 @@ void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
   func_node = is_function(st, decl_node->childs[1], func_name);
 
   if (func_node != NULL && func_name == NULL) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Conflicting types (got ", decl_node->loc.first_line, decl_node->loc.first_column);
     print_sym_array(new_node);
     printf(", expected ");
@@ -1691,6 +1762,7 @@ void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
   }
 
   if (new_node->type == TYPE_VOID && new_node->n_pointers == 0) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Invalid use of void type in declaration\n", decl_node->childs[0]->loc.first_line, decl_node->childs[0]->loc.first_column);
     return;
   }
@@ -1708,6 +1780,7 @@ void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
 
     while (cur_st_node != NULL) {
       if (cur_st_node->id != NULL && !strcmp(cur_st_node->id, decl_node->childs[decl_node->n_childs - 1]->value)) {
+        semantic_errors = 1;
         printf("Line %d, col %d: Symbol %s already defined\n", decl_node->loc.first_line, decl_node->loc.first_column, decl_node->childs[decl_node->n_childs - 1]->value);
         duplicate = 1;
         break;
@@ -1719,6 +1792,7 @@ void parse_decl(sym_t *st, node_t *decl_node, char *func_name) {
     while (cur_st_node != NULL) {
       if (!strcmp(cur_st_node->id, new_node->id)) { // check if preivous decl was something else
         if (cur_st_node->type != new_node->type || cur_st_node->n_pointers != new_node->n_pointers || cur_st_node->array_size != new_node->array_size) {
+          semantic_errors = 1;
           printf("Line %d, col %d: Conflicting types (got %s", decl_node->loc.first_line, decl_node->loc.first_column, type_str[new_node->type]);
           print_asterisks2(new_node->n_pointers);
 
@@ -1780,6 +1854,7 @@ void parse_array_decl(sym_t *st, node_t *decl_node, char *func_name) {
   func_node = is_function(st, decl_node->childs[1], func_name);
 
   if (func_node != NULL && func_name == NULL) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Conflicting types (got ", decl_node->loc.first_line, decl_node->loc.first_column);
     print_sym_array(new_node);
     printf(", expected ");
@@ -1789,6 +1864,7 @@ void parse_array_decl(sym_t *st, node_t *decl_node, char *func_name) {
   }
 
   if (decl_node->childs[0]->type == NODE_VOID && new_node->n_pointers == 0) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Invalid use of void type in declaration\n", decl_node->loc.first_line, decl_node->loc.first_column);
   }
 
@@ -1805,6 +1881,7 @@ void parse_array_decl(sym_t *st, node_t *decl_node, char *func_name) {
 
     while (cur_st_node != NULL) {
       if (cur_st_node->id != NULL && !strcmp(cur_st_node->id, decl_node->childs[decl_node->n_childs - 2]->value)) {
+        semantic_errors = 1;
         printf("Line %d, col %d: Symbol %s already defined\n", decl_node->loc.first_line, decl_node->loc.first_column, decl_node->childs[decl_node->n_childs - 2]->value);
         duplicate = 1;
         break;
@@ -1816,6 +1893,7 @@ void parse_array_decl(sym_t *st, node_t *decl_node, char *func_name) {
     while (cur_st_node != NULL) {
       if (!strcmp(cur_st_node->id, new_node->id)) { // TODO check if previous decl was actually a function and give error
         if (cur_st_node->array_size != new_node->array_size || cur_st_node->type != new_node->type || cur_st_node->n_pointers != new_node->n_pointers) {
+          semantic_errors = 1;
           printf("Line %d, col %d: Conflicting types (got ", decl_node->loc.first_line, decl_node->loc.first_column);
           print_sym_array(new_node);
           printf(", expected ");
@@ -1878,6 +1956,7 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
     declaration_node->params[declaration_node->n_params++] = new_node;
 
     if (new_node->type == TYPE_VOID && new_node->n_pointers == 0 && (new_node->id != NULL || param_list->n_childs > 1)) {
+      semantic_errors = 1;
       printf("Line %d, col %d: Invalid use of void type in declaration\n", param_list->childs[i]->childs[0]->loc.first_line, param_list->childs[i]->childs[0]->loc.first_column);
       to_insert = 0;
       break;
@@ -1888,6 +1967,7 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
       for (u = 0; u < i; u++) {
         if (new_node->id != NULL && declaration_node->params[u]->id != NULL) {
           if (!strcmp(new_node->id, declaration_node->params[u]->id)) {
+            semantic_errors = 1;
             printf("Line %d, col %d: Symbol %s already defined\n", param_declaration->loc.first_line, param_declaration->loc.first_column, declaration_node->params[i]->id);
             break;
           }
@@ -1905,6 +1985,7 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
     while (cur_st_node != NULL) {
       if (!strcmp(cur_st_node->id, declaration_node->id)) {
         if (cur_st_node->node_type != FUNC_DECLARATION) {
+          semantic_errors = 1;
           printf("Line %d, col %d: Conflicting types (got ", func_decl_node->loc.first_line, func_decl_node->loc.first_column + declaration_node->n_pointers);
           print_function_type(declaration_node);
           printf(", expected ");
@@ -1941,6 +2022,7 @@ void parse_func_declaration(sym_t *st, node_t *func_decl_node, char *func_name) 
   }
 
   if (arg_mismatch) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Conflicting types (got ", func_decl_node->loc.first_line, func_decl_node->loc.first_column + declaration_node->n_pointers);
     print_function_type(declaration_node);
     printf(", expected ");
@@ -2001,6 +2083,7 @@ int parse_func_definition(sym_t *st, node_t *func_def_node) {
         sym_t *func_node = is_sym_function(st, cur_st_node);
 
         if (func_node) {
+          semantic_errors = 1;
           printf("Line %d, col %d: Symbol %s already defined\n", func_def_node->loc.first_line, func_def_node->childs[table_node->n_pointers + 1]->loc.first_column, cur_st_node->id);
           return 1;
         } else {
@@ -2027,6 +2110,7 @@ int parse_func_definition(sym_t *st, node_t *func_def_node) {
   int error_given = st_add_definition(st, table_node, func_def_node, declaration_node);
 
   if (print_conflicting_type) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Conflicting types (got ", func_def_node->loc.first_line, func_def_node->childs[table_node->n_pointers + 1]->loc.first_column);
     print_function_type(declaration_node);
     printf(", expected ");
@@ -2047,6 +2131,7 @@ void parse_if_node(sym_t *st, node_t *if_node, char *func_name) {
   sym_t *func_node = is_function(st, if_node->childs[0], func_name);
 
   if (func_node != NULL) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Conflicting types (got ", if_node->childs[0]->loc.first_line, if_node->childs[0]->loc.first_column);
     print_function_type(func_node);
     printf(", expected int)\n");
@@ -2054,10 +2139,12 @@ void parse_if_node(sym_t *st, node_t *if_node, char *func_name) {
   }
 
   if (if_node->childs[0]->an_type == TYPE_UNDEF) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Conflicting types (got undef, expected int)\n", if_node->childs[0]->loc.first_line, if_node->childs[0]->loc.first_column);
   }
 
   if (if_node->childs[0]->an_type == TYPE_VOID && if_node->childs[0]->an_n_pointers == 0 && if_node->childs[0]->an_array_size < 1) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Conflicting types (got void, expected int)\n", if_node->childs[0]->loc.first_line, if_node->childs[0]->loc.first_column);
   }
 }
@@ -2066,6 +2153,7 @@ void parse_for_node(sym_t *st, node_t *for_node, char *func_name) {
   sym_t *func_node = is_function(st, for_node->childs[1], func_name);
 
   if (func_node != NULL) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Conflicting types (got ", for_node->childs[1]->loc.first_line, for_node->childs[1]->loc.first_column);
     print_function_type(func_node);
     printf(", expected int)\n");
@@ -2073,11 +2161,13 @@ void parse_for_node(sym_t *st, node_t *for_node, char *func_name) {
   }
 
   if (for_node->childs[1]->an_type == TYPE_UNDEF) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Conflicting types (got undef, expected int)\n", for_node->childs[1]->loc.first_line, for_node->childs[1]->loc.first_column);
     return;
   }
 
   if (for_node->childs[1]->an_type == TYPE_VOID && for_node->childs[1]->an_n_pointers == 0 && for_node->childs[1]->an_array_size < 1) {
+    semantic_errors = 1;
     printf("Line %d, col %d: Conflicting types (got void, expected int)\n", for_node->childs[1]->loc.first_line, for_node->childs[1]->loc.first_column);
   }
 }
