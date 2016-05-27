@@ -151,6 +151,32 @@ int match_types(node_t *to, node_t *from, char *func_name) { // match "from" to 
   }
 }
 
+int match_types2(sym_t *to, node_t *from, char *func_name) {
+  char res_to[100] = "";
+  char res_from[100] = "";
+
+  sym_t_llvm_type(to, res_to, func_name, 1);
+  node_llvm_type(from, res_from, func_name, 1);
+
+  int smaller = 0;
+  int larger = 1;
+
+  int new_reg = r_count++;
+
+  if (res_to[1] == '3') { // i32
+    smaller = 1;
+    larger = 0;
+  }
+
+  if (smaller == 0) { // trunc
+    printf("%%%d = trunc %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
+    return new_reg;
+  } else { // zext
+    printf("%%%d = zext %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
+    return new_reg;
+  }
+}
+
 void find_and_save_strings(node_t *which) {
   if (which->type == NODE_STRLIT) {
     // remove first character of ->value (the opening quote)
@@ -495,6 +521,31 @@ void code_gen_call(node_t *call_node, char *func_name) {
   char res[100] = "";
   node_llvm_type(call_node, res, func_name, 1);
 
+  sym_t *func_node = st;
+
+  while (func_node != NULL) {
+    if (!strcmp(func_node->id, call_node->childs[0]->value)) {
+      break;
+    }
+
+    func_node = func_node->next;
+  }
+
+  int childs_regs[100];
+
+  for (i = 1; i < call_node->n_childs; i++) {
+    char arg_res[100] = "";
+    node_llvm_type(call_node->childs[i], arg_res, func_name, 1);
+
+    char expected_res[100] = "";
+    sym_t_llvm_type(func_node->params[i - 1], expected_res, func_name, 1);
+
+    childs_regs[i] = call_node->childs[i]->reg;
+    if (strcmp(arg_res, expected_res)) {
+      childs_regs[i] = match_types2(func_node->params[i - 1], call_node->childs[i], func_name);
+    }
+  }
+
   int new_reg = -1;
 
   if (call_node->an_type == TYPE_VOID && call_node->an_n_pointers == 0) {
@@ -506,7 +557,7 @@ void code_gen_call(node_t *call_node, char *func_name) {
 
   for (i = 1; i < call_node->n_childs; i++) {
     char arg_res[100] = "";
-    node_llvm_type(call_node->childs[i], arg_res, func_name, 1);
+    sym_t_llvm_type(func_node->params[i - 1], arg_res, func_name, 1);
 
     printf("%s", arg_res);
 
@@ -524,12 +575,11 @@ void code_gen_call(node_t *call_node, char *func_name) {
   }
 
   for (i = 1; i < call_node->n_childs; i++) {
-    char arg_res[100] = "";
-    node_llvm_type(call_node->childs[i], arg_res, func_name, 1);
+    char expected_res[100] = "";
+    sym_t_llvm_type(func_node->params[i - 1], expected_res, func_name, 1);
 
-    //int new_reg = match_types(, call_node->childs[i], func_name);
-
-    printf("%s %%%d", arg_res, call_node->childs[i]->reg);
+    //printf("%s %%%d", arg_res, call_node->childs[i]->reg);
+    printf("%s %%%d", expected_res, childs_regs[i]);
 
     if (i != call_node->n_childs - 1) {
       printf(",");
