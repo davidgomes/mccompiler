@@ -1,5 +1,6 @@
 int main(int argc, char **argv) {
-  puts("\42");
+  /*int buf[8];
+  buf[0] = 5;*/
 
-  return 0;
+  int *buf[20];
 }

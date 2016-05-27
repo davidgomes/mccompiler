@@ -530,7 +530,15 @@ void code_gen_store(node_t *store_node, char *func_name) {
   char res[100] = "";
   node_llvm_type(store_node->childs[0], res, func_name);
 
-  printf("store %s %%%d, %s* %s\n", res, which_reg, res, get_var(store_node->childs[0], func_name));
+  if (store_node->childs[0]->type == NODE_DEREF && store_node->childs[0]->childs[0]->type == NODE_ADD &&
+      store_node->childs[0]->childs[0]->childs[0]->an_array_size >= 1) { // store array
+    //%3 = getelementptr inbounds [8 x i32], [8 x i32]* %buf, i64 0, i64 0
+    //store i32 5, i32* %3, align 16
+
+    //printf("%%%d = getelementptr inbounds [%d x i32]* %buf, i64 0, i64 0", new_reg, store_node->childs[0]->childs[0]->childs[0]->an_array_size, type2llvm());
+  } else {
+    printf("store %s %%%d, %s* %s\n", res, which_reg, res, get_var(store_node->childs[0], func_name));
+  }
 }
 
 void code_gen_strlit(node_t *strlit_node, char *func_name) {
