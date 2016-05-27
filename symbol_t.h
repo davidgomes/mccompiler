@@ -11,6 +11,7 @@ extern char* type_str[];
 sym_t *st;
 sym_t *last;
 
+int octal_decimal(int n);
 sym_t *create_node(table_type_t node_type, char *name, type_t type);
 sym_t* create_variable_node(node_t *cur_node);
 sym_t* create_array_node(node_t *cur_node);

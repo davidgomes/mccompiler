@@ -128,33 +128,123 @@ void find_and_save_strings(node_t *which) {
     int i = 0;
     int previous_slash = 0;
     int slash_block = 0;
+    int slash_block_start = -1;
+    char cur_block[1000] = "";
+    int cur_block_size = 0;
     while (i < strlen(which->value)) {
       if (slash_block) {
-        if (which->value[i] >= '0' && which->value[i] <= '7') {
-          if (previous_slash) {
-            printf("0");
+        if (which->value[i] == '\\' && cur_block_size >= 1) {
+          if (!strcmp(cur_block, "42")) {
+            printf("\\22");
+
+            memset(cur_block, 0, sizeof(cur_block));
+            cur_block_size = 0;
+          } else if (!strcmp(cur_block, "134")) {
+            printf("\\5C");
+
+            memset(cur_block, 0, sizeof(cur_block));
+            cur_block_size = 0;
+          } else {
+            printf("%c", octal_decimal(atoi(cur_block)));
+            memset(cur_block, 0, sizeof(cur_block));
+            cur_block_size = 0;
           }
 
-        } else if (which->value[i] >= '7' && which->value[i] <= '9') {
+          slash_block = 0;
+          previous_slash = 0;
+        } else if (which->value[i] >= '0' && which->value[i] <= '7') {
+          cur_block[cur_block_size++] = which->value[i];
+
+          if (cur_block_size == 3) {
+            if (!strcmp(cur_block, "042")) {
+              printf("\\22");
+
+              memset(cur_block, 0, sizeof(cur_block));
+              cur_block_size = 0;
+
+              slash_block = 0;
+              previous_slash = 0;
+            } else if (!strcmp(cur_block, "134")) {
+              printf("\\5C");
+
+              memset(cur_block, 0, sizeof(cur_block));
+              cur_block_size = 0;
+
+              slash_block = 0;
+              previous_slash = 0;
+            } else {
+              printf("%c", octal_decimal(atoi(cur_block)));
+              memset(cur_block, 0, sizeof(cur_block));
+              cur_block_size = 0;
+
+              slash_block = 0;
+              previous_slash = 0;
+            }
+          }
+        } else if ((which->value[i] >= '8' || which->value[i] < '0') && (which->value[i] != 'n' && which->value[i] != '\'' && which->value[i] != '\\' && which->value[i] != 't' && which->value[i] != '\"')) {
+          if (cur_block_size >= 1) {
+            if (!strcmp(cur_block, "42") || !strcmp(cur_block, "042")) {
+              printf("\\22");
+
+              memset(cur_block, 0, sizeof(cur_block));
+              cur_block_size = 0;
+
+              printf("%c", which->value[i]);
+            } else if (!strcmp(cur_block, "134")) {
+              printf("\\5C");
+
+              memset(cur_block, 0, sizeof(cur_block));
+              cur_block_size = 0;
+
+              printf("%c", which->value[i]);
+            } else {
+              int all_zeros = 1;
+
+              int u;
+              for (u = 0; u < cur_block_size; u++) {
+                if (cur_block[u] != '0') {
+                  all_zeros = 0;
+                  break;
+                }
+              }
+
+              if (all_zeros) {
+                printf("\\00");
+                memset(cur_block, 0, sizeof(cur_block));
+                cur_block_size = 0;
+
+                printf("%c", which->value[i]);
+              } else {
+                printf("%c", octal_decimal(atoi(cur_block)));
+                memset(cur_block, 0, sizeof(cur_block));
+                cur_block_size = 0;
+
+                printf("%c", which->value[i]);
+              }
+            }
+          }
+
           slash_block = 0;
         } else {
           if (previous_slash) {
             if (which->value[i] == 'n') {
-              printf("0A");
+              printf("\\0A");
             } else if (which->value[i] == '\'') {
-              printf("27");
+              printf("\\27");
             } else if (which->value[i] == '\\') {
-              printf("5C");
+              printf("\\5C");
             } else if (which->value[i] == 't') {
-              printf("09");
+              printf("\\09");
             } else if (which->value[i] == '\"') {
-              printf("22");
+              printf("\\22");
             }
+
+            slash_block = 0;
           } else {
             printf("%c", which->value[i]);
           }
 
-          slash_block = 0;
+          //slash_block = 0;
           previous_slash = 0;
 
           i++;
@@ -162,16 +252,43 @@ void find_and_save_strings(node_t *which) {
         }
 
         previous_slash = 0;
+      } else {
+        if (which->value[i] != '\\') {
+          printf("%c", which->value[i]);
+        }
       }
 
       if (which->value[i] == '\\') {
         previous_slash = 1;
         slash_block = 1;
+        slash_block_start = i;
       }
 
-      printf("%c", which->value[i]);
-
       i++;
+    }
+
+    if (cur_block_size >= 1) {
+      if (!strcmp(cur_block, "42")) {
+        printf("\\22");
+      } else if (!strcmp(cur_block, "134")) {
+        printf("\\5C");
+      } else {
+        int all_zeros = 1;
+
+        int u;
+        for (u = 0; u < cur_block_size; u++) {
+          if (cur_block[u] != '0') {
+            all_zeros = 0;
+            break;
+          }
+        }
+
+        if (all_zeros) {
+          printf("\\00");
+        } else {
+          printf("%c", octal_decimal(atoi(cur_block)));
+        }
+      }
     }
 
     printf("\\00\"\n");
@@ -533,8 +650,6 @@ void code_gen(node_t *which, char *func_name) {
     int new_reg = r_count++;
     which->reg = new_reg;
 
-    //   %5 = getelementptr inbounds i32, i32* %4, i64 1
-
     if (pointers0 >= 1 || pointers1 >= 1) {
       int is_pointer = 0;
       int is_not_pointer = 1;
@@ -552,16 +667,9 @@ void code_gen(node_t *which, char *func_name) {
       printf("%%%d = add %s %%%d, %%%d\n", new_reg, res, which->childs[0]->reg, which->childs[1]->reg);
     }
   } else if (which->type == NODE_DEREF) {
-    // ........Deref - char*
-    //..........Add - char**
-    //............Id(argv) - char**
-    //............IntLit(3) - int
     code_gen(which->childs[0], func_name);
     int new_reg = r_count++;
     which->reg = new_reg;
-
-    // %8 = load i8*, i8** %7, align 8
-
     printf("%%%d = load i8** %%%d\n", new_reg, which->childs[0]->reg);
   } else if (which->type == NODE_ARRAYDECLARATION) {
     code_gen_array_declaration(which, func_name);
