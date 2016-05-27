@@ -1,6 +1,8 @@
 int main(int argc, char **argv) {
-  char a;
-  a = '%';
+  int a = 20;
+  char c;
+
+  c = a;
 
   return 0;
 }

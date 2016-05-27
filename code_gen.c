@@ -85,14 +85,23 @@ void node_llvm_type(node_t *which, char *res, char *func_name, int array_as_poin
       n_pointers++;
     }
 
-    strcat(res, type2llvm(which->an_type, n_pointers));
+    if (which->type == NODE_CHRLIT) {
+      strcat(res, "i8");
+    } else {
+      strcat(res, type2llvm(which->an_type, n_pointers));
+    }
 
     for (int i = 0; i < n_pointers; i++) {
       strcat(res, "*");
     }
   } else { // declarations and such
     parse_id_node(st, which, func_name, 1);
-    strcat(res, type2llvm(which->an_type, which->an_n_pointers));
+
+    if (which->type == NODE_CHRLIT) {
+      strcat(res, "i8");
+    } else {
+      strcat(res, type2llvm(which->an_type, which->an_n_pointers));
+    }
 
     for (int i = 0; i < which->an_n_pointers; i++) {
       strcat(res, "*");
@@ -113,6 +122,32 @@ void sym_t_llvm_type(sym_t *which, char *res, char *func_name, int array_as_poin
     for (int i = 0; i < n_pointers; i++) {
       strcat(res, "*");
     }
+  }
+}
+
+int match_types(node_t *to, node_t *from, char *func_name) { // match "from" to "to"
+  char res_to[100] = "";
+  char res_from[100] = "";
+
+  node_llvm_type(to, res_to, func_name, 1);
+  node_llvm_type(from, res_from, func_name, 1);
+
+  node_t *smaller = to;
+  node_t *larger = from;
+
+  int new_reg = r_count++;
+
+  if (res_to[1] == '3') { // i32
+    smaller = from;
+    larger = to;
+  }
+
+  if (to == smaller) { // trunc
+    printf("%%%d = trunc %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
+    return new_reg;
+  } else { // zext
+    printf("%%%d = zext %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
+    return new_reg;
   }
 }
 
@@ -492,6 +527,8 @@ void code_gen_call(node_t *call_node, char *func_name) {
     char arg_res[100] = "";
     node_llvm_type(call_node->childs[i], arg_res, func_name, 1);
 
+    //int new_reg = match_types(, call_node->childs[i], func_name);
+
     printf("%s %%%d", arg_res, call_node->childs[i]->reg);
 
     if (i != call_node->n_childs - 1) {
@@ -534,7 +571,7 @@ void code_gen_store(node_t *store_node, char *func_name) {
   int which_reg = store_node->childs[1]->reg;
 
   char res[100] = "";
-  node_llvm_type(store_node->childs[0], res, func_name, 1);
+  node_llvm_type(store_node->childs[1], res, func_name, 1);
 
   if (store_node->childs[0]->type == NODE_DEREF && store_node->childs[0]->childs[0]->type == NODE_ADD &&
       store_node->childs[0]->childs[0]->childs[0]->an_array_size >= 1) { // store array
@@ -559,7 +596,16 @@ void code_gen_store(node_t *store_node, char *func_name) {
 
     printf("store %s %s, %s* %%%d\n", res1, store_node->childs[1]->value, array_type, new_reg);
   } else {
-    printf("store %s %%%d, %s* %s\n", res, which_reg, res, get_var(store_node->childs[0], func_name));
+    char res0[100] = "";
+    node_llvm_type(store_node->childs[0], res0, func_name, 1);
+
+    if (strcmp(res, res0)) {
+      int new_new_reg = match_types(store_node->childs[0], store_node->childs[1], func_name);
+
+      printf("store %s %%%d, %s* %s\n", res0, new_new_reg, res0, get_var(store_node->childs[0], func_name));
+    } else {
+      printf("store %s %%%d, %s* %s\n", res, which_reg, res0, get_var(store_node->childs[0], func_name));
+    }
   }
 }
 
@@ -577,7 +623,7 @@ void code_gen_intlit(node_t *intlit_node, char *func_name) {
 
 void code_gen_chrlit(node_t *chrlit_node, char *func_name) {
   int new_reg = r_count++;
-  printf("%%%d = add i32 0, %d\n", new_reg, chrlit_node->value[1]);
+  printf("%%%d = add i8 0, %d\n", new_reg, chrlit_node->value[1]);
   chrlit_node->reg = new_reg;
 }
 
