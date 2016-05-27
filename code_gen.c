@@ -9,7 +9,7 @@ char* type2llvm(type_t type, int n_pointers) {
     if (n_pointers == 0) {
       return "i32";
     } else {
-      return "i8";
+      return "i32";
     }
   } else if (type == TYPE_CHAR) {
     return "i8";
@@ -29,7 +29,7 @@ int is_global(char *id, char *func_name) {
   int global = 0;
 
   while (cur_st_node != NULL) {
-    if (!strcmp(id, cur_st_node->id) && cur_st_node->node_type == VARIABLE) {
+    if (cur_st_node->id != NULL && !strcmp(id, cur_st_node->id) && (cur_st_node->node_type == VARIABLE || cur_st_node->node_type == ARRAY)) {
       global = 1;
       break;
     }
@@ -41,7 +41,7 @@ int is_global(char *id, char *func_name) {
     cur_st_node = st;
 
     while (cur_st_node != NULL) {
-      if (!strcmp(func_name, cur_st_node->id)) {
+      if (cur_st_node->id != NULL && !strcmp(func_name, cur_st_node->id)) {
         break;
       }
 
@@ -52,7 +52,7 @@ int is_global(char *id, char *func_name) {
 
     while (cur_st_node != NULL) {
       if (cur_st_node->id != NULL) {
-        if (!strcmp(id, cur_st_node->id) && cur_st_node->node_type == VARIABLE) {
+        if (!strcmp(id, cur_st_node->id) && (cur_st_node->node_type == VARIABLE || cur_st_node->node_type == ARRAY)) {
           global = 0;
           break;
         }
@@ -312,7 +312,13 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
 }
 
 void code_gen_id(node_t *node_id, char *func_name) {
-  if (node_id->an_type != TYPE_UNKNOWN) {
+  if (node_id->an_array_size >= 1) {
+    //   %3 = getelementptr inbounds [10 x i8], [10 x i8]* %buf, i32 0, i32 0
+    int new_reg = r_count++;
+
+    printf("%%%d = getelementptr inbounds [%d x %s]* %s, i32 0, i32 0\n", new_reg, node_id->an_array_size, type2llvm(node_id->an_type, 1), get_var(node_id, func_name));
+    node_id->reg = new_reg;
+  } else if (node_id->an_type != TYPE_UNKNOWN) {
     int new_reg = r_count++;
     char res[100] = "";
     node_llvm_type(node_id, res, func_name);
@@ -386,7 +392,7 @@ void code_gen_declaration(node_t *decl_node, char *func_name) {
       printf("@%s = global %s null\n", decl_node->childs[decl_node->n_childs - 1]->value, res);
     }
   } else {
-    printf("%%%s = alloca %s, align 4\n", decl_node->childs[decl_node->n_childs - 1]->value, res);
+    printf("%%%s = alloca %s\n", decl_node->childs[decl_node->n_childs - 1]->value, res);
 
     int n_pointers = decl_node->childs[decl_node->n_childs - 1]->an_n_pointers;
 
@@ -445,6 +451,16 @@ void code_gen_return(node_t *return_node, char *func_name) {
   }
 }
 
+void code_gen_array_declaration(node_t *array_decl_node, char *func_name) {
+  sym_t *array_decl_node_temp = create_array_node(array_decl_node);
+
+  if (is_global(array_decl_node_temp->id, func_name)) {
+    printf("@%s = common global [%d x %s] zeroinitializer\n", array_decl_node_temp->id, array_decl_node_temp->array_size, type2llvm(array_decl_node_temp->type, 1));
+  } else {
+    printf("%%%s = alloca [%d x %s]\n", array_decl_node_temp->id, array_decl_node_temp->array_size, type2llvm(array_decl_node_temp->type, 1));
+  }
+}
+
 void code_gen(node_t *which, char *func_name) {
   if (which->type == NODE_PROGRAM) {
     code_gen_program(which, func_name);
@@ -489,7 +505,7 @@ void code_gen(node_t *which, char *func_name) {
       return;
     }
 
-    printf("%%%s = alloca %s, align 4\n", param_temp->id, res);
+    printf("%%%s = alloca %s\n", param_temp->id, res);
 
     if (n_pointers == 0) {
       printf("store %s 0, %s* %%%s\n", res, res, param_temp->id);
@@ -498,5 +514,56 @@ void code_gen(node_t *which, char *func_name) {
     printf("store %s %%.%s, %s* %%%s\n", res, param_temp->id, res, param_temp->id);
   } else if (which->type == NODE_ID) {
     code_gen_id(which, func_name);
+  } else if (which->type == NODE_ADD) {
+    code_gen(which->childs[0], func_name);
+    code_gen(which->childs[1], func_name);
+
+    int pointers0 = which->childs[0]->an_n_pointers;
+    if (which->childs[0]->an_array_size >= 1) {
+      pointers0++;
+    }
+
+    int pointers1 = which->childs[1]->an_n_pointers;
+    if (which->childs[1]->an_array_size >= 1) {
+      pointers1++;
+    }
+
+    char res[100] = "";
+    node_llvm_type(which, res, func_name);
+    int new_reg = r_count++;
+    which->reg = new_reg;
+
+    //   %5 = getelementptr inbounds i32, i32* %4, i64 1
+
+    if (pointers0 >= 1 || pointers1 >= 1) {
+      int is_pointer = 0;
+      int is_not_pointer = 1;
+
+      if (pointers0 == 0) {
+        is_pointer = 1;
+        is_not_pointer = 0;
+      }
+
+      char pointer_res[100] = "";
+      node_llvm_type(which->childs[is_pointer], pointer_res, func_name);
+
+      printf("%%%d = getelementptr inbounds %s %%%d, i64 %s\n", new_reg, pointer_res, which->childs[is_pointer]->reg, which->childs[is_not_pointer]->value);
+    } else {
+      printf("%%%d = add %s %%%d, %%%d\n", new_reg, res, which->childs[0]->reg, which->childs[1]->reg);
+    }
+  } else if (which->type == NODE_DEREF) {
+    // ........Deref - char*
+    //..........Add - char**
+    //............Id(argv) - char**
+    //............IntLit(3) - int
+    code_gen(which->childs[0], func_name);
+    int new_reg = r_count++;
+    which->reg = new_reg;
+
+    // %8 = load i8*, i8** %7, align 8
+
+    printf("%%%d = load i8** %%%d\n", new_reg, which->childs[0]->reg);
+  } else if (which->type == NODE_ARRAYDECLARATION) {
+    code_gen_array_declaration(which, func_name);
   }
 }
