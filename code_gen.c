@@ -4,6 +4,60 @@ int current_str_id = 1;
 int r_count = 1;
 int returned = 0;
 
+const char* llvm_node_to_nodetype[] = {
+  "null_should_not_happen", //0
+  "null_should_not_happen", //1
+  "null_should_not_happen", //2
+  "null_should_not_happen", //3
+  "null_should_not_happen", //4
+  "null_should_not_happen", //5
+  "null_should_not_happen", //6
+  "null_should_not_happen", //7
+  "null_should_not_happen", //8
+  "null_should_not_happen", //9
+  "null_should_not_happen", //10
+  "null_should_not_happen", //11
+  "or", //12
+  "and", //13
+  "eq", //14
+  "ne", //15
+  "slt", //16
+  "sgt", //17
+  "sle", //18
+  "sge", //19
+  "add", //20
+  "sub", //21
+  "mul", //22
+  "div", //23
+  "urem", //24
+  "null_should_not_happen", //25
+  "null_should_not_happen", //26
+  "null_should_not_happen", //27
+  "null_should_not_happen", //28
+  "null_should_not_happen", //29
+  "null_should_not_happen", //30
+  "null_should_not_happen", //31
+  "null_should_not_happen", //32
+  "null_should_not_happen", //33
+  "null_should_not_happen", //34
+  "null_should_not_happen", //35
+  "null_should_not_happen", //36
+  "null_should_not_happen", //37
+  "null_should_not_happen", //38
+  "null_should_not_happen", //39
+  "null_should_not_happen", //40
+  "null_should_not_happen", //41
+  "null_should_not_happen", //42
+  "null_should_not_happen", //43
+  "null_should_not_happen", //44
+  "null_should_not_happen", //45
+  "null_should_not_happen", //46
+  "null_should_not_happen", //47
+  "null_should_not_happen", //48
+  "null_should_not_happen", //49
+  "null_should_not_happen" //50
+};
+
 char* type2llvm(type_t type, int n_pointers) {
   if (type == TYPE_INT) {
     if (n_pointers == 0) {
