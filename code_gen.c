@@ -577,7 +577,7 @@ void code_gen_intlit(node_t *intlit_node, char *func_name) {
 
 void code_gen_chrlit(node_t *chrlit_node, char *func_name) {
   int new_reg = r_count++;
-  printf("%%%d = add i32 %d, 0\n", new_reg, atoi(chrlit_node->value));
+  printf("%%%d = add i32 0, %d\n", new_reg, chrlit_node->value[1]);
   chrlit_node->reg = new_reg;
 }
 
