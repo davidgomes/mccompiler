@@ -181,7 +181,7 @@ void find_and_save_strings(node_t *which) {
               previous_slash = 0;
             }
           }
-        } else if ((which->value[i] >= '8' || which->value[i] < '0') && (which->value[i] != 'n' && which->value[i] != '\'' && which->value[i] != '\\' && which->value[i] != 't' && which->value[i] != '\"')) {
+        } else if ((which->value[i] >= '8' || which->value[i] < '0') && (which->value[i] != 'n' && which->value[i] != '\'' && which->value[i] != '\\' && which->value[i] != 't' && which->value[i] != '\"' && previous_slash)) {
           if (cur_block_size >= 1) {
             if (!strcmp(cur_block, "42") || !strcmp(cur_block, "042")) {
               printf("\\22");
@@ -241,6 +241,11 @@ void find_and_save_strings(node_t *which) {
 
             slash_block = 0;
           } else {
+            printf("%c", octal_decimal(atoi(cur_block)));
+            memset(cur_block, 0, sizeof(cur_block));
+            cur_block_size = 0;
+            slash_block = 0;
+
             printf("%c", which->value[i]);
           }
 
@@ -258,6 +263,7 @@ void find_and_save_strings(node_t *which) {
         }
       }
 
+      previous_slash = 0;
       if (which->value[i] == '\\') {
         previous_slash = 1;
         slash_block = 1;
