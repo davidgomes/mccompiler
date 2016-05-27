@@ -579,10 +579,13 @@ void code_gen_return(node_t *return_node, char *func_name) {
 void code_gen_array_declaration(node_t *array_decl_node, char *func_name) {
   sym_t *array_decl_node_temp = create_array_node(array_decl_node);
 
+  char array_type[100] = "";
+  sym_t_llvm_type(array_decl_node_temp, array_type, func_name);
+
   if (is_global(array_decl_node_temp->id, func_name)) {
-    printf("@%s = common global [%d x %s] zeroinitializer\n", array_decl_node_temp->id, array_decl_node_temp->array_size, type2llvm(array_decl_node_temp->type, 1));
+    printf("@%s = common global [%d x %s] zeroinitializer\n", array_decl_node_temp->id, array_decl_node_temp->array_size, array_type);
   } else {
-    printf("%%%s = alloca [%d x %s]\n", array_decl_node_temp->id, array_decl_node_temp->array_size, type2llvm(array_decl_node_temp->type, 1));
+    printf("%%%s = alloca [%d x %s]\n", array_decl_node_temp->id, array_decl_node_temp->array_size, array_type);
   }
 }
 
