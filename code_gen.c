@@ -541,16 +541,17 @@ void code_gen_store(node_t *store_node, char *func_name) {
     int new_reg = r_count++;
     store_node->reg = new_reg;
 
-    printf("%%%d = getelementptr inbounds [%d x %s]* %s, i64 0, i64 0\n",
+    printf("%%%d = getelementptr inbounds [%d x %s]* %s, i64 0, i64 %s\n",
            new_reg,
            store_node->childs[0]->childs[0]->childs[0]->an_array_size,
            array_type,
-           get_var(store_node->childs[0]->childs[0]->childs[0], func_name));
+           get_var(store_node->childs[0]->childs[0]->childs[0], func_name),
+           store_node->childs[0]->childs[0]->childs[1]->value);
 
     char res1[100] = "";
     node_llvm_type(store_node->childs[1], res1, func_name, 1);
 
-    printf("store %s %s, %s* %%%d\n", res1, store_node->childs[0]->childs[0]->childs[1]->value, array_type, new_reg);
+    printf("store %s %s, %s* %%%d\n", res1, store_node->childs[1]->value, array_type, new_reg);
   } else {
     printf("store %s %%%d, %s* %s\n", res, which_reg, res, get_var(store_node->childs[0], func_name));
   }
@@ -595,7 +596,7 @@ void code_gen_array_declaration(node_t *array_decl_node, char *func_name) {
   sym_t *array_decl_node_temp = create_array_node(array_decl_node);
 
   char array_type[100] = "";
-  sym_t_llvm_type(array_decl_node_temp, array_type, func_name, 1);
+  sym_t_llvm_type(array_decl_node_temp, array_type, func_name, 0);
 
   if (is_global(array_decl_node_temp->id, func_name)) {
     printf("@%s = common global [%d x %s] zeroinitializer\n", array_decl_node_temp->id, array_decl_node_temp->array_size, array_type);
@@ -696,7 +697,11 @@ void code_gen(node_t *which, char *func_name) {
     code_gen(which->childs[0], func_name);
     int new_reg = r_count++;
     which->reg = new_reg;
-    printf("%%%d = load i8** %%%d\n", new_reg, which->childs[0]->reg);
+
+    char res[100] = "";
+    node_llvm_type(which->childs[0], res, func_name, 1);
+
+    printf("%%%d = load %s %%%d\n", new_reg, res, which->childs[0]->reg);
   } else if (which->type == NODE_ARRAYDECLARATION) {
     code_gen_array_declaration(which, func_name);
   }

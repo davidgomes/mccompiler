@@ -1,6 +1,4 @@
 int main(int argc, char **argv) {
-  /*int buf[8];
-  buf[0] = 5;*/
-
-  int *buf[20];
+  int buf[8];
+  buf[2] = 5;
 }
