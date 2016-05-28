@@ -125,6 +125,32 @@ void sym_t_llvm_type(sym_t *which, char *res, char *func_name, int array_as_poin
   }
 }
 
+int match_types_array(node_t *to, node_t *from, char *func_name) { // match "from" to "to"
+  char res_to[100] = "";
+  char res_from[100] = "";
+
+  node_llvm_type(to, res_to, func_name, 0);
+  node_llvm_type(from, res_from, func_name, 0);
+
+  node_t *smaller = to;
+  node_t *larger = from;
+
+  int new_reg = r_count++;
+
+  if (res_to[1] == '3') { // i32
+    smaller = from;
+    larger = to;
+  }
+
+  if (to == smaller) { // trunc
+    printf("%%%d = trunc %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
+    return new_reg;
+  } else { // zext
+    printf("%%%d = zext %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
+    return new_reg;
+  }
+}
+
 int match_types(node_t *to, node_t *from, char *func_name) { // match "from" to "to"
   char res_to[100] = "";
   char res_from[100] = "";
@@ -644,7 +670,13 @@ void code_gen_store(node_t *store_node, char *func_name) {
     char res1[100] = "";
     node_llvm_type(store_node->childs[1], res1, func_name, 1);
 
-    printf("store %s %s, %s* %%%d\n", res1, store_node->childs[1]->value, array_type, new_reg);
+    if (strcmp(res1, array_type)) {
+      int new_new_reg = match_types_array(store_node->childs[0]->childs[0]->childs[0], store_node->childs[1], func_name);
+
+      printf("store %s %%%d, %s* %%%d\n", array_type, new_new_reg, array_type, new_reg);
+    } else {
+      printf("store %s %%%d, %s* %%%d\n", res1, store_node->childs[1]->reg, array_type, new_reg);
+    }
   } else {
     char res0[100] = "";
     node_llvm_type(store_node->childs[0], res0, func_name, 1);

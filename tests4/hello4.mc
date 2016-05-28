@@ -1,16 +1,15 @@
-int A0, B0;
-char C0, D0;
+char arr[10];
+int arr2[20];
 
-int main(int argc, char **argv) {
-  int a0, b0;
-  char e0, f0;
+int main(int ac, char **av) {
+  arr[0] = 1;
+  arr[0] = 'a';
 
-  a0 = A0;
-  B0 = b0;
+  arr2[1] = 4;
+  arr2[1] = 'b';
 
-  C0 = e0;
-  D0 = b0;
-  B0 = f0;
+  puts(arr);
+  puts(arr2);
 
   return 0;
 }
