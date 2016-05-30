@@ -564,7 +564,7 @@ void code_gen_call(node_t *call_node, char *func_name) {
     node_llvm_type(call_node->childs[i], arg_res, func_name, 1);
 
     char expected_res[100] = "";
-    sym_t_llvm_type(func_node->params[i - 1], expected_res, func_name, 1);
+    sym_t_llvm_type(func_node->params[i - 1], expected_res, func_name, 1); //valgrind
 
     childs_regs[i] = call_node->childs[i]->reg;
     if (strcmp(arg_res, expected_res)) {
@@ -602,7 +602,7 @@ void code_gen_call(node_t *call_node, char *func_name) {
 
   for (i = 1; i < call_node->n_childs; i++) {
     char expected_res[100] = "";
-    sym_t_llvm_type(func_node->params[i - 1], expected_res, func_name, 1);
+    sym_t_llvm_type(func_node->params[i - 1], expected_res, func_name, 1); // valgrind
 
     //printf("%s %%%d", arg_res, call_node->childs[i]->reg);
     printf("%s %%%d", expected_res, childs_regs[i]);
@@ -739,6 +739,14 @@ void code_gen_array_declaration(node_t *array_decl_node, char *func_name) {
   }
 }
 
+void code_gen_unary_op(node_t *unary_node, char *func_name) {
+  code_gen(unary_node->childs[0], func_name);
+
+  int new_reg = r_count++;
+  printf("%%%d = sub i32 0, %%%d\n", new_reg, unary_node->childs[0]->reg);
+  unary_node->reg = new_reg;
+}
+
 void code_gen(node_t *which, char *func_name) {
   if (which->type == NODE_PROGRAM) {
     code_gen_program(which, func_name);
@@ -838,5 +846,7 @@ void code_gen(node_t *which, char *func_name) {
     printf("%%%d = load %s %%%d\n", new_reg, res, which->childs[0]->reg);
   } else if (which->type == NODE_ARRAYDECLARATION) {
     code_gen_array_declaration(which, func_name);
+  } else if (which->type == NODE_MINUS) {
+    code_gen_unary_op(which, func_name);
   }
 }

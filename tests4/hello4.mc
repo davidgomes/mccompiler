@@ -1,15 +1,9 @@
-char arr[10];
-int arr2[20];
+int A0;
+int B0;
 
 int main(int ac, char **av) {
-  arr[0] = 1;
-  arr[0] = 'a';
+  A0 = 10;
+  B0 = -5;
 
-  arr2[1] = 4;
-  arr2[1] = 'b';
-
-  puts(arr);
-  puts(arr2);
-
-  return 0;
+  return B0 + 5;
 }
