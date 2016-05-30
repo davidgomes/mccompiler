@@ -1,9 +1,12 @@
-int A0;
-int B0;
+char c0;
 
 int main(int ac, char **av) {
-  A0 = 10;
-  B0 = -5;
+  char buffer[10];
 
-  return B0 + 5;
+  c0 = 192;
+
+  itoa(c0, buffer);
+  puts(buffer);
+
+  return 0;
 }

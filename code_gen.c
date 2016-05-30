@@ -146,7 +146,7 @@ int match_types_array(node_t *to, node_t *from, char *func_name) { // match "fro
     printf("%%%d = trunc %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
   } else { // zext
-    printf("%%%d = zext %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
+    printf("%%%d = sext %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
   }
 }
@@ -172,7 +172,7 @@ int match_types(node_t *to, node_t *from, char *func_name) { // match "from" to 
     printf("%%%d = trunc %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
   } else { // zext
-    printf("%%%d = zext %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
+    printf("%%%d = sext %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
   }
 }
@@ -198,7 +198,7 @@ int match_types2(sym_t *to, node_t *from, char *func_name) {
     printf("%%%d = trunc %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
   } else { // zext
-    printf("%%%d = zext %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
+    printf("%%%d = sext %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
   }
 }
