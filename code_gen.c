@@ -4,6 +4,7 @@ int current_str_id = 1;
 int r_count = 1;
 int l_count = 1;
 int returned = 0;
+char return_type[100];
 
 const char* llvm_node_to_nodetype[] = {
   "null_should_not_happen", //0
@@ -525,6 +526,8 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
   char res[100] = "";
   sym_t_llvm_type(table_node, res, func_name, 1);
 
+  strcpy(return_type, res);
+
   printf("define %s @%s(", res, table_node->id);
 
   sym_t *cur_st_node = st;
@@ -562,6 +565,8 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
 
   printf(") {\n");
 
+  printf("%%return = alloca %s\n", res);
+
   r_count = 1;
 
   returned = 0;
@@ -571,6 +576,11 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
 
   if (!returned) {
     printf("ret void\n");
+  } else {
+    printf("br label %%.return1\n");
+    printf(".return1:\n");
+    printf("%%.return_final = load %s* %%return\n", res);
+    printf("ret i32 %%.return_final\n");
   }
 
   printf("}\n");
@@ -777,7 +787,7 @@ void code_gen_return(node_t *return_node, char *func_name) {
     printf("ret void\n");
   } else {
     code_gen(return_node->childs[0], func_name);
-    printf("ret i32 %%%d\n", return_node->childs[0]->reg);
+    printf("store %s %%%d, %s* %%return\n", return_type, return_node->childs[0]->reg, return_type);
   }
 }
 
