@@ -929,7 +929,9 @@ void code_gen(node_t *which, char *func_name) {
     code_gen_param_declaration(which, func_name);
   } else if (which->type == NODE_ID) {
     code_gen_id(which, func_name);
-  } else if (which->type == NODE_ADD || which->type == NODE_EQ) {
+  } else if (which->type == NODE_ADD || which->type == NODE_EQ || which->type == NODE_GT || which->type == NODE_GE ||
+             which->type == NODE_SUB || which->type == NODE_NE || which->type == NODE_LT || which->type == NODE_GT ||
+             which->type == NODE_AND || which->type == NODE_OR || which->type == NODE_MUL || which->type == NODE_DIV) {
     code_gen_binary_op(which, func_name);
   } else if (which->type == NODE_DEREF) {
     code_gen_deref_node(which, func_name);
