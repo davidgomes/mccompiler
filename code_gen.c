@@ -838,6 +838,17 @@ void code_gen_binary_op(node_t *op_node, char *func_name){
   }
 }
 
+void code_gen_deref_node(node_t *deref_node, char *func_name) {
+  code_gen(deref_node->childs[0], func_name);
+  int new_reg = r_count++;
+  deref_node->reg = new_reg;
+
+  char res[100] = "";
+  node_llvm_type(deref_node->childs[0], res, func_name, 1);
+
+  printf("%%%d = load %s %%%d\n", new_reg, res, deref_node->childs[0]->reg);
+}
+
 void code_gen_param_declaration(node_t *param_decl, char *func_name) {
   char res[100] = "";
 
@@ -898,14 +909,7 @@ void code_gen(node_t *which, char *func_name) {
   } else if (which->type == NODE_ADD) {
     code_gen_binary_op(which, func_name);
   } else if (which->type == NODE_DEREF) {
-    code_gen(which->childs[0], func_name);
-    int new_reg = r_count++;
-    which->reg = new_reg;
-
-    char res[100] = "";
-    node_llvm_type(which->childs[0], res, func_name, 1);
-
-    printf("%%%d = load %s %%%d\n", new_reg, res, which->childs[0]->reg);
+    code_gen_deref_node(which, func_name);
   } else if (which->type == NODE_ARRAYDECLARATION) {
     code_gen_array_declaration(which, func_name);
   } else if (which->type == NODE_MINUS) {
