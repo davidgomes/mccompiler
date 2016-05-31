@@ -1,18 +1,11 @@
-char c0;
-
-char *itoa(int n, char* buf) {
-  sprintf(buf, "%d", n);
-  return buf;
-}
-
 int main(int ac, char **av) {
-  char buffer[10];
-  int dude = 192;
+  int a;
 
-  c0 = dude;
-
-  itoa(c0, buffer);
-  puts(buffer);
+  if (a == 5) {
+    puts("sim");
+  } else {
+    puts("nao");
+  }
 
   return 0;
 }

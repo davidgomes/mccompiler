@@ -1,12 +1,13 @@
-char c0;
-
 int main(int ac, char **av) {
-  char buffer[10];
+  int a;
 
-  c0 = 192;
+  a = 5;
 
-  itoa(c0, buffer);
-  puts(buffer);
+  if (a == 5) {
+    puts("sim");
+  } else {
+    puts("nao");
+  }
 
   return 0;
 }

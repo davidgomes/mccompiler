@@ -2,6 +2,7 @@
 
 int current_str_id = 1;
 int r_count = 1;
+int l_count = 1;
 int returned = 0;
 
 const char* llvm_node_to_nodetype[] = {
@@ -19,7 +20,7 @@ const char* llvm_node_to_nodetype[] = {
   "null_should_not_happen", //11
   "or", //12
   "and", //13
-  "eq", //14
+  "icmp eq", //14
   "ne", //15
   "slt", //16
   "sgt", //17
@@ -801,7 +802,7 @@ void code_gen_unary_op(node_t *unary_node, char *func_name) {
   unary_node->reg = new_reg;
 }
 
-void code_gen_binary_op(node_t *op_node, char *func_name){
+void code_gen_binary_op(node_t *op_node, char *func_name) {
   code_gen(op_node->childs[0], func_name);
   code_gen(op_node->childs[1], func_name);
 
@@ -834,7 +835,7 @@ void code_gen_binary_op(node_t *op_node, char *func_name){
 
     printf("%%%d = getelementptr inbounds %s %%%d, i64 %s\n", new_reg, pointer_res, op_node->childs[is_pointer]->reg, op_node->childs[is_not_pointer]->value);
   } else {
-    printf("%%%d = add %s %%%d, %%%d\n", new_reg, res, op_node->childs[0]->reg, op_node->childs[1]->reg);
+    printf("%%%d = %s %s %%%d, %%%d\n", new_reg, llvm_node_to_nodetype[op_node->type], res, op_node->childs[0]->reg, op_node->childs[1]->reg);
   }
 }
 
@@ -868,6 +869,28 @@ void code_gen_param_declaration(node_t *param_decl, char *func_name) {
   }
 
   printf("store %s %%.%s, %s* %%%s\n", res, param_temp->id, res, param_temp->id);
+}
+
+void code_gen_if(node_t *if_node, char *func_name) {
+  int if_label, else_label, ret_label;
+
+  code_gen(if_node->childs[0], func_name);
+
+  if_label   = l_count++;
+  else_label = l_count++;
+  ret_label  = l_count++;
+
+  printf("br i1 %%%d, label %%label_%d, label %%label_%d\n\n", if_node->childs[0]->reg, if_label, else_label);
+
+  printf("label_%d:\n", if_label);
+	code_gen(if_node->childs[1], func_name);
+	printf("br label %%label_%d\n", ret_label);
+
+	printf("\nlabel_%d:\n", else_label);
+	code_gen(if_node->childs[2], func_name);
+	printf("br label %%label_%d\n", ret_label);
+
+	printf("\nlabel_%d:\n", ret_label);
 }
 
 void code_gen(node_t *which, char *func_name) {
@@ -906,7 +929,7 @@ void code_gen(node_t *which, char *func_name) {
     code_gen_param_declaration(which, func_name);
   } else if (which->type == NODE_ID) {
     code_gen_id(which, func_name);
-  } else if (which->type == NODE_ADD) {
+  } else if (which->type == NODE_ADD || which->type == NODE_EQ) {
     code_gen_binary_op(which, func_name);
   } else if (which->type == NODE_DEREF) {
     code_gen_deref_node(which, func_name);
@@ -914,5 +937,7 @@ void code_gen(node_t *which, char *func_name) {
     code_gen_array_declaration(which, func_name);
   } else if (which->type == NODE_MINUS) {
     code_gen_unary_op(which, func_name);
+  } else if (which->type == NODE_IF) {
+    code_gen_if(which, func_name);
   }
 }
