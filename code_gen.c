@@ -18,19 +18,19 @@ const char* llvm_node_to_nodetype[] = {
   "null_should_not_happen", //9
   "null_should_not_happen", //10
   "null_should_not_happen", //11
-  "or", //12
-  "and", //13
+  "icmp or", //12
+  "icmp and", //13
   "icmp eq", //14
-  "ne", //15
-  "slt", //16
-  "sgt", //17
-  "sle", //18
-  "sge", //19
-  "add", //20
-  "sub", //21
-  "mul", //22
-  "div", //23
-  "urem", //24
+  "icmp ne", //15
+  "icmp slt", //16
+  "icmp sgt", //17
+  "icmp sle", //18
+  "icmp sge", //19
+  "icmp add", //20
+  "icmp sub", //21
+  "icmp mul", //22
+  "icmp div", //23
+  "icmp urem", //24
   "null_should_not_happen", //25
   "null_should_not_happen", //26
   "null_should_not_happen", //27
@@ -893,6 +893,10 @@ void code_gen_if(node_t *if_node, char *func_name) {
 	printf("\nlabel_%d:\n", ret_label);
 }
 
+void code_gen_for(node_t *for_node, char *func_name) {
+
+}
+
 void code_gen(node_t *which, char *func_name) {
   if (which->type == NODE_PROGRAM) {
     code_gen_program(which, func_name);
@@ -941,5 +945,7 @@ void code_gen(node_t *which, char *func_name) {
     code_gen_unary_op(which, func_name);
   } else if (which->type == NODE_IF) {
     code_gen_if(which, func_name);
+  } else if (which->type == NODE_FOR) {
+    code_gen_for(which, func_name);
   }
 }

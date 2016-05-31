@@ -1,9 +1,9 @@
 int main(int ac, char **av) {
   int a;
 
-  a = 5;
+  a = 4;
 
-  if (a == 5) {
+  if (a >= 5) {
     puts("sim");
   } else {
     puts("nao");
