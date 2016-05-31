@@ -4,6 +4,60 @@ int current_str_id = 1;
 int r_count = 1;
 int returned = 0;
 
+const char* llvm_node_to_nodetype[] = {
+  "null_should_not_happen", //0
+  "null_should_not_happen", //1
+  "null_should_not_happen", //2
+  "null_should_not_happen", //3
+  "null_should_not_happen", //4
+  "null_should_not_happen", //5
+  "null_should_not_happen", //6
+  "null_should_not_happen", //7
+  "null_should_not_happen", //8
+  "null_should_not_happen", //9
+  "null_should_not_happen", //10
+  "null_should_not_happen", //11
+  "or", //12
+  "and", //13
+  "eq", //14
+  "ne", //15
+  "slt", //16
+  "sgt", //17
+  "sle", //18
+  "sge", //19
+  "add", //20
+  "sub", //21
+  "mul", //22
+  "div", //23
+  "urem", //24
+  "null_should_not_happen", //25
+  "null_should_not_happen", //26
+  "null_should_not_happen", //27
+  "null_should_not_happen", //28
+  "null_should_not_happen", //29
+  "null_should_not_happen", //30
+  "null_should_not_happen", //31
+  "null_should_not_happen", //32
+  "null_should_not_happen", //33
+  "null_should_not_happen", //34
+  "null_should_not_happen", //35
+  "null_should_not_happen", //36
+  "null_should_not_happen", //37
+  "null_should_not_happen", //38
+  "null_should_not_happen", //39
+  "null_should_not_happen", //40
+  "null_should_not_happen", //41
+  "null_should_not_happen", //42
+  "null_should_not_happen", //43
+  "null_should_not_happen", //44
+  "null_should_not_happen", //45
+  "null_should_not_happen", //46
+  "null_should_not_happen", //47
+  "null_should_not_happen", //48
+  "null_should_not_happen", //49
+  "null_should_not_happen" //50
+};
+
 char* type2llvm(type_t type, int n_pointers) {
   if (type == TYPE_INT) {
     if (n_pointers == 0) {
@@ -747,6 +801,43 @@ void code_gen_unary_op(node_t *unary_node, char *func_name) {
   unary_node->reg = new_reg;
 }
 
+void code_gen_binary_op(node_t *op_node, char *func_name){
+  code_gen(op_node->childs[0], func_name);
+  code_gen(op_node->childs[1], func_name);
+
+  int pointers0 = op_node->childs[0]->an_n_pointers;
+  if (op_node->childs[0]->an_array_size >= 1) {
+    pointers0++;
+  }
+
+  int pointers1 = op_node->childs[1]->an_n_pointers;
+  if (op_node->childs[1]->an_array_size >= 1) {
+    pointers1++;
+  }
+
+  char res[100] = "";
+  node_llvm_type(op_node, res, func_name, 1);
+  int new_reg = r_count++;
+  op_node->reg = new_reg;
+
+  if (pointers0 >= 1 || pointers1 >= 1) {
+    int is_pointer = 0;
+    int is_not_pointer = 1;
+
+    if (pointers0 == 0) {
+      is_pointer = 1;
+      is_not_pointer = 0;
+    }
+
+    char pointer_res[100] = "";
+    node_llvm_type(op_node->childs[is_pointer], pointer_res, func_name, 1);
+
+    printf("%%%d = getelementptr inbounds %s %%%d, i64 %s\n", new_reg, pointer_res, op_node->childs[is_pointer]->reg, op_node->childs[is_not_pointer]->value);
+  } else {
+    printf("%%%d = add %s %%%d, %%%d\n", new_reg, res, op_node->childs[0]->reg, op_node->childs[1]->reg);
+  }
+}
+
 void code_gen(node_t *which, char *func_name) {
   if (which->type == NODE_PROGRAM) {
     code_gen_program(which, func_name);
@@ -801,40 +892,7 @@ void code_gen(node_t *which, char *func_name) {
   } else if (which->type == NODE_ID) {
     code_gen_id(which, func_name);
   } else if (which->type == NODE_ADD) {
-    code_gen(which->childs[0], func_name);
-    code_gen(which->childs[1], func_name);
-
-    int pointers0 = which->childs[0]->an_n_pointers;
-    if (which->childs[0]->an_array_size >= 1) {
-      pointers0++;
-    }
-
-    int pointers1 = which->childs[1]->an_n_pointers;
-    if (which->childs[1]->an_array_size >= 1) {
-      pointers1++;
-    }
-
-    char res[100] = "";
-    node_llvm_type(which, res, func_name, 1);
-    int new_reg = r_count++;
-    which->reg = new_reg;
-
-    if (pointers0 >= 1 || pointers1 >= 1) {
-      int is_pointer = 0;
-      int is_not_pointer = 1;
-
-      if (pointers0 == 0) {
-        is_pointer = 1;
-        is_not_pointer = 0;
-      }
-
-      char pointer_res[100] = "";
-      node_llvm_type(which->childs[is_pointer], pointer_res, func_name, 1);
-
-      printf("%%%d = getelementptr inbounds %s %%%d, i64 %s\n", new_reg, pointer_res, which->childs[is_pointer]->reg, which->childs[is_not_pointer]->value);
-    } else {
-      printf("%%%d = add %s %%%d, %%%d\n", new_reg, res, which->childs[0]->reg, which->childs[1]->reg);
-    }
+    code_gen_binary_op(which, func_name);
   } else if (which->type == NODE_DEREF) {
     code_gen(which->childs[0], func_name);
     int new_reg = r_count++;
