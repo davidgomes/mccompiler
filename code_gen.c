@@ -838,6 +838,27 @@ void code_gen_binary_op(node_t *op_node, char *func_name){
   }
 }
 
+void code_gen_param_declaration(node_t *param_decl, char *func_name) {
+  char res[100] = "";
+
+  sym_t *param_temp = create_variable_node(param_decl);
+  sym_t_llvm_type(param_temp, res, func_name, 1);
+
+  int n_pointers = param_temp->n_pointers;
+
+  if (param_temp->type == TYPE_VOID && param_temp->n_pointers == 0) {
+    return;
+  }
+
+  printf("%%%s = alloca %s\n", param_temp->id, res);
+
+  if (n_pointers == 0) {
+    printf("store %s 0, %s* %%%s\n", res, res, param_temp->id);
+  }
+
+  printf("store %s %%.%s, %s* %%%s\n", res, param_temp->id, res, param_temp->id);
+}
+
 void code_gen(node_t *which, char *func_name) {
   if (which->type == NODE_PROGRAM) {
     code_gen_program(which, func_name);
@@ -871,24 +892,7 @@ void code_gen(node_t *which, char *func_name) {
       code_gen(which->childs[i], func_name);
     }
   } else if (which->type == NODE_PARAMDECLARATION) {
-    char res[100] = "";
-
-    sym_t *param_temp = create_variable_node(which);
-    sym_t_llvm_type(param_temp, res, func_name, 1);
-
-    int n_pointers = param_temp->n_pointers;
-
-    if (param_temp->type == TYPE_VOID && param_temp->n_pointers == 0) {
-      return;
-    }
-
-    printf("%%%s = alloca %s\n", param_temp->id, res);
-
-    if (n_pointers == 0) {
-      printf("store %s 0, %s* %%%s\n", res, res, param_temp->id);
-    }
-
-    printf("store %s %%.%s, %s* %%%s\n", res, param_temp->id, res, param_temp->id);
+    code_gen_param_declaration(which, func_name);
   } else if (which->type == NODE_ID) {
     code_gen_id(which, func_name);
   } else if (which->type == NODE_ADD) {
