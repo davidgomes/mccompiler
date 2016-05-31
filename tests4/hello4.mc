@@ -1,13 +1,23 @@
-int main(int ac, char **av) {
-  int a;
+int factorial(int n) {
+  int val;
 
-  a = 4;
-
-  if (a >= 5) {
-    puts("sim");
+  if (n == 1) {
+    val = 1;
   } else {
-    puts("nao");
+    val = n * factorial(n - 1);
   }
+
+  return val;
+}
+
+int main(int ac, char **av) {
+  char buffer[20];
+  int res;
+
+  res = factorial(5);
+  itoa(res, buffer);
+
+  puts(buffer);
 
   return 0;
 }

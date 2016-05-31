@@ -26,11 +26,11 @@ const char* llvm_node_to_nodetype[] = {
   "icmp sgt", //17
   "icmp sle", //18
   "icmp sge", //19
-  "icmp add", //20
-  "icmp sub", //21
-  "icmp mul", //22
-  "icmp div", //23
-  "icmp urem", //24
+  "add", //20
+  "sub", //21
+  "mul", //22
+  "div", //23
+  "urem", //24
   "null_should_not_happen", //25
   "null_should_not_happen", //26
   "null_should_not_happen", //27
