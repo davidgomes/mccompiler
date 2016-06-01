@@ -4,6 +4,8 @@ int current_str_id = 1;
 int r_count = 1;
 int l_count = 1;
 int returned = 0;
+int current_branch_level = -1;
+int returned_level = -1;
 char return_type[100];
 
 const char* llvm_node_to_nodetype[] = {
@@ -570,6 +572,7 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
   r_count = 1;
 
   returned = 0;
+  returned_level = -1;
   for (i = 0; i < func_def_node->n_childs; i++) {
     code_gen(func_def_node->childs[i], func_name);
   }
@@ -784,10 +787,13 @@ void code_gen_return(node_t *return_node, char *func_name) {
   }
 
   if ((return_node->childs[0]->an_type == TYPE_VOID && n_pointers == 0) || return_node->childs[0]->type == NODE_NULL) {
-    printf("ret void\n");
+    //printf("ret void\n");
+    printf("br label %%.return1\n");
   } else {
     code_gen(return_node->childs[0], func_name);
+    returned_level = current_branch_level;
     printf("store %s %%%d, %s* %%return\n", return_type, return_node->childs[0]->reg, return_type);
+    printf("br label %%.return1\n");
   }
 }
 
@@ -901,14 +907,25 @@ void code_gen_if(node_t *if_node, char *func_name) {
   printf("br i1 %%%d, label %%label_%d, label %%label_%d\n\n", if_node->childs[0]->reg, if_label, else_label);
 
   printf("label_%d:\n", if_label);
+  current_branch_level++;
 	code_gen(if_node->childs[1], func_name);
-	printf("br label %%label_%d\n", ret_label);
 
-	printf("\nlabel_%d:\n", else_label);
-	code_gen(if_node->childs[2], func_name);
-	printf("br label %%label_%d\n", ret_label);
+  if (returned_level == -1) {
+    printf("br label %%label_%d\n", ret_label);
+  }
 
-	printf("\nlabel_%d:\n", ret_label);
+  returned_level = -1;
+  printf("\nlabel_%d:\n", else_label);
+  code_gen(if_node->childs[2], func_name);
+
+  if (returned_level == -1) {
+    printf("br label %%label_%d\n", ret_label);
+  }
+
+  returned_level = -1;
+
+  current_branch_level--;
+  printf("\nlabel_%d:\n", ret_label);
 }
 
 void code_gen_for(node_t *for_node, char *func_name) {
@@ -935,6 +952,10 @@ void code_gen_for(node_t *for_node, char *func_name) {
 }
 
 void code_gen(node_t *which, char *func_name) {
+  if (returned_level != -1 && returned_level <= current_branch_level) {
+    return;
+  }
+
   if (which->type == NODE_PROGRAM) {
     code_gen_program(which, func_name);
   } else if (which->type == NODE_FUNCDEFINITION) {
