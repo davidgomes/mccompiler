@@ -989,5 +989,12 @@ void code_gen(node_t *which, char *func_name) {
     for (i = 0; i < which->n_childs; i++) {
       code_gen(which->childs[i], func_name);
     }
+  } else if (which->type == NODE_COMMA) {
+    int i;
+    for (i = 0; i < which->n_childs; i++) {
+      code_gen(which->childs[i], func_name);
+    }
+
+    which->reg = which->childs[which->n_childs - 1]->reg;
   }
 }

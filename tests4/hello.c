@@ -1,9 +1,10 @@
-int main(int ac, char **av) {
-  int i, u;
+#include <stdio.h>
 
-  for (i = 0; i < 10; i = i + 1) {
-    puts("cycle i");
-  }
+int main(int ac, char **av) {
+  int i = 4;
+  int *i1 = &i;
+
+  printf("%d\n", *i1);
 
   return 0;
 }

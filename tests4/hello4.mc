@@ -1,17 +1,11 @@
 int main(int ac, char **av) {
-  int i, u;
+  int a;
   char buffer[20];
 
-  u = 20;
-  i = -u;
+  a = (5, 4);
 
-  itoa(i, buffer);
+  itoa(a, buffer);
   puts(buffer);
-
-  i = +u;
-
-  itoa(i, buffer);
-  puts(buffer);  
 
   return 0;
 }
