@@ -886,9 +886,9 @@ void code_gen_if(node_t *if_node, char *func_name) {
 
   code_gen(if_node->childs[0], func_name);
 
-  if_label   = l_count++;
+  if_label = l_count++;
   else_label = l_count++;
-  ret_label  = l_count++;
+  ret_label = l_count++;
 
   printf("br i1 %%%d, label %%label_%d, label %%label_%d\n\n", if_node->childs[0]->reg, if_label, else_label);
 
@@ -904,7 +904,26 @@ void code_gen_if(node_t *if_node, char *func_name) {
 }
 
 void code_gen_for(node_t *for_node, char *func_name) {
+  int cmp_label, inside_label, ret_label;
 
+  cmp_label = l_count++;
+  inside_label = l_count++;
+  ret_label = l_count++;
+
+  code_gen(for_node->childs[0], func_name); // declaration
+
+  printf("br label %%label_%d\n", cmp_label);
+  printf("\nlabel_%d:\n", cmp_label);
+
+  code_gen(for_node->childs[1], func_name);
+  printf("br i1 %%%d, label %%label_%d, label %%label_%d\n", for_node->childs[1]->reg, inside_label, ret_label);
+
+  printf("\nlabel_%d:\n", inside_label);
+  code_gen(for_node->childs[3], func_name);
+  code_gen(for_node->childs[2], func_name);
+  printf("br label %%label_%d\n", cmp_label);
+
+  printf("\nlabel_%d:\n", ret_label);
 }
 
 void code_gen(node_t *which, char *func_name) {

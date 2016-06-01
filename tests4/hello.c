@@ -1,19 +1,9 @@
-int factorial(int n) {
-  if (n == 1) {
-    return 1;
-  } else {
-    return n * factorial(n - 1);
-  }
-}
-
 int main(int ac, char **av) {
-  char buffer[20];
-  int res;
+  int i, u;
 
-  res = factorial(5);
-  itoa(res, buffer);
-
-  puts(buffer);
+  for (i = 0; i < 10; i = i + 1) {
+    puts("cycle i");
+  }
 
   return 0;
 }
