@@ -957,5 +957,10 @@ void code_gen(node_t *which, char *func_name) {
     code_gen_if(which, func_name);
   } else if (which->type == NODE_FOR) {
     code_gen_for(which, func_name);
+  } else if (which->type == NODE_STATLIST) {
+    int i;
+    for (i = 0; i < which->n_childs; i++) {
+      code_gen(which->childs[i], func_name);
+    }
   }
 }
