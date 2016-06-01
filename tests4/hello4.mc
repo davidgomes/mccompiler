@@ -1,9 +1,17 @@
 int main(int ac, char **av) {
   int i, u;
+  char buffer[20];
 
-  for (i = 0; i < 10; i = i + 1) {
-    puts("cycle i");
-  }
+  u = 20;
+  i = -u;
+
+  itoa(i, buffer);
+  puts(buffer);
+
+  i = +u;
+
+  itoa(i, buffer);
+  puts(buffer);  
 
   return 0;
 }

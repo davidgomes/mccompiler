@@ -805,11 +805,19 @@ void code_gen_array_declaration(node_t *array_decl_node, char *func_name) {
 }
 
 void code_gen_unary_op(node_t *unary_node, char *func_name) {
-  code_gen(unary_node->childs[0], func_name);
+  if (unary_node->type == NODE_MINUS) {
+    code_gen(unary_node->childs[0], func_name);
 
-  int new_reg = r_count++;
-  printf("%%%d = sub i32 0, %%%d\n", new_reg, unary_node->childs[0]->reg);
-  unary_node->reg = new_reg;
+    int new_reg = r_count++;
+    printf("%%%d = sub i32 0, %%%d\n", new_reg, unary_node->childs[0]->reg);
+    unary_node->reg = new_reg;
+  } else if (unary_node->type == NODE_PLUS) {
+    code_gen(unary_node->childs[0], func_name);
+
+    int new_reg = r_count++;
+    printf("%%%d = add i32 0, %%%d\n", new_reg, unary_node->childs[0]->reg);
+    unary_node->reg = new_reg;
+  }
 }
 
 void code_gen_binary_op(node_t *op_node, char *func_name) {
@@ -970,7 +978,7 @@ void code_gen(node_t *which, char *func_name) {
     code_gen_deref_node(which, func_name);
   } else if (which->type == NODE_ARRAYDECLARATION) {
     code_gen_array_declaration(which, func_name);
-  } else if (which->type == NODE_MINUS) {
+  } else if (which->type == NODE_MINUS || which->type == NODE_PLUS) {
     code_gen_unary_op(which, func_name);
   } else if (which->type == NODE_IF) {
     code_gen_if(which, func_name);
