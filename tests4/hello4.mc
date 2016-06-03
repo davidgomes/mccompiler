@@ -1,5 +1,5 @@
 int cenas(void) {
-  return 5;
+  return 5 == 5 * 4 + 3;
 }
 
 int main(int ac, char **av) {

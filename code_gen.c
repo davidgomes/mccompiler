@@ -171,6 +171,8 @@ void sym_t_llvm_type(sym_t *which, char *res, char *func_name, int array_as_poin
   if (which->type != TYPE_UNKNOWN) {
     int n_pointers = which->n_pointers;
 
+    //printf("x: %s\n", which->id);
+
     if (which->array_size >= 1 && array_as_pointer) {
       n_pointers++;
     }

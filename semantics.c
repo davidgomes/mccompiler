@@ -357,6 +357,7 @@ void parse_id_node(sym_t *st, node_t *node_id, char* func_name, int an) { // ler
             sym_t *param = (sym_t*) malloc(sizeof(sym_t));
             param->type = cur_st_node->params[i]->type;
             param->n_pointers = cur_st_node->params[i]->n_pointers;
+            param->array_size = -1;
             node_id->an_params[i] = param;
           }
 

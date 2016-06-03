@@ -26,7 +26,7 @@ sym_t *create_node(table_type_t node_type, char *name, type_t type) {
   node->params = (sym_t**) malloc(1000 * sizeof(sym_t*));
 
   int i;
-  for (i = 0; i < 100; i++) {
+  for (i = 0; i < 1000; i++) {
     node->params[i] = NULL;
   }
 
