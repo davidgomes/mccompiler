@@ -940,7 +940,10 @@ void code_gen_if(node_t *if_node, char *func_name) {
   else_label = l_count++;
   ret_label = l_count++;
 
-  printf("br i1 %%%d, label %%label_%d, label %%label_%d\n\n", if_node->childs[0]->reg, if_label, else_label);
+  int branch_reg = r_count++;
+  printf("%%%d = trunc i32 %%%d to i1\n", branch_reg, if_node->childs[0]->reg);
+
+  printf("br i1 %%%d, label %%label_%d, label %%label_%d\n\n", branch_reg, if_label, else_label);
 
   printf("label_%d:\n", if_label);
   current_branch_level++;
