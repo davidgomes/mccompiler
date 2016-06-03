@@ -889,6 +889,14 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
   } else {
     printf("%%%d = %s %s %%%d, %%%d\n", new_reg, llvm_node_to_nodetype[op_node->type], res, op_node->childs[0]->reg, op_node->childs[1]->reg);
   }
+
+   if (op_node->type == NODE_EQ || op_node->type == NODE_GT || op_node->type == NODE_GE ||
+      op_node->type == NODE_NE || op_node->type == NODE_LT || op_node->type == NODE_GT) {
+        //op_node->type == NODE_AND || op_node->type == NODE_OR) {
+    int new_new_reg = r_count++;
+    printf("%%%d = zext i1 %%%d to i32\n", new_new_reg, op_node->reg);
+    op_node->reg = new_new_reg;
+  }
 }
 
 void code_gen_deref_node(node_t *deref_node, char *func_name) {
