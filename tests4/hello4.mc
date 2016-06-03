@@ -1,13 +1,12 @@
-int fact(int n) {
-  if (n == 0)
-    return 1;
-  return n * fact(n-1);
-}
-
 int main(int ac, char **av) {
   char buffer[20];
 
-  itoa(('a' * 2) / 'a', buffer);
+  int c;
+
+  /*c = 4 < 7 == 3 > 5 == 0;*/
+  c = 7 >= 7;
+
+  itoa(c, buffer);
 
   puts(buffer);
 

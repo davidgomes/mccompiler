@@ -33,7 +33,7 @@ const char* llvm_node_to_nodetype[] = {
   "sub", //21
   "mul", //22
   "sdiv", //23
-  "urem", //24
+  "srem", //24
   "null_should_not_happen", //25
   "null_should_not_happen", //26
   "null_should_not_happen", //27
@@ -898,13 +898,13 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
 
     if (strcmp(res0, "i32")) {
       int new_reg = r_count++;
-      printf("%%%d = zext %s %%%d to i32\n", new_reg, res0, reg0);
+      printf("%%%d = sext %s %%%d to i32\n", new_reg, res0, reg0);
       reg0 = new_reg;
     }
 
     if (strcmp(res1, "i32")) {
       int new_reg = r_count++;
-      printf("%%%d = zext %s %%%d to i32\n", new_reg, res1, reg1);
+      printf("%%%d = sext %s %%%d to i32\n", new_reg, res1, reg1);
       reg1 = new_reg;
     }
 
@@ -1055,7 +1055,7 @@ void code_gen(node_t *which, char *func_name) {
     code_gen_id(which, func_name);
   } else if (which->type == NODE_ADD || which->type == NODE_EQ || which->type == NODE_GT || which->type == NODE_GE ||
              which->type == NODE_SUB || which->type == NODE_NE || which->type == NODE_LT || which->type == NODE_GT ||
-             which->type == NODE_AND || which->type == NODE_OR || which->type == NODE_MUL || which->type == NODE_DIV) {
+             which->type == NODE_AND || which->type == NODE_OR || which->type == NODE_MUL || which->type == NODE_DIV || which->type == NODE_MOD) {
     code_gen_binary_op(which, func_name);
   } else if (which->type == NODE_DEREF) {
     code_gen_deref_node(which, func_name);
