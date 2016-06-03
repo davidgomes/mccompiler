@@ -203,7 +203,7 @@ int match_types_array(node_t *to, node_t *from, char *func_name) { // match "fro
   if (to == smaller) { // trunc
     printf("%%%d = trunc %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
-  } else { // zext
+  } else { // sext
     printf("%%%d = sext %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
   }
@@ -229,7 +229,7 @@ int match_types(node_t *to, node_t *from, char *func_name) { // match "from" to 
   if (to == smaller) { // trunc
     printf("%%%d = trunc %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
-  } else { // zext
+  } else { // sext
     printf("%%%d = sext %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
   }
@@ -255,7 +255,7 @@ int match_types2(sym_t *to, node_t *from, char *func_name) {
   if (smaller == 0) { // trunc
     printf("%%%d = trunc %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
-  } else { // zext
+  } else { // sext
     printf("%%%d = sext %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
   }
@@ -786,13 +786,39 @@ void code_gen_return(node_t *return_node, char *func_name) {
     n_pointers++;
   }
 
+  sym_t *func_node = NULL;
+  sym_t *cur_st_node = st;
+
+  while (cur_st_node != NULL) {
+    if (!strcmp(cur_st_node->id, func_name)) {
+      func_node = cur_st_node;
+      break;
+    }
+
+    cur_st_node = cur_st_node->next;
+  }
+
   if ((return_node->childs[0]->an_type == TYPE_VOID && n_pointers == 0) || return_node->childs[0]->type == NODE_NULL) {
     //printf("ret void\n");
     printf("br label %%.return1\n");
   } else {
     code_gen(return_node->childs[0], func_name);
     returned_level = current_branch_level;
-    printf("store %s %%%d, %s* %%return\n", return_type, return_node->childs[0]->reg, return_type);
+
+    char expected_res[100] = "";
+    sym_t_llvm_type(func_node, expected_res, func_name, 1);
+
+    char received_res[100] = "";
+    node_llvm_type(return_node->childs[0], received_res, func_name, 1);
+
+    int reg;
+    if (strcmp(expected_res, received_res)) {
+      reg = match_types2(func_node, return_node->childs[0], func_name);
+    } else {
+      reg = return_node->childs[0]->reg;
+    }
+
+    printf("store %s %%%d, %s* %%return\n", return_type, reg, return_type);
     printf("br label %%.return1\n");
   }
 }
