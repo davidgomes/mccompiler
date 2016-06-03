@@ -851,6 +851,20 @@ void code_gen_unary_op(node_t *unary_node, char *func_name) {
     int new_reg = r_count++;
     printf("%%%d = add i32 0, %%%d\n", new_reg, unary_node->childs[0]->reg);
     unary_node->reg = new_reg;
+  } else if (unary_node->type == NODE_NOT) {
+    code_gen(unary_node->childs[0], func_name);
+
+    char res0[100] = "";
+    node_llvm_type(unary_node->childs[0], res0, func_name, 1);
+
+    int first_reg, second_reg, third_reg;
+    first_reg = r_count++;
+    printf("%%%d = icmp ne %s %%%d, 0\n", first_reg, res0, unary_node->childs[0]->reg);
+    second_reg = r_count++;
+    printf("%%%d = xor i1 %%%d, true\n", second_reg, first_reg);
+    third_reg = r_count++;
+    printf("%%%d = zext i1 %%%d to i32\n", third_reg, second_reg);
+    unary_node->reg = third_reg;
   }
 }
 
@@ -1061,7 +1075,7 @@ void code_gen(node_t *which, char *func_name) {
     code_gen_deref_node(which, func_name);
   } else if (which->type == NODE_ARRAYDECLARATION) {
     code_gen_array_declaration(which, func_name);
-  } else if (which->type == NODE_MINUS || which->type == NODE_PLUS) {
+  } else if (which->type == NODE_MINUS || which->type == NODE_PLUS || which->type == NODE_NOT) {
     code_gen_unary_op(which, func_name);
   } else if (which->type == NODE_IF) {
     code_gen_if(which, func_name);

@@ -2,11 +2,13 @@ int main(int ac, char **av) {
   char buffer[20];
 
   int c;
+  int a;
+  char k;
+  k = 0;
 
-  /*c = 4 < 7 == 3 > 5 == 0;*/
-  c = 7 >= 7;
+  k = !k;
 
-  itoa(c, buffer);
+  itoa(k, buffer);
 
   puts(buffer);
 

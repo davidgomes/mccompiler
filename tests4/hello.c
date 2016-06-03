@@ -3,20 +3,13 @@ char *itoa(int n, char* buf) {
   return buf;
 }
 
-int cenas(void) {
-  int a;
-  int b;
-
-  a = 1;
-  b = 3;
-
-  return a / b;
-}
-
 int main(int ac, char **av) {
   char buffer[20];
 
-  itoa(cenas(), buffer);
+  int a = 5;
+  int c = !a;
+
+  itoa(c, buffer);
 
   puts(buffer);
 
