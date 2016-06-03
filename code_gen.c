@@ -944,7 +944,6 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
     return;
   } else if (op_node->type == NODE_OR) {
 
-
     return;
   }
 
