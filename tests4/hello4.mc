@@ -6,7 +6,7 @@ int main(int ac, char **av) {
   char k;
   k = 0;
 
-  itoa(!k, buffer);
+  itoa(!(!5), buffer);
 
   puts(buffer);
 

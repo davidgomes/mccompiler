@@ -879,7 +879,7 @@ void code_gen_unary_op(node_t *unary_node, char *func_name) {
     printf("%%%d = zext i1 %%%d to i32\n", third_reg, second_reg);
     unary_node->reg = third_reg;
 
-    if (!strcmp(unary_node->childs[0]->value, "'\\0'")) {
+    if (unary_node->childs[0]->value != NULL && !strcmp(unary_node->childs[0]->value, "'\\0'")) {
       int fourth_reg = r_count++;
       printf("%%%d = add i32 0, 1\n", fourth_reg);
       unary_node->reg = fourth_reg;
