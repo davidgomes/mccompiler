@@ -6,10 +6,12 @@ char *itoa(int n, char* buf) {
 int main(int ac, char **av) {
   char buffer[20];
 
-  int a = 5;
-  int c = !a;
+  int c;
+  int a;
+  char k;
+  k = 0;
 
-  itoa(c, buffer);
+  itoa(!k, buffer);
 
   puts(buffer);
 
