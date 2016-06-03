@@ -870,8 +870,6 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
 
   char res[100] = "";
   node_llvm_type(op_node, res, func_name, 1);
-  int new_reg = r_count++;
-  op_node->reg = new_reg;
 
   if (pointers0 >= 1 || pointers1 >= 1) {
     int is_pointer = 0;
@@ -885,9 +883,34 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
     char pointer_res[100] = "";
     node_llvm_type(op_node->childs[is_pointer], pointer_res, func_name, 1);
 
+    int new_reg = r_count++;
     printf("%%%d = getelementptr inbounds %s %%%d, i64 %s\n", new_reg, pointer_res, op_node->childs[is_pointer]->reg, op_node->childs[is_not_pointer]->value);
+    op_node->reg = new_reg;
   } else {
-    printf("%%%d = %s %s %%%d, %%%d\n", new_reg, llvm_node_to_nodetype[op_node->type], res, op_node->childs[0]->reg, op_node->childs[1]->reg); // VALGRIND
+    int reg0 = op_node->childs[0]->reg;
+    int reg1 = op_node->childs[1]->reg;
+
+    char res0[100] = "";
+    node_llvm_type(op_node->childs[0], res0, func_name, 1);
+
+    char res1[100] = "";
+    node_llvm_type(op_node->childs[1], res1, func_name, 1);
+
+    if (strcmp(res0, "i32")) {
+      int new_reg = r_count++;
+      printf("%%%d = zext %s %%%d to i32\n", new_reg, res0, reg0);
+      reg0 = new_reg;
+    }
+
+    if (strcmp(res1, "i32")) {
+      int new_reg = r_count++;
+      printf("%%%d = zext %s %%%d to i32\n", new_reg, res1, reg1);
+      reg1 = new_reg;
+    }
+
+    int new_reg = r_count++;
+    printf("%%%d = %s %s %%%d, %%%d\n", new_reg, llvm_node_to_nodetype[op_node->type], res, reg0, reg1); // VALGRIND
+    op_node->reg = new_reg;
   }
 
    if (op_node->type == NODE_EQ || op_node->type == NODE_GT || op_node->type == NODE_GE ||

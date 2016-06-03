@@ -1,5 +1,5 @@
-int fact(int n){
-  if(n == 0)
+int fact(int n) {
+  if (n == 0)
     return 1;
   return n * fact(n-1);
 }
@@ -7,7 +7,7 @@ int fact(int n){
 int main(int ac, char **av) {
   char buffer[20];
 
-  itoa(fact(5), buffer);
+  itoa(('a' * 2) / 'a', buffer);
 
   puts(buffer);
 
