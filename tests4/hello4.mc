@@ -4,9 +4,9 @@ int main(int ac, char **av) {
   int c;
   int a;
   char k;
-  k = 0;
 
-  k = !k;
+  k = 080;
+  k = 7;
 
   itoa(k, buffer);
 

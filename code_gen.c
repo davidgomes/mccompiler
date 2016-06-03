@@ -761,6 +761,11 @@ void code_gen_store(node_t *store_node, char *func_name) {
   }
 }
 
+char *itoa(int n, char* buf) {
+  sprintf(buf, "%d", n);
+  return buf;
+}
+
 void code_gen_strlit(node_t *strlit_node, char *func_name) {
   int new_reg = r_count++;
   printf("%%%d = getelementptr [%d x i8]* @.str.%d, i64 0, i64 0\n", new_reg, (int) mystrlen(strlit_node->value) + 1, strlit_node->str_id);
@@ -769,7 +774,15 @@ void code_gen_strlit(node_t *strlit_node, char *func_name) {
 
 void code_gen_intlit(node_t *intlit_node, char *func_name) {
   int new_reg = r_count++;
-  printf("%%%d = add i32 %s, 0\n", new_reg, intlit_node->value);
+
+  char new_value[100] = "";
+  if (intlit_node->value[0] == '0') {
+    itoa(octal_decimal(atoi(intlit_node->value)), new_value);
+  } else {
+    itoa(atoi(intlit_node->value), new_value);
+  }
+
+  printf("%%%d = add i32 %s, 0\n", new_reg, new_value);
   intlit_node->reg = new_reg;
 }
 
