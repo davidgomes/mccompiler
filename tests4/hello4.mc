@@ -8,7 +8,7 @@ int main(int ac, char **av) {
   c = 'a';
 
   if (5) {
-    itoa('a' || '\0', buffer);
+    itoa('\0' || '\\', buffer);
     puts(buffer);
   }
 

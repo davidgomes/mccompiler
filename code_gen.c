@@ -943,6 +943,58 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
 
     return;
   } else if (op_node->type == NODE_OR) {
+    int var = v_count++;
+    printf("%%v%d = alloca i1\n", var);
+
+    int child0reg = op_node->childs[0]->reg;
+    int child1reg = op_node->childs[1]->reg;
+
+    char res0[100] = "";
+    node_llvm_type(op_node->childs[0], res0, func_name, 1);
+
+    char res1[100] = "";
+    node_llvm_type(op_node->childs[1], res1, func_name, 1);
+
+    if (strcmp(res0, "i32")) {
+      child0reg = r_count++;
+      printf("%%%d = zext i8 %%%d to i32\n", child0reg, op_node->childs[0]->reg);
+    }
+
+    if (strcmp(res1, "i32")) {
+      child1reg = r_count++;
+      printf("%%%d = zext i8 %%%d to i32\n", child1reg, op_node->childs[1]->reg);
+    }
+
+    int first_reg, first_label, second_label;
+    int mid_reg;
+
+    first_reg = r_count++;
+    printf("%%%d = icmp ne i32 %%%d, 0\n", first_reg, child0reg);
+    printf("store i1 %%%d, i1* %%v%d\n", first_reg, var);
+
+    mid_reg = r_count++;
+
+    printf("%%%d = xor i1 %%%d, true\n", mid_reg, first_reg);
+
+    first_label = l_count++;
+    second_label = l_count++;
+    printf("br i1 %%%d, label %%label_%d, label %%label_%d\n", mid_reg, first_label, second_label);
+    printf("label_%d:\n", first_label);
+
+    int second_reg = r_count++;
+    printf("%%%d = icmp ne i32 %%%d, 0\n", second_reg, child1reg);
+    printf("store i1 %%%d, i1* %%v%d\n", second_reg, var);
+    printf("br label %%label_%d\n", second_label);
+
+    printf("label_%d:\n", second_label);
+
+    int final_reg = r_count++;
+    printf("%%%d = load i1* %%v%d\n", final_reg, var);
+
+    int final_final_reg = r_count++;
+    printf("%%%d = zext i1 %%%d to i32\n", final_final_reg, final_reg);
+
+    op_node->reg = final_final_reg;
 
     return;
   }

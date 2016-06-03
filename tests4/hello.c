@@ -7,9 +7,7 @@ int main(int ac, char **av) {
   a = 5;
   c = 'a';
 
-  if (c && a) {
-    printf("%d\n", a && c);
-  }
+  int k = c || a;
 
   return 0;
 }
