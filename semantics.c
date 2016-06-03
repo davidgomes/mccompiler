@@ -576,7 +576,7 @@ void parse_add_node(sym_t *st, node_t *add_node, char * func_name) {
   }
 
   /* array access */
-  if (add_node->loc2.first_line != 0 && add_node->loc2.first_column != 0) {
+  if (add_node->is_array_access) {
     sym_t *array_node = is_array(st, add_node->childs[0], func_name);
 
     sym_t *func_node = is_function(st, add_node->childs[0], func_name);

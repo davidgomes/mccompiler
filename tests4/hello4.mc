@@ -1,5 +1,13 @@
 int cenas(void) {
-  return 5 == 5;
+  int a;
+  int b;
+  int arr[20];
+
+  arr[0] = 3;
+
+  a = 6;
+
+  return a >= arr[0] + 4;
 }
 
 int main(int ac, char **av) {

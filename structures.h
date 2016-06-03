@@ -70,6 +70,8 @@ typedef struct node {
   int n_childs;
   struct node **childs;
 
+  int is_array_access;
+
   type_t an_type;
   int an_n_pointers;
   int an_array_size;

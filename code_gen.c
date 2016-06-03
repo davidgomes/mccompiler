@@ -32,7 +32,7 @@ const char* llvm_node_to_nodetype[] = {
   "add", //20
   "sub", //21
   "mul", //22
-  "div", //23
+  "sdiv", //23
   "urem", //24
   "null_should_not_happen", //25
   "null_should_not_happen", //26
@@ -672,10 +672,10 @@ void code_gen_call(node_t *call_node, char *func_name) {
 
   for (i = 1; i < call_node->n_childs; i++) {
     char expected_res[100] = "";
-    sym_t_llvm_type(func_node->params[i - 1], expected_res, func_name, 1); // valgrind
+    sym_t_llvm_type(func_node->params[i - 1], expected_res, func_name, 1);
 
     //printf("%s %%%d", arg_res, call_node->childs[i]->reg);
-    printf("%s %%%d", expected_res, childs_regs[i]);
+    printf("%s %%%d", expected_res, childs_regs[i]); // VALGRIND
 
     if (i != call_node->n_childs - 1) {
       printf(",");
@@ -887,7 +887,7 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
 
     printf("%%%d = getelementptr inbounds %s %%%d, i64 %s\n", new_reg, pointer_res, op_node->childs[is_pointer]->reg, op_node->childs[is_not_pointer]->value);
   } else {
-    printf("%%%d = %s %s %%%d, %%%d\n", new_reg, llvm_node_to_nodetype[op_node->type], res, op_node->childs[0]->reg, op_node->childs[1]->reg);
+    printf("%%%d = %s %s %%%d, %%%d\n", new_reg, llvm_node_to_nodetype[op_node->type], res, op_node->childs[0]->reg, op_node->childs[1]->reg); // VALGRIND
   }
 
    if (op_node->type == NODE_EQ || op_node->type == NODE_GT || op_node->type == NODE_GE ||

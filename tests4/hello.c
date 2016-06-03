@@ -1,23 +1,22 @@
-int factorial(int n) {
-  if (n == 1) {
-    return 1;
-  } else {
-    return n * factorial(n - 1);
-  }
+char *itoa(int n, char* buf) {
+  sprintf(buf, "%d", n);
+  return buf;
+}
+
+int cenas(void) {
+  int a;
+  int b;
+
+  a = 1;
+  b = 3;
+
+  return a / b;
 }
 
 int main(int ac, char **av) {
   char buffer[20];
-  int res;
 
-  res = factorial(5);
-  itoa(res, buffer);
-
-  if (5 == 5) {
-    return 10;
-  } else {
-
-  }
+  itoa(cenas(), buffer);
 
   puts(buffer);
 

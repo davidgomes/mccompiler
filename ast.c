@@ -184,6 +184,7 @@ node_t* ast_create_node(nodetype_t nodetype, int to_use) {
   self->an_n_pointers = 0;
   self->an_array_size = -1;
   self->has_given_error = 0;
+  self->is_array_access = 0;
 
   self->an_n_params = 0;
   self->an_params = (sym_t**) malloc(sizeof(sym_t*));
