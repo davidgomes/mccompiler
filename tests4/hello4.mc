@@ -3,12 +3,14 @@ int main(int ac, char **av) {
 
   int c;
   int a;
-  char k;
-  k = 0;
 
-  itoa(!(!5), buffer);
+  a = 5;
+  c = 'a';
 
-  puts(buffer);
+  if (5) {
+    itoa('a' && '\0', buffer);
+    puts(buffer);
+  }
 
   return 0;
 }
