@@ -716,7 +716,18 @@ void code_gen_store(node_t *store_node, char *func_name) {
   if(store_node->childs[1]->type == NODE_ADDR){
     char res[100] = "";
     node_llvm_type(store_node->childs[1], res, func_name, 1);
-    printf("store %s %s, %s* %s\n", res, get_var(store_node->childs[1]->childs[0], func_name), res, get_var(store_node->childs[0], func_name));
+    char res0[100] = "";
+    node_llvm_type(store_node->childs[0], res0, func_name, 1);
+    if (strcmp(res, res0)){
+      int new_reg = r_count++;
+      //%2 = bitcast i32* %a to i8*
+      printf("%%%d = bitcast %s %s to %s\n", new_reg, res, get_var(store_node->childs[1]->childs[0], func_name), res0);
+      printf("store %s %%%d, %s* %s\n", res0, new_reg, res0, get_var(store_node->childs[0], func_name));
+    }
+    else{
+      printf("store %s %s, %s* %s\n", res, get_var(store_node->childs[1]->childs[0], func_name), res, get_var(store_node->childs[0], func_name));
+    }
+
   }
   else{
     code_gen(store_node->childs[1], func_name);
