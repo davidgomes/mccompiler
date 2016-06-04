@@ -1,13 +1,10 @@
 int main(int ac, char **av) {
   char buffer[20];
 
-  int c;
-  int a;
+  int k = 4;
+  int **a = &k;
 
-  a = 5;
-  c = 'a';
-
-  int k = c || a;
+  printf("%d\n", *a);
 
   return 0;
 }
