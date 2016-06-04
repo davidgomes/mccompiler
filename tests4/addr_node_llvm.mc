@@ -9,7 +9,7 @@ int* v(void){
 }
 
 int p(int *c){
-
+  return 0;
 }
 
 

@@ -584,8 +584,8 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
   } else {
     printf("br label %%.return1\n");
     printf(".return1:\n");
-    printf("%%.return_final = load %s* %%return\n", res);
-    printf("ret i32 %%.return_final\n");
+    printf("%%.return_final = load %s* %%return\n", res);    
+    printf("ret %s %%.return_final\n", res);
   }
 
   printf("}\n");
