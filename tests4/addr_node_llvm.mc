@@ -8,7 +8,7 @@ int* v(void){
   return &c;
 }
 
-void p(int *c){
+int p(int *c){
 
 }
 
