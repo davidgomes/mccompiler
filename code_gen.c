@@ -717,7 +717,6 @@ void code_gen_addr_node(node_t* addr_node, char *func_name){
   node_llvm_type(addr_node, res, func_name, 1);
 
   int new_reg = r_count++;
-  //addr_node->reg = new_reg;
 
   printf("%%%d = alloca %s\n", new_reg, res);
 
