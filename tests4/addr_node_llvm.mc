@@ -14,7 +14,7 @@ int p(int *c){
 
 
 int main(void){
-  int a;
+  char** a;
   void *k;
   int *b;
   int c;

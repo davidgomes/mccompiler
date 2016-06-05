@@ -228,7 +228,7 @@ int match_types(node_t *to, node_t *from, char *func_name) { // match "from" to 
     larger = to;
   }
 
-  if(!strcmp(res_to, "i8*") && !strcmp(res_from, "i32*")){
+  if(!strcmp(res_to, "i8*") && (!strcmp(res_from, "i32*") || res_from[1] == '8')){
     printf("%%%d = bitcast %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
   } else if (to == smaller) { // trunc
