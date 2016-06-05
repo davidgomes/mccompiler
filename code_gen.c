@@ -535,7 +535,7 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
 
   strcpy(return_type, res);
 
-  printf("define %s @%s(", res, table_node->id);
+  printf("\ndefine %s @%s(", res, table_node->id);
 
   sym_t *cur_st_node = st;
   sym_t *func_node = NULL;
