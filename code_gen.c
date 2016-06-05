@@ -228,7 +228,10 @@ int match_types(node_t *to, node_t *from, char *func_name) { // match "from" to 
     larger = to;
   }
 
-  if (to == smaller) { // trunc
+  if(!strcmp(res_to, "i8*") && !strcmp(res_from, "i32*")){
+    printf("%%%d = bitcast %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
+    return new_reg;
+  } else if (to == smaller) { // trunc
     printf("%%%d = trunc %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
   } else { // sext
@@ -584,7 +587,7 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
   } else {
     printf("br label %%.return1\n");
     printf(".return1:\n");
-    printf("%%.return_final = load %s* %%return\n", res);    
+    printf("%%.return_final = load %s* %%return\n", res);
     printf("ret %s %%.return_final\n", res);
   }
 
