@@ -1055,7 +1055,7 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
   }
 
    if (op_node->type == NODE_EQ || op_node->type == NODE_GT || op_node->type == NODE_GE ||
-      op_node->type == NODE_NE || op_node->type == NODE_LT || op_node->type == NODE_GT) {
+      op_node->type == NODE_NE || op_node->type == NODE_LT || op_node->type == NODE_GT || op_node->type == NODE_LE) {
         //op_node->type == NODE_AND || op_node->type == NODE_OR) {
     int new_new_reg = r_count++;
     printf("%%%d = zext i1 %%%d to i32\n", new_new_reg, op_node->reg);
@@ -1196,7 +1196,7 @@ void code_gen(node_t *which, char *func_name) {
     code_gen_id(which, func_name);
   } else if (which->type == NODE_ADD || which->type == NODE_EQ || which->type == NODE_GT || which->type == NODE_GE ||
              which->type == NODE_SUB || which->type == NODE_NE || which->type == NODE_LT || which->type == NODE_GT ||
-             which->type == NODE_AND || which->type == NODE_OR || which->type == NODE_MUL || which->type == NODE_DIV || which->type == NODE_MOD) {
+             which->type == NODE_AND || which->type == NODE_OR || which->type == NODE_MUL || which->type == NODE_DIV || which->type == NODE_MOD || which->type == NODE_LE) {
     code_gen_binary_op(which, func_name);
   } else if (which->type == NODE_DEREF) {
     code_gen_deref_node(which, func_name);
