@@ -1,10 +1,8 @@
-int main(int ac, char **av) {
-  char buffer[20];
+char buf[15];
 
-  int k = 4;
-  int **a = &k;
-
-  printf("%d\n", *a);
-
-  return 0;
+int main(int argc, char **argv) {
+int a[20], b;
+b = a[0] = 1;
+printf("%d\n", b);
+return 0;
 }

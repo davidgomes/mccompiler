@@ -748,6 +748,10 @@ void code_gen_store(node_t *store_node, char *func_name) {
     } else {
       printf("store %s %%%d, %s* %%%d\n", res1, store_node->childs[1]->reg, array_type, new_reg);
     }
+
+    /*int store_reg = r_count++;
+    printf("%%%d = load %s* %s\n", store_reg, array_type, get_var(store_node->childs[0]->childs[0]->childs[0], func_name));
+    store_node->reg = new_reg;*/
   } else {
     char res0[100] = "";
     node_llvm_type(store_node->childs[0], res0, func_name, 1);
@@ -759,6 +763,10 @@ void code_gen_store(node_t *store_node, char *func_name) {
     } else {
       printf("store %s %%%d, %s* %s\n", res, which_reg, res0, get_var(store_node->childs[0], func_name));
     }
+
+    int new_reg = r_count++;
+    printf("%%%d = load %s* %s\n", new_reg, res0, get_var(store_node->childs[0], func_name));
+    store_node->reg = new_reg;
   }
 }
 
@@ -889,30 +897,20 @@ void code_gen_unary_op(node_t *unary_node, char *func_name) {
 }
 
 void code_gen_binary_op(node_t *op_node, char *func_name) {
-  code_gen(op_node->childs[0], func_name);
-  code_gen(op_node->childs[1], func_name);
-
   if (op_node->type == NODE_AND) {
     int var = v_count++;
     printf("%%v%d = alloca i1\n", var);
 
+    code_gen(op_node->childs[0], func_name);
+
     int child0reg = op_node->childs[0]->reg;
-    int child1reg = op_node->childs[1]->reg;
 
     char res0[100] = "";
     node_llvm_type(op_node->childs[0], res0, func_name, 1);
 
-    char res1[100] = "";
-    node_llvm_type(op_node->childs[1], res1, func_name, 1);
-
     if (strcmp(res0, "i32")) {
       child0reg = r_count++;
       printf("%%%d = zext i8 %%%d to i32\n", child0reg, op_node->childs[0]->reg);
-    }
-
-    if (strcmp(res1, "i32")) {
-      child1reg = r_count++;
-      printf("%%%d = zext i8 %%%d to i32\n", child1reg, op_node->childs[1]->reg);
     }
 
     int first_reg, first_label, second_label;
@@ -925,6 +923,17 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
     second_label = l_count++;
     printf("br i1 %%%d, label %%label_%d, label %%label_%d\n", first_reg, first_label, second_label);
     printf("label_%d:\n", first_label);
+
+    code_gen(op_node->childs[1], func_name);
+    int child1reg = op_node->childs[1]->reg;
+
+    char res1[100] = "";
+    node_llvm_type(op_node->childs[1], res1, func_name, 1);
+
+    if (strcmp(res1, "i32")) {
+      child1reg = r_count++;
+      printf("%%%d = zext i8 %%%d to i32\n", child1reg, op_node->childs[1]->reg);
+    }
 
     int second_reg = r_count++;
     printf("%%%d = icmp ne i32 %%%d, 0\n", second_reg, child1reg);
@@ -946,23 +955,16 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
     int var = v_count++;
     printf("%%v%d = alloca i1\n", var);
 
+    code_gen(op_node->childs[0], func_name);
+
     int child0reg = op_node->childs[0]->reg;
-    int child1reg = op_node->childs[1]->reg;
 
     char res0[100] = "";
     node_llvm_type(op_node->childs[0], res0, func_name, 1);
 
-    char res1[100] = "";
-    node_llvm_type(op_node->childs[1], res1, func_name, 1);
-
     if (strcmp(res0, "i32")) {
       child0reg = r_count++;
       printf("%%%d = zext i8 %%%d to i32\n", child0reg, op_node->childs[0]->reg);
-    }
-
-    if (strcmp(res1, "i32")) {
-      child1reg = r_count++;
-      printf("%%%d = zext i8 %%%d to i32\n", child1reg, op_node->childs[1]->reg);
     }
 
     int first_reg, first_label, second_label;
@@ -981,6 +983,17 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
     printf("br i1 %%%d, label %%label_%d, label %%label_%d\n", mid_reg, first_label, second_label);
     printf("label_%d:\n", first_label);
 
+    code_gen(op_node->childs[1], func_name);
+    int child1reg = op_node->childs[1]->reg;
+
+    char res1[100] = "";
+    node_llvm_type(op_node->childs[1], res1, func_name, 1);
+
+    if (strcmp(res1, "i32")) {
+      child1reg = r_count++;
+      printf("%%%d = zext i8 %%%d to i32\n", child1reg, op_node->childs[1]->reg);
+    }
+
     int second_reg = r_count++;
     printf("%%%d = icmp ne i32 %%%d, 0\n", second_reg, child1reg);
     printf("store i1 %%%d, i1* %%v%d\n", second_reg, var);
@@ -998,6 +1011,9 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
 
     return;
   }
+
+  code_gen(op_node->childs[0], func_name);
+  code_gen(op_node->childs[1], func_name);
 
   int pointers0 = op_node->childs[0]->an_n_pointers;
   if (op_node->childs[0]->an_array_size >= 1) {
@@ -1144,7 +1160,9 @@ void code_gen_for(node_t *for_node, char *func_name) {
   printf("\nlabel_%d:\n", cmp_label);
 
   code_gen(for_node->childs[1], func_name);
-  printf("br i1 %%%d, label %%label_%d, label %%label_%d\n", for_node->childs[1]->reg, inside_label, ret_label);
+  int cond_reg = r_count++;
+  printf("%%%d = trunc i32 %%%d to i1\n", cond_reg, for_node->childs[1]->reg);
+  printf("br i1 %%%d, label %%label_%d, label %%label_%d\n", cond_reg, inside_label, ret_label);
 
   printf("\nlabel_%d:\n", inside_label);
   code_gen(for_node->childs[3], func_name);
