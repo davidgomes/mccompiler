@@ -1040,8 +1040,10 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
     char pointer_res[100] = "";
     node_llvm_type(op_node->childs[is_pointer], pointer_res, func_name, 1);
 
+    code_gen(op_node->childs[is_not_pointer], func_name);
+
     int new_reg = r_count++;
-    printf("%%%d = getelementptr inbounds %s %%%d, i64 %s\n", new_reg, pointer_res, op_node->childs[is_pointer]->reg, op_node->childs[is_not_pointer]->value);
+    printf("%%%d = getelementptr inbounds %s %%%d, i32 %%%d\n", new_reg, pointer_res, op_node->childs[is_pointer]->reg, op_node->childs[is_not_pointer]->reg);
     op_node->reg = new_reg;
   } else {
     int reg0 = op_node->childs[0]->reg;
