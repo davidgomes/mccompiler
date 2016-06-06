@@ -202,7 +202,13 @@ int match_types_array(node_t *to, node_t *from, char *func_name) { // match "fro
     larger = to;
   }
 
-  if(to->an_n_pointers > 0 || from->an_n_pointers > 0){
+  int to_n_pointers = to->an_n_pointers;
+  if (to->an_array_size >= 1) to_n_pointers++;
+
+  int from_n_pointers = from->an_n_pointers;
+  if (from->an_array_size >= 1) from_n_pointers++;
+
+  if(to_n_pointers > 0 || from_n_pointers > 0){
     printf("%%%d = bitcast %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
   } else if (to == smaller) { // trunc
@@ -231,7 +237,13 @@ int match_types(node_t *to, node_t *from, char *func_name) { // match "from" to 
     larger = to;
   }
 
-  if(to->an_n_pointers > 0 || from->an_n_pointers > 0){
+  int to_n_pointers = to->an_n_pointers;
+  if (to->an_array_size >= 1) to_n_pointers++;
+
+  int from_n_pointers = from->an_n_pointers;
+  if (from->an_array_size >= 1) from_n_pointers++;
+
+  if(to_n_pointers > 0 || from_n_pointers > 0){
     printf("%%%d = bitcast %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
   } else if (to == smaller) { // trunc
@@ -260,7 +272,13 @@ int match_types2(sym_t *to, node_t *from, char *func_name) {
     larger = 0;
   }
 
-  if(to->n_pointers > 0 || from->an_n_pointers > 0){
+  int to_n_pointers = to->n_pointers;
+  if (to->array_size >= 1) to_n_pointers++;
+
+  int from_n_pointers = from->an_n_pointers;
+  if (from->an_array_size >= 1) from_n_pointers++;
+
+  if(to_n_pointers > 0 || from_n_pointers > 0){
     printf("%%%d = bitcast %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
   } else if (smaller == 0) { // trunc
