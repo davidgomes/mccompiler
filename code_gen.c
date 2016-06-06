@@ -256,8 +256,11 @@ int match_types2(sym_t *to, node_t *from, char *func_name) {
     smaller = 1;
     larger = 0;
   }
-
-  if (smaller == 0) { // trunc
+  
+  if(!strcmp(res_to, "i8*") && (!strcmp(res_from, "i32*") || res_from[1] == '8')){
+    printf("%%%d = bitcast %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
+    return new_reg;
+  } else if (smaller == 0) { // trunc
     printf("%%%d = trunc %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
   } else { // sext
@@ -737,6 +740,10 @@ void code_gen_store(node_t *store_node, char *func_name) {
   char res[100] = "";
   node_llvm_type(store_node->childs[1], res, func_name, 1);
 
+  if(store_node->childs[0]->type == NODE_DEREF && store_node->childs[0]->childs[0]->type != NODE_ADD){
+    code_gen(store_node->childs[0], func_name);
+  }
+
   if (store_node->childs[0]->type == NODE_DEREF && store_node->childs[0]->childs[0]->type == NODE_ADD &&
       store_node->childs[0]->childs[0]->childs[0]->an_array_size >= 1) { // store array
     //%3 = getelementptr inbounds [8 x i32], [8 x i32]* %buf, i64 0, i64 0
@@ -955,6 +962,7 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
 }
 
 void code_gen_deref_node(node_t *deref_node, char *func_name) {
+  printf("\nHere\n");
   code_gen(deref_node->childs[0], func_name);
   int new_reg = r_count++;
   deref_node->reg = new_reg;
