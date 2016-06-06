@@ -1,9 +1,21 @@
-int main(int argc, char **argv) {
-  int i;
+char buf[10];
 
-  for (i = 0; i < argc; i = i + 1) {
-    puts(argv[i]);
-  }
+int f(void) {
+  return 5 == 5;
+}
+
+void cenas(void) {
+
+}
+
+int main(int argc, char **argv) {
+  char c;
+
+  c = f() + 2;
+
+  cenas();
+
+  puts(itoa(c, buf));
 
   return 0;
 }

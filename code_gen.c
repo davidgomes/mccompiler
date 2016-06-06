@@ -570,7 +570,9 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
 
   printf(") {\n");
 
-  printf("%%return = alloca %s\n", res);
+  if (strcmp(res, "void")) {
+    printf("%%return = alloca %s\n", res);
+  }
 
   r_count = 1;
 
