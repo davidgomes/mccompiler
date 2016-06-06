@@ -1,16 +1,21 @@
-int main(int ac, char **av) {
-  char buffer[20];
+char buf[10];
 
-  int c;
-  int a;
-  char k;
-  k = 0;
+int f(void) {
+  return 5 == 5;
+}
 
-  k = !k;
+void cenas(void) {
+  return;
+}
 
-  itoa(k, buffer);
+int main(int argc, char **argv) {
+  char c;
 
-  puts(buffer);
+  c = f() + 2;
+
+  cenas();
+
+  puts(itoa(c, buf));
 
   return 0;
 }

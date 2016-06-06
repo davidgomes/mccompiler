@@ -3,6 +3,7 @@
 int current_str_id = 1;
 int r_count = 1;
 int l_count = 1;
+int v_count = 1;
 int returned = 0;
 int current_branch_level = -1;
 int returned_level = -1;
@@ -596,7 +597,9 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
 
   printf(") {\n");
 
-  printf("%%return = alloca %s\n", res);
+  if (strcmp(res, "void")) {
+    printf("%%return = alloca %s\n", res);
+  }
 
   r_count = 1;
 
@@ -609,10 +612,16 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
   if (!returned) {
     printf("ret void\n");
   } else {
-    printf("br label %%.return1\n");
-    printf(".return1:\n");
-    printf("%%.return_final = load %s* %%return\n", res);
-    printf("ret %s %%.return_final\n", res);
+    if (strcmp(res, "void")) {
+      printf("br label %%.return1\n");
+      printf(".return1:\n");
+      printf("%%.return_final = load %s* %%return\n", res);
+      printf("ret %s %%.return_final\n", res);
+    } else {
+      printf("br label %%.return1\n");
+      printf(".return1:\n");
+      printf("ret void\n");
+    }
   }
 
   printf("}\n");
@@ -795,6 +804,10 @@ void code_gen_store(node_t *store_node, char *func_name) {
     } else {
       printf("store %s %%%d, %s* %%%d\n", res1, store_node->childs[1]->reg, array_type, new_reg);
     }
+
+    /*int store_reg = r_count++;
+    printf("%%%d = load %s* %s\n", store_reg, array_type, get_var(store_node->childs[0]->childs[0]->childs[0], func_name));
+    store_node->reg = new_reg;*/
   } else {
     char res0[100] = "";
     node_llvm_type(store_node->childs[0], res0, func_name, 1);
@@ -806,7 +819,16 @@ void code_gen_store(node_t *store_node, char *func_name) {
     } else {
       printf("store %s %%%d, %s* %s\n", res, which_reg, res0, get_var(store_node->childs[0], func_name));
     }
+
+    int new_reg = r_count++;
+    printf("%%%d = load %s* %s\n", new_reg, res0, get_var(store_node->childs[0], func_name));
+    store_node->reg = new_reg;
   }
+}
+
+char *itoa(int n, char* buf) {
+  sprintf(buf, "%d", n);
+  return buf;
 }
 
 void code_gen_strlit(node_t *strlit_node, char *func_name) {
@@ -817,7 +839,15 @@ void code_gen_strlit(node_t *strlit_node, char *func_name) {
 
 void code_gen_intlit(node_t *intlit_node, char *func_name) {
   int new_reg = r_count++;
-  printf("%%%d = add i32 %s, 0\n", new_reg, intlit_node->value);
+
+  char new_value[100] = "";
+  if (intlit_node->value[0] == '0') {
+    itoa(octal_decimal(atoi(intlit_node->value)), new_value);
+  } else {
+    itoa(atoi(intlit_node->value), new_value);
+  }
+
+  printf("%%%d = add i32 %s, 0\n", new_reg, new_value);
   intlit_node->reg = new_reg;
 }
 
@@ -825,6 +855,12 @@ void code_gen_chrlit(node_t *chrlit_node, char *func_name) {
   int new_reg = r_count++;
   printf("%%%d = add i8 0, %d\n", new_reg, chrlit_node->value[1]);
   chrlit_node->reg = new_reg;
+
+  if (!strcmp(chrlit_node->value, "'\\0'")) {
+    int fourth_reg = r_count++;
+    printf("%%%d = add i8 0, 0\n", fourth_reg);
+    chrlit_node->reg = fourth_reg;
+  }
 }
 
 void code_gen_return(node_t *return_node, char *func_name) {
@@ -917,6 +953,121 @@ void code_gen_unary_op(node_t *unary_node, char *func_name) {
 }
 
 void code_gen_binary_op(node_t *op_node, char *func_name) {
+  if (op_node->type == NODE_AND) {
+    int var = v_count++;
+    printf("%%v%d = alloca i1\n", var);
+
+    code_gen(op_node->childs[0], func_name);
+
+    int child0reg = op_node->childs[0]->reg;
+
+    char res0[100] = "";
+    node_llvm_type(op_node->childs[0], res0, func_name, 1);
+
+    if (strcmp(res0, "i32")) {
+      child0reg = r_count++;
+      printf("%%%d = zext i8 %%%d to i32\n", child0reg, op_node->childs[0]->reg);
+    }
+
+    int first_reg, first_label, second_label;
+
+    first_reg = r_count++;
+    printf("%%%d = icmp ne i32 %%%d, 0\n", first_reg, child0reg);
+    printf("store i1 %%%d, i1* %%v%d\n", first_reg, var);
+
+    first_label = l_count++;
+    second_label = l_count++;
+    printf("br i1 %%%d, label %%label_%d, label %%label_%d\n", first_reg, first_label, second_label);
+    printf("label_%d:\n", first_label);
+
+    code_gen(op_node->childs[1], func_name);
+    int child1reg = op_node->childs[1]->reg;
+
+    char res1[100] = "";
+    node_llvm_type(op_node->childs[1], res1, func_name, 1);
+
+    if (strcmp(res1, "i32")) {
+      child1reg = r_count++;
+      printf("%%%d = zext i8 %%%d to i32\n", child1reg, op_node->childs[1]->reg);
+    }
+
+    int second_reg = r_count++;
+    printf("%%%d = icmp ne i32 %%%d, 0\n", second_reg, child1reg);
+    printf("store i1 %%%d, i1* %%v%d\n", second_reg, var);
+    printf("br label %%label_%d\n", second_label);
+
+    printf("label_%d:\n", second_label);
+
+    int final_reg = r_count++;
+    printf("%%%d = load i1* %%v%d\n", final_reg, var);
+
+    int final_final_reg = r_count++;
+    printf("%%%d = zext i1 %%%d to i32\n", final_final_reg, final_reg);
+
+    op_node->reg = final_final_reg;
+
+    return;
+  } else if (op_node->type == NODE_OR) {
+    int var = v_count++;
+    printf("%%v%d = alloca i1\n", var);
+
+    code_gen(op_node->childs[0], func_name);
+
+    int child0reg = op_node->childs[0]->reg;
+
+    char res0[100] = "";
+    node_llvm_type(op_node->childs[0], res0, func_name, 1);
+
+    if (strcmp(res0, "i32")) {
+      child0reg = r_count++;
+      printf("%%%d = zext i8 %%%d to i32\n", child0reg, op_node->childs[0]->reg);
+    }
+
+    int first_reg, first_label, second_label;
+    int mid_reg;
+
+    first_reg = r_count++;
+    printf("%%%d = icmp ne i32 %%%d, 0\n", first_reg, child0reg);
+    printf("store i1 %%%d, i1* %%v%d\n", first_reg, var);
+
+    mid_reg = r_count++;
+
+    printf("%%%d = xor i1 %%%d, true\n", mid_reg, first_reg);
+
+    first_label = l_count++;
+    second_label = l_count++;
+    printf("br i1 %%%d, label %%label_%d, label %%label_%d\n", mid_reg, first_label, second_label);
+    printf("label_%d:\n", first_label);
+
+    code_gen(op_node->childs[1], func_name);
+    int child1reg = op_node->childs[1]->reg;
+
+    char res1[100] = "";
+    node_llvm_type(op_node->childs[1], res1, func_name, 1);
+
+    if (strcmp(res1, "i32")) {
+      child1reg = r_count++;
+      printf("%%%d = zext i8 %%%d to i32\n", child1reg, op_node->childs[1]->reg);
+    }
+
+    int second_reg = r_count++;
+    printf("%%%d = icmp ne i32 %%%d, 0\n", second_reg, child1reg);
+    printf("store i1 %%%d, i1* %%v%d\n", second_reg, var);
+    printf("br label %%label_%d\n", second_label);
+
+    printf("label_%d:\n", second_label);
+
+    int final_reg = r_count++;
+    printf("%%%d = load i1* %%v%d\n", final_reg, var);
+
+    int final_final_reg = r_count++;
+    printf("%%%d = zext i1 %%%d to i32\n", final_final_reg, final_reg);
+
+    op_node->reg = final_final_reg;
+
+    return;
+  }
+
   code_gen(op_node->childs[0], func_name);
   code_gen(op_node->childs[1], func_name);
 
@@ -945,8 +1096,10 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
     char pointer_res[100] = "";
     node_llvm_type(op_node->childs[is_pointer], pointer_res, func_name, 1);
 
+    code_gen(op_node->childs[is_not_pointer], func_name);
+
     int new_reg = r_count++;
-    printf("%%%d = getelementptr inbounds %s %%%d, i64 %s\n", new_reg, pointer_res, op_node->childs[is_pointer]->reg, op_node->childs[is_not_pointer]->value);
+    printf("%%%d = getelementptr inbounds %s %%%d, i32 %%%d\n", new_reg, pointer_res, op_node->childs[is_pointer]->reg, op_node->childs[is_not_pointer]->reg);
     op_node->reg = new_reg;
   } else {
     int reg0 = op_node->childs[0]->reg;
@@ -976,7 +1129,7 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
   }
 
    if (op_node->type == NODE_EQ || op_node->type == NODE_GT || op_node->type == NODE_GE ||
-      op_node->type == NODE_NE || op_node->type == NODE_LT || op_node->type == NODE_GT) {
+      op_node->type == NODE_NE || op_node->type == NODE_LT || op_node->type == NODE_GT || op_node->type == NODE_LE) {
         //op_node->type == NODE_AND || op_node->type == NODE_OR) {
     int new_new_reg = r_count++;
     printf("%%%d = zext i1 %%%d to i32\n", new_new_reg, op_node->reg);
@@ -1066,7 +1219,9 @@ void code_gen_for(node_t *for_node, char *func_name) {
   printf("\nlabel_%d:\n", cmp_label);
 
   code_gen(for_node->childs[1], func_name);
-  printf("br i1 %%%d, label %%label_%d, label %%label_%d\n", for_node->childs[1]->reg, inside_label, ret_label);
+  int cond_reg = r_count++;
+  printf("%%%d = trunc i32 %%%d to i1\n", cond_reg, for_node->childs[1]->reg);
+  printf("br i1 %%%d, label %%label_%d, label %%label_%d\n", cond_reg, inside_label, ret_label);
 
   printf("\nlabel_%d:\n", inside_label);
   code_gen(for_node->childs[3], func_name);
@@ -1118,7 +1273,7 @@ void code_gen(node_t *which, char *func_name) {
     code_gen_id(which, func_name);
   } else if (which->type == NODE_ADD || which->type == NODE_EQ || which->type == NODE_GT || which->type == NODE_GE ||
              which->type == NODE_SUB || which->type == NODE_NE || which->type == NODE_LT || which->type == NODE_GT ||
-             which->type == NODE_AND || which->type == NODE_OR || which->type == NODE_MUL || which->type == NODE_DIV || which->type == NODE_MOD) {
+             which->type == NODE_AND || which->type == NODE_OR || which->type == NODE_MUL || which->type == NODE_DIV || which->type == NODE_MOD || which->type == NODE_LE) {
     code_gen_binary_op(which, func_name);
   } else if (which->type == NODE_DEREF) {
     code_gen_deref_node(which, func_name);
