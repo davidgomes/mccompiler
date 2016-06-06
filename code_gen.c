@@ -740,11 +740,13 @@ void code_gen_store(node_t *store_node, char *func_name) {
   char res[100] = "";
   node_llvm_type(store_node->childs[1], res, func_name, 1);
 
-  if(store_node->childs[0]->type == NODE_DEREF && store_node->childs[0]->childs[0]->type != NODE_ADD){
+  if(store_node->childs[0]->type == NODE_DEREF && store_node->childs[0]->childs[0]->type != NODE_ADD){ // not array
     code_gen(store_node->childs[0], func_name);
-  }
+    int deref_reg = store_node->childs[0]->reg;
 
-  if (store_node->childs[0]->type == NODE_DEREF && store_node->childs[0]->childs[0]->type == NODE_ADD &&
+    printf("store %s %%%d, %s* %%%d\n", res, which_reg, res, deref_reg);
+
+  } else if (store_node->childs[0]->type == NODE_DEREF && store_node->childs[0]->childs[0]->type == NODE_ADD &&
       store_node->childs[0]->childs[0]->childs[0]->an_array_size >= 1) { // store array
     //%3 = getelementptr inbounds [8 x i32], [8 x i32]* %buf, i64 0, i64 0
     //store i32 5, i32* %3, align 16
@@ -793,6 +795,7 @@ void code_gen_strlit(node_t *strlit_node, char *func_name) {
 }
 
 void code_gen_intlit(node_t *intlit_node, char *func_name) {
+  printf("\nINT\n");
   int new_reg = r_count++;
   printf("%%%d = add i32 %s, 0\n", new_reg, intlit_node->value);
   intlit_node->reg = new_reg;
@@ -962,7 +965,7 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
 }
 
 void code_gen_deref_node(node_t *deref_node, char *func_name) {
-  printf("\nHere\n");
+  printf("\nHERE\n");
   code_gen(deref_node->childs[0], func_name);
   int new_reg = r_count++;
   deref_node->reg = new_reg;
@@ -970,7 +973,7 @@ void code_gen_deref_node(node_t *deref_node, char *func_name) {
   char res[100] = "";
   node_llvm_type(deref_node->childs[0], res, func_name, 1);
 
-  printf("%%%d = load %s %%%d\n", new_reg, res, deref_node->childs[0]->reg);
+  printf("OIIII %%%d = load %s %%%d\n", new_reg, res, deref_node->childs[0]->reg);
 }
 
 
