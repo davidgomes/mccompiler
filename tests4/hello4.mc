@@ -5,7 +5,7 @@ int f(void) {
 }
 
 void cenas(void) {
-
+  return;
 }
 
 int main(int argc, char **argv) {
