@@ -202,7 +202,10 @@ int match_types_array(node_t *to, node_t *from, char *func_name) { // match "fro
     larger = to;
   }
 
-  if (to == smaller) { // trunc
+  if(to->an_n_pointers > 0 || from->an_n_pointers > 0){
+    printf("%%%d = bitcast %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
+    return new_reg;
+  } else if (to == smaller) { // trunc
     printf("%%%d = trunc %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
   } else { // sext
@@ -228,7 +231,7 @@ int match_types(node_t *to, node_t *from, char *func_name) { // match "from" to 
     larger = to;
   }
 
-  if(!strcmp(res_to, "i8*") && (res_from[1] == '3' || res_from[1] == '8')){
+  if(to->an_n_pointers > 0 || from->an_n_pointers > 0){
     printf("%%%d = bitcast %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
   } else if (to == smaller) { // trunc
@@ -257,7 +260,7 @@ int match_types2(sym_t *to, node_t *from, char *func_name) {
     larger = 0;
   }
 
-  if(!strcmp(res_to, "i8*") && (res_from[1] == '3' || res_from[1] == '8')){
+  if(to->n_pointers > 0 || from->an_n_pointers > 0){
     printf("%%%d = bitcast %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
   } else if (smaller == 0) { // trunc
@@ -741,8 +744,8 @@ void code_gen_store(node_t *store_node, char *func_name) {
   node_llvm_type(store_node->childs[1], res, func_name, 1);
 
   if(store_node->childs[0]->type == NODE_DEREF && store_node->childs[0]->childs[0]->type != NODE_ADD){ // not array
-    code_gen(store_node->childs[0], func_name);
-    int deref_reg = store_node->childs[0]->reg;
+    code_gen(store_node->childs[0]->childs[0], func_name);
+    int deref_reg = store_node->childs[0]->childs[0]->reg;
 
     printf("store %s %%%d, %s* %%%d\n", res, which_reg, res, deref_reg);
 
