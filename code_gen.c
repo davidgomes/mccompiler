@@ -795,7 +795,6 @@ void code_gen_strlit(node_t *strlit_node, char *func_name) {
 }
 
 void code_gen_intlit(node_t *intlit_node, char *func_name) {
-  printf("\nINT\n");
   int new_reg = r_count++;
   printf("%%%d = add i32 %s, 0\n", new_reg, intlit_node->value);
   intlit_node->reg = new_reg;
@@ -965,7 +964,6 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
 }
 
 void code_gen_deref_node(node_t *deref_node, char *func_name) {
-  printf("\nHERE\n");
   code_gen(deref_node->childs[0], func_name);
   int new_reg = r_count++;
   deref_node->reg = new_reg;
@@ -973,7 +971,7 @@ void code_gen_deref_node(node_t *deref_node, char *func_name) {
   char res[100] = "";
   node_llvm_type(deref_node->childs[0], res, func_name, 1);
 
-  printf("OIIII %%%d = load %s %%%d\n", new_reg, res, deref_node->childs[0]->reg);
+  printf("%%%d = load %s %%%d\n", new_reg, res, deref_node->childs[0]->reg);
 }
 
 
