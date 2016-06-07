@@ -1,21 +1,25 @@
-char buf[10];
-
-int f(void) {
-  return 5 == 5;
-}
-
-void cenas(void) {
-  return;
-}
+char buf[15];
 
 int main(int argc, char **argv) {
-  char c;
+  int a;
+  int *a2;
+  int **a3;
+  int ***a4;
 
-  c = f() + 2;
+  a2 = &a;
+  a3 = &a2;
+  a4 = &a3;
 
-  cenas();
+  ***a4 = 5;
 
-  puts(itoa(c, buf));
+  puts(itoa(a, buf));
+
+  if (a == 7) {
+    return 7;
+    puts("wat");
+  }
 
   return 0;
+
+  puts("hello");
 }

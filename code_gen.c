@@ -203,7 +203,16 @@ int match_types_array(node_t *to, node_t *from, char *func_name) { // match "fro
     larger = to;
   }
 
-  if (to == smaller) { // trunc
+  int to_n_pointers = to->an_n_pointers;
+  if (to->an_array_size >= 1) to_n_pointers++;
+
+  int from_n_pointers = from->an_n_pointers;
+  if (from->an_array_size >= 1) from_n_pointers++;
+
+  if(to_n_pointers > 0 || from_n_pointers > 0){
+    printf("%%%d = bitcast %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
+    return new_reg;
+  } else if (to == smaller) { // trunc
     printf("%%%d = trunc %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
   } else { // sext
@@ -229,7 +238,16 @@ int match_types(node_t *to, node_t *from, char *func_name) { // match "from" to 
     larger = to;
   }
 
-  if (to == smaller) { // trunc
+  int to_n_pointers = to->an_n_pointers;
+  if (to->an_array_size >= 1) to_n_pointers++;
+
+  int from_n_pointers = from->an_n_pointers;
+  if (from->an_array_size >= 1) from_n_pointers++;
+
+  if(to_n_pointers > 0 || from_n_pointers > 0){
+    printf("%%%d = bitcast %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
+    return new_reg;
+  } else if (to == smaller) { // trunc
     printf("%%%d = trunc %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
   } else { // sext
@@ -255,7 +273,16 @@ int match_types2(sym_t *to, node_t *from, char *func_name) {
     larger = 0;
   }
 
-  if (smaller == 0) { // trunc
+  int to_n_pointers = to->n_pointers;
+  if (to->array_size >= 1) to_n_pointers++;
+
+  int from_n_pointers = from->an_n_pointers;
+  if (from->an_array_size >= 1) from_n_pointers++;
+
+  if(to_n_pointers > 0 || from_n_pointers > 0){
+    printf("%%%d = bitcast %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
+    return new_reg;
+  } else if (smaller == 0) { // trunc
     printf("%%%d = trunc %s %%%d to %s\n", new_reg, res_from, from->reg, res_to);
     return new_reg;
   } else { // sext
@@ -533,7 +560,7 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
 
   strcpy(return_type, res);
 
-  printf("define %s @%s(", res, table_node->id);
+  printf("\ndefine %s @%s(", res, table_node->id);
 
   sym_t *cur_st_node = st;
   sym_t *func_node = NULL;
@@ -575,7 +602,6 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
   }
 
   r_count = 1;
-
   returned = 0;
   returned_level = -1;
   for (i = 0; i < func_def_node->n_childs; i++) {
@@ -600,12 +626,23 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
   printf("}\n");
 }
 
+void print_pointers3(int n_pointers) {
+  int i;
+  for (i = 0; i < n_pointers; i++) {
+    printf("*");
+  }
+}
+
 void code_gen_id(node_t *node_id, char *func_name) {
   if (node_id->an_array_size >= 1) {
     //   %3 = getelementptr inbounds [10 x i8], [10 x i8]* %buf, i32 0, i32 0
     int new_reg = r_count++;
 
-    printf("%%%d = getelementptr inbounds [%d x %s]* %s, i32 0, i32 0\n", new_reg, node_id->an_array_size, type2llvm(node_id->an_type, 1), get_var(node_id, func_name));
+    int n_pointers = node_id->an_n_pointers;
+
+    printf("%%%d = getelementptr inbounds [%d x %s", new_reg, node_id->an_array_size, type2llvm(node_id->an_type, 1));
+    print_pointers3(n_pointers);
+    printf("]* %s, i32 0, i32 0\n", get_var(node_id, func_name));
     node_id->reg = new_reg;
   } else if (node_id->an_type != TYPE_UNKNOWN) {
     int new_reg = r_count++;
@@ -721,6 +758,21 @@ void code_gen_declaration(node_t *decl_node, char *func_name) {
   }
 }
 
+void code_gen_addr_node(node_t* addr_node, char *func_name){
+  char res[100] = "";
+  node_llvm_type(addr_node, res, func_name, 1);
+
+  int new_reg = r_count++;
+
+  printf("%%%d = alloca %s\n", new_reg, res);
+
+  printf("store %s %%%s, %s* %%%d\n", res, addr_node->childs[0]->value, res, new_reg);
+
+  int new_new_reg = r_count++;
+  addr_node->reg = new_new_reg;
+  printf("%%%d = load %s* %%%d\n", new_new_reg, res, new_reg);
+}
+
 void code_gen_store(node_t *store_node, char *func_name) {
   code_gen(store_node->childs[1], func_name);
   int which_reg = store_node->childs[1]->reg;
@@ -728,10 +780,17 @@ void code_gen_store(node_t *store_node, char *func_name) {
   char res[100] = "";
   node_llvm_type(store_node->childs[1], res, func_name, 1);
 
-  if (store_node->childs[0]->type == NODE_DEREF && store_node->childs[0]->childs[0]->type == NODE_ADD &&
+  if(store_node->childs[0]->type == NODE_DEREF && store_node->childs[0]->childs[0]->type != NODE_ADD){ // not array
+    code_gen(store_node->childs[0]->childs[0], func_name);
+    int deref_reg = store_node->childs[0]->childs[0]->reg;
+
+    printf("store %s %%%d, %s* %%%d\n", res, which_reg, res, deref_reg);
+
+  } else if (store_node->childs[0]->type == NODE_DEREF && store_node->childs[0]->childs[0]->type == NODE_ADD &&
       store_node->childs[0]->childs[0]->childs[0]->an_array_size >= 1) { // store array
     //%3 = getelementptr inbounds [8 x i32], [8 x i32]* %buf, i64 0, i64 0
     //store i32 5, i32* %3, align 16
+    //
 
     char array_type[100] = "";
     node_llvm_type(store_node->childs[0]->childs[0]->childs[0], array_type, func_name, 0);
@@ -858,6 +917,10 @@ void code_gen_return(node_t *return_node, char *func_name) {
 
     printf("store %s %%%d, %s* %%return\n", return_type, reg, return_type);
     printf("br label %%.return1\n");
+
+    if (returned_level == -1) {
+      r_count++;
+    }
   }
 }
 
@@ -1100,6 +1163,7 @@ void code_gen_deref_node(node_t *deref_node, char *func_name) {
   printf("%%%d = load %s %%%d\n", new_reg, res, deref_node->childs[0]->reg);
 }
 
+
 void code_gen_param_declaration(node_t *param_decl, char *func_name) {
   char res[100] = "";
 
@@ -1248,5 +1312,7 @@ void code_gen(node_t *which, char *func_name) {
     }
 
     which->reg = which->childs[which->n_childs - 1]->reg;
+  } else if (which->type == NODE_ADDR){
+    code_gen_addr_node(which, func_name);
   }
 }
