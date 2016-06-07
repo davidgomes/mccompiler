@@ -627,12 +627,23 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
   printf("}\n");
 }
 
+void print_pointers3(int n_pointers) {
+  int i;
+  for (i = 0; i < n_pointers; i++) {
+    printf("*");
+  }
+}
+
 void code_gen_id(node_t *node_id, char *func_name) {
   if (node_id->an_array_size >= 1) {
     //   %3 = getelementptr inbounds [10 x i8], [10 x i8]* %buf, i32 0, i32 0
     int new_reg = r_count++;
 
-    printf("%%%d = getelementptr inbounds [%d x %s]* %s, i32 0, i32 0\n", new_reg, node_id->an_array_size, type2llvm(node_id->an_type, 1), get_var(node_id, func_name));
+    int n_pointers = node_id->an_n_pointers;
+
+    printf("%%%d = getelementptr inbounds [%d x %s", new_reg, node_id->an_array_size, type2llvm(node_id->an_type, 1));
+    print_pointers3(n_pointers);
+    printf("]* %s, i32 0, i32 0\n", get_var(node_id, func_name));
     node_id->reg = new_reg;
   } else if (node_id->an_type != TYPE_UNKNOWN) {
     int new_reg = r_count++;

@@ -1,13 +1,3 @@
-char buf[10];
-
-int f(void) {
-  return 5 == 5;
-}
-
-void cenas(void) {
-  return;
-}
-
 int main(int argc, char **argv) {
   char c;
 
