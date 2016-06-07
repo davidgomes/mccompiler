@@ -780,14 +780,13 @@ void code_gen_store(node_t *store_node, char *func_name) {
   char res[100] = "";
   node_llvm_type(store_node->childs[1], res, func_name, 1);
 
-  if(store_node->childs[0]->type == NODE_DEREF && store_node->childs[0]->childs[0]->type != NODE_ADD){ // not array
+  if(store_node->childs[0]->type == NODE_DEREF){ // not array
     code_gen(store_node->childs[0]->childs[0], func_name);
     int deref_reg = store_node->childs[0]->childs[0]->reg;
 
     printf("store %s %%%d, %s* %%%d\n", res, which_reg, res, deref_reg);
-
   } else if (store_node->childs[0]->type == NODE_DEREF && store_node->childs[0]->childs[0]->type == NODE_ADD &&
-      store_node->childs[0]->childs[0]->childs[0]->an_array_size >= 1) { // store array
+             store_node->childs[0]->childs[0]->childs[0]->an_array_size >= 1) { // store array
     //%3 = getelementptr inbounds [8 x i32], [8 x i32]* %buf, i64 0, i64 0
     //store i32 5, i32* %3, align 16
     //
@@ -1099,7 +1098,7 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
   char res[100] = "";
   node_llvm_type(op_node, res, func_name, 1);
 
-  if (pointers0 >= 1 || pointers1 >= 1) {
+  if ((pointers0 >= 1 || pointers1 >= 1) && (op_node->type == NODE_ADD || op_node->type == NODE_SUB)) {
     int is_pointer = 0;
     int is_not_pointer = 1;
 
@@ -1113,8 +1112,14 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
 
     code_gen(op_node->childs[is_not_pointer], func_name);
 
+    int index_reg = op_node->childs[is_not_pointer]->reg;
+    if (op_node->type == NODE_SUB) {
+      index_reg = r_count++;
+      printf("%%%d = sub i32 0, %%%d\n", index_reg, op_node->childs[is_not_pointer]->reg);
+    }
+
     int new_reg = r_count++;
-    printf("%%%d = getelementptr inbounds %s %%%d, i32 %%%d\n", new_reg, pointer_res, op_node->childs[is_pointer]->reg, op_node->childs[is_not_pointer]->reg);
+    printf("%%%d = getelementptr inbounds %s %%%d, i32 %%%d\n", new_reg, pointer_res, op_node->childs[is_pointer]->reg, index_reg);
     op_node->reg = new_reg;
   } else {
     int reg0 = op_node->childs[0]->reg;
@@ -1143,9 +1148,8 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
     op_node->reg = new_reg;
   }
 
-   if (op_node->type == NODE_EQ || op_node->type == NODE_GT || op_node->type == NODE_GE ||
+  if (op_node->type == NODE_EQ || op_node->type == NODE_GT || op_node->type == NODE_GE ||
       op_node->type == NODE_NE || op_node->type == NODE_LT || op_node->type == NODE_GT || op_node->type == NODE_LE) {
-        //op_node->type == NODE_AND || op_node->type == NODE_OR) {
     int new_new_reg = r_count++;
     printf("%%%d = zext i1 %%%d to i32\n", new_new_reg, op_node->reg);
     op_node->reg = new_new_reg;
