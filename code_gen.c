@@ -602,7 +602,6 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
   }
 
   r_count = 1;
-
   returned = 0;
   returned_level = -1;
   for (i = 0; i < func_def_node->n_childs; i++) {
@@ -791,6 +790,7 @@ void code_gen_store(node_t *store_node, char *func_name) {
       store_node->childs[0]->childs[0]->childs[0]->an_array_size >= 1) { // store array
     //%3 = getelementptr inbounds [8 x i32], [8 x i32]* %buf, i64 0, i64 0
     //store i32 5, i32* %3, align 16
+    //
 
     char array_type[100] = "";
     node_llvm_type(store_node->childs[0]->childs[0]->childs[0], array_type, func_name, 0);
@@ -917,6 +917,10 @@ void code_gen_return(node_t *return_node, char *func_name) {
 
     printf("store %s %%%d, %s* %%return\n", return_type, reg, return_type);
     printf("br label %%.return1\n");
+
+    if (returned_level == -1) {
+      r_count++;
+    }
   }
 }
 
