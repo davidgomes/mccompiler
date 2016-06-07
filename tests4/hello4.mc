@@ -1,18 +1,11 @@
-char buf[10];
+char buf[15];
 
 int main(int argc, char **argv) {
-  int arr[10];
   int *p;
 
-  arr[0] = 2;
-  arr[1] = 3;
-  *(arr + 1 + 1) = 4;
-
-  *arr = 1;
-
-  puts(itoa(arr[0], buf));
-  puts(itoa(arr[1], buf));
-  puts(itoa(arr[2], buf));
+  if (p) {
+    puts("hey");
+  }
 
   return 0;
 }

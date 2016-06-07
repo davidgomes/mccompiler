@@ -1199,7 +1199,15 @@ void code_gen_if(node_t *if_node, char *func_name) {
   ret_label = l_count++;
 
   int branch_reg = r_count++;
-  printf("%%%d = trunc i32 %%%d to i1\n", branch_reg, if_node->childs[0]->reg);
+
+  if (if_node->childs[0]->an_n_pointers >= 1 || if_node->childs[0]->an_array_size >= 1) {
+    char pointer_res[100] = "";
+    node_llvm_type(if_node->childs[0], pointer_res, func_name, 1);
+
+    printf("%%%d = icmp eq %s %%%d, null\n", branch_reg, pointer_res, if_node->childs[0]->reg);
+  } else {
+    printf("%%%d = trunc i32 %%%d to i1\n", branch_reg, if_node->childs[0]->reg);
+  }
 
   printf("br i1 %%%d, label %%label_%d, label %%label_%d\n\n", branch_reg, if_label, else_label);
 
