@@ -516,6 +516,12 @@ void code_gen_program(node_t *program_node, char *func_name) {
 void code_gen_func_declaration(node_t *func_decl_node, char *func_name) {
   sym_t *declaration_node_temp = create_declaration_node(func_decl_node);
 
+  if (!strcmp(declaration_node_temp->id, "atoi") ||
+       strcmp(declaration_node_temp->id, "atoi") ||
+       strcmp(declaration_node_temp->id, "atoi")) {
+    return;
+  }
+
   sym_t *cur_st_node = st;
   sym_t *actual_decl_node = NULL;
 
