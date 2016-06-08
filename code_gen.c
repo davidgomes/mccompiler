@@ -969,7 +969,7 @@ void code_gen_unary_op(node_t *unary_node, char *func_name) {
 
     int first_reg, second_reg, third_reg;
     first_reg = r_count++;
-    printf("%%%d = icmp ne %s %%%d, 0\n", first_reg, res0, unary_node->childs[0]->reg);
+    printf("%%%d = icmp ne %s %%%d, %s\n", first_reg, res0, unary_node->childs[0]->reg, unary_node->childs[0]->an_n_pointers >= 1 || unary_node->childs[0]->an_array_size >= 1 ? "null" : "0");
     second_reg = r_count++;
     printf("%%%d = xor i1 %%%d, true\n", second_reg, first_reg);
     third_reg = r_count++;
