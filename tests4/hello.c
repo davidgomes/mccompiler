@@ -1,8 +1,4 @@
-int i;
-
 int main(void) {
-  int *p;
-  int b;
-
-  b = !p;
+  int *p, *p2, b;
+  b = p2 > p;
 }

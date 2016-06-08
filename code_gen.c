@@ -692,7 +692,7 @@ void code_gen_call(node_t *call_node, char *func_name) {
     node_llvm_type(call_node->childs[i], arg_res, func_name, 1);
 
     char expected_res[100] = "";
-    sym_t_llvm_type(func_node->params[i - 1], expected_res, func_name, 1); //valgrind
+    sym_t_llvm_type(func_node->params[i - 1], expected_res, func_name, 1);
 
     childs_regs[i] = call_node->childs[i]->reg;
     if (strcmp(arg_res, expected_res)) {
@@ -733,7 +733,7 @@ void code_gen_call(node_t *call_node, char *func_name) {
     sym_t_llvm_type(func_node->params[i - 1], expected_res, func_name, 1);
 
     //printf("%s %%%d", arg_res, call_node->childs[i]->reg);
-    printf("%s %%%d", expected_res, childs_regs[i]); // VALGRIND
+    printf("%s %%%d", expected_res, childs_regs[i]);
 
     if (i != call_node->n_childs - 1) {
       printf(",");
@@ -1143,20 +1143,25 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
     char res1[100] = "";
     node_llvm_type(op_node->childs[1], res1, func_name, 1);
 
-    if (strcmp(res0, "i32")) {
+    if (strcmp(res0, "i32") && !(op_node->childs[0]->an_n_pointers >= 1 || op_node->childs[0]->an_array_size >= 1)) {
       int new_reg = r_count++;
       printf("%%%d = sext %s %%%d to i32\n", new_reg, res0, reg0);
       reg0 = new_reg;
     }
 
-    if (strcmp(res1, "i32")) {
+    if (strcmp(res1, "i32") && !(op_node->childs[1]->an_n_pointers >= 1 || op_node->childs[1]->an_array_size >= 1)) {
       int new_reg = r_count++;
       printf("%%%d = sext %s %%%d to i32\n", new_reg, res1, reg1);
       reg1 = new_reg;
     }
 
+    int n_pointers = op_node->childs[0]->an_n_pointers;
+    if (op_node->childs[0]->an_array_size >= 1) n_pointers++;
+
     int new_reg = r_count++;
-    printf("%%%d = %s %s %%%d, %%%d\n", new_reg, llvm_node_to_nodetype[op_node->type], res, reg0, reg1); // VALGRIND
+    printf("%%%d = %s %s", new_reg, llvm_node_to_nodetype[op_node->type], res);
+    print_pointers3(n_pointers);
+    printf("%%%d, %%%d\n", reg0, reg1);
     op_node->reg = new_reg;
   }
 
