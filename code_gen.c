@@ -778,7 +778,16 @@ void code_gen_addr_node(node_t* addr_node, char *func_name){
 
   printf("%%%d = alloca %s\n", new_reg, res);
 
-  printf("store %s %%%s, %s* %%%d\n", res, addr_node->childs[0]->value, res, new_reg);
+  if (addr_node->childs[0]->type == NODE_DEREF) {
+    char array_type[100] = "";
+    node_llvm_type(addr_node->childs[0]->childs[0], array_type, func_name, 0);
+
+    code_gen(addr_node->childs[0]->childs[0], func_name);
+
+    printf("store %s %%%d, %s* %%%d\n", res, addr_node->childs[0]->childs[0]->reg, res, new_reg);
+  } else {
+    printf("store %s %%%s, %s* %%%d\n", res, addr_node->childs[0]->value, res, new_reg);
+  }
 
   int new_new_reg = r_count++;
   addr_node->reg = new_new_reg;
@@ -1183,7 +1192,6 @@ void code_gen_deref_node(node_t *deref_node, char *func_name) {
 
   printf("%%%d = load %s %%%d\n", new_reg, res, deref_node->childs[0]->reg);
 }
-
 
 void code_gen_param_declaration(node_t *param_decl, char *func_name) {
   char res[100] = "";

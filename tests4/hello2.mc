@@ -1,21 +1,10 @@
-int chico(void) {
-  puts("hey");
+char *arr[10];
+char aa[100];
+int n;
+int main(int c, char** v) { /* main tem dois parâmetros de entrada */
+  int i;
+  for (i = 0; i < n; i=i+1)
+    arr[i] = &aa[10*i];
   return 0;
 }
 
-int main(int argc, char **argv) {
-  int k;
-  char buffer[20];
-
-  puts(argv[1]);
-
-  k = atoi(argv[2]);
-  k = k + 1;
-
-
-  chico();
-  /*itoa(k, buffer);
-  puts(buffer);*/
-
-  return 0;
-}
