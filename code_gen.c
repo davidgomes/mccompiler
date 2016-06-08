@@ -615,7 +615,13 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
   }
 
   if (!returned) {
-    printf("ret void\n");
+    if (!strcmp(res, "void")) {
+      printf("ret void\n");
+    } else if (!strcmp(res, "i32")) {
+      printf("ret i32 0\n");
+    } else if (!strcmp(res, "i8")) {
+      printf("ret i8 0\n");
+    }
   } else {
     if (strcmp(res, "void")) {
       printf("br label %%.return1\n");
