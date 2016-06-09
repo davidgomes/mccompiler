@@ -1,13 +1,26 @@
 char buf[15];
 
-int main(void) {
-  int a, b, c;
-  b = 1;
-  c = 1;
+char aa[100], a;
+void *arr[20];
 
-  if ((b && c && 0) || 0) {
-    a = (b && (c && 1)) || 0;
-    puts(itoa(a, buf));
-  }
+char 
+
+int main(void) {
+  char *p1, *p2, *p3;
+  void **v1, **v2;
+  int n;
+
+  aa[0] = 'a';
+  aa[1] = 'b';
+
+  aa[0] = 5;
+
+  p1 = aa;
+  p2 = aa + 1;
+
+  v1 = arr;
+  v2 = arr + 1;
+
+  puts(itoa(v2 - v1, buf));
 }
 
