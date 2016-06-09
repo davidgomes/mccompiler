@@ -3,11 +3,11 @@
 int current_str_id = 1;
 int r_count = 1;
 int l_count = 1;
-int v_count = 1;
 int returned = 0;
 int current_branch_level = -1;
 int returned_level = -1;
 char return_type[100];
+int last_label = 0;
 
 const char* llvm_node_to_nodetype[] = {
   "null_should_not_happen", //0
@@ -988,11 +988,10 @@ void code_gen_unary_op(node_t *unary_node, char *func_name) {
 }
 
 void code_gen_binary_op(node_t *op_node, char *func_name) {
-  if (op_node->type == NODE_AND) {
-    int var = v_count++;
-    printf("%%v%d = alloca i1\n", var);
-
+  if (op_node->type == NODE_AND) { // short circuit do AND
     code_gen(op_node->childs[0], func_name);
+
+    int first_child_last_label = last_label;
 
     int child0reg = op_node->childs[0]->reg;
 
@@ -1008,14 +1007,17 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
 
     first_reg = r_count++;
     printf("%%%d = icmp ne i32 %%%d, 0\n", first_reg, child0reg);
-    printf("store i1 %%%d, i1* %%v%d\n", first_reg, var);
 
     first_label = l_count++;
     second_label = l_count++;
+
     printf("br i1 %%%d, label %%label_%d, label %%label_%d\n", first_reg, first_label, second_label);
     printf("label_%d:\n", first_label);
+    last_label = first_label;
 
+    last_label = first_label;
     code_gen(op_node->childs[1], func_name);
+    int second_child_last_label = last_label;
     int child1reg = op_node->childs[1]->reg;
 
     char res1[100] = "";
@@ -1028,13 +1030,21 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
 
     int second_reg = r_count++;
     printf("%%%d = icmp ne i32 %%%d, 0\n", second_reg, child1reg);
-    printf("store i1 %%%d, i1* %%v%d\n", second_reg, var);
+    //printf("store i1 %%%d, i1* %%v%d\n", second_reg, var);
     printf("br label %%label_%d\n", second_label);
 
     printf("label_%d:\n", second_label);
 
+    last_label = second_label;
+
     int final_reg = r_count++;
-    printf("%%%d = load i1* %%v%d\n", final_reg, var);
+    //printf("%%%d = load i1* %%v%d\n", final_reg, var);
+
+    if (first_child_last_label == 0) {
+      printf("%%%d = phi i1 [ false, %%0 ], [ %%%d, %%label_%d ]\n", final_reg, second_reg, second_child_last_label);
+    } else {
+      printf("%%%d = phi i1 [ false, %%label_%d ], [ %%%d, %%label_%d ]\n", final_reg, first_child_last_label, second_reg, second_child_last_label);
+    }
 
     int final_final_reg = r_count++;
     printf("%%%d = zext i1 %%%d to i32\n", final_final_reg, final_reg);
@@ -1043,10 +1053,8 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
 
     return;
   } else if (op_node->type == NODE_OR) {
-    int var = v_count++;
-    printf("%%v%d = alloca i1\n", var);
-
     code_gen(op_node->childs[0], func_name);
+    int first_child_last_label = last_label;
 
     int child0reg = op_node->childs[0]->reg;
 
@@ -1063,7 +1071,6 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
 
     first_reg = r_count++;
     printf("%%%d = icmp ne i32 %%%d, 0\n", first_reg, child0reg);
-    printf("store i1 %%%d, i1* %%v%d\n", first_reg, var);
 
     mid_reg = r_count++;
 
@@ -1073,8 +1080,11 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
     second_label = l_count++;
     printf("br i1 %%%d, label %%label_%d, label %%label_%d\n", mid_reg, first_label, second_label);
     printf("label_%d:\n", first_label);
+    last_label = first_label;
 
     code_gen(op_node->childs[1], func_name);
+    int second_child_last_label = last_label;
+
     int child1reg = op_node->childs[1]->reg;
 
     char res1[100] = "";
@@ -1087,13 +1097,18 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
 
     int second_reg = r_count++;
     printf("%%%d = icmp ne i32 %%%d, 0\n", second_reg, child1reg);
-    printf("store i1 %%%d, i1* %%v%d\n", second_reg, var);
     printf("br label %%label_%d\n", second_label);
 
     printf("label_%d:\n", second_label);
+    last_label = second_label;
 
     int final_reg = r_count++;
-    printf("%%%d = load i1* %%v%d\n", final_reg, var);
+
+    if (first_child_last_label == 0) {
+      printf("%%%d = phi i1 [ true, %%0 ], [ %%%d, %%label_%d ]\n", final_reg, second_reg, second_child_last_label);
+    } else {
+      printf("%%%d = phi i1 [ true, %%label_%d ], [ %%%d, %%label_%d ]\n", final_reg, first_child_last_label, second_reg, second_child_last_label);
+    }
 
     int final_final_reg = r_count++;
     printf("%%%d = zext i1 %%%d to i32\n", final_final_reg, final_reg);
@@ -1237,6 +1252,7 @@ void code_gen_if(node_t *if_node, char *func_name) {
   printf("br i1 %%%d, label %%label_%d, label %%label_%d\n\n", branch_reg, if_label, else_label);
 
   printf("label_%d:\n", if_label);
+  last_label = if_label;
   current_branch_level++;
 	code_gen(if_node->childs[1], func_name);
 
@@ -1246,6 +1262,7 @@ void code_gen_if(node_t *if_node, char *func_name) {
 
   returned_level = -1;
   printf("\nlabel_%d:\n", else_label);
+  last_label = else_label;
   code_gen(if_node->childs[2], func_name);
 
   if (returned_level == -1) {
@@ -1256,6 +1273,7 @@ void code_gen_if(node_t *if_node, char *func_name) {
 
   current_branch_level--;
   printf("\nlabel_%d:\n", ret_label);
+  last_label = ret_label;
 }
 
 void code_gen_for(node_t *for_node, char *func_name) {
@@ -1269,6 +1287,7 @@ void code_gen_for(node_t *for_node, char *func_name) {
 
   printf("br label %%label_%d\n", cmp_label);
   printf("\nlabel_%d:\n", cmp_label);
+  last_label = cmp_label;
 
   code_gen(for_node->childs[1], func_name);
   int cond_reg = r_count++;
@@ -1276,11 +1295,13 @@ void code_gen_for(node_t *for_node, char *func_name) {
   printf("br i1 %%%d, label %%label_%d, label %%label_%d\n", cond_reg, inside_label, ret_label);
 
   printf("\nlabel_%d:\n", inside_label);
+  last_label = inside_label;
   code_gen(for_node->childs[3], func_name);
   code_gen(for_node->childs[2], func_name);
   printf("br label %%label_%d\n", cmp_label);
 
   printf("\nlabel_%d:\n", ret_label);
+  last_label = ret_label;
 }
 
 void code_gen(node_t *which, char *func_name) {
