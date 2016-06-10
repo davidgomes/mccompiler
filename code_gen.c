@@ -1206,7 +1206,7 @@ void code_gen_binary_op(node_t *op_node, char *func_name) {
         } else if (op_node->childs[0]->an_type == TYPE_INT) {
           divide_by = 4;
         } else if (op_node->childs[0]->an_type == TYPE_CHAR) {
-          divide_by = 8;
+          //divide_by = 8;
         }
 
         new_reg = r_count++;
