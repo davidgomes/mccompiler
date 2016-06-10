@@ -610,6 +610,7 @@ void code_gen_func_definition(node_t *func_def_node, char *func_name) {
   r_count = 1;
   returned = 0;
   returned_level = -1;
+  last_label = 0;
   for (i = 0; i < func_def_node->n_childs; i++) {
     code_gen(func_def_node->childs[i], func_name);
   }

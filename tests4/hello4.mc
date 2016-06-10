@@ -1,19 +1,20 @@
-char dd[10];
 
 char buf[15];
-char *d;
+
+int f(void) {
+  return 5;
+}
+
+int g(void) {
+  int k;
+  int b;
+  int c;
+  b = 4;
+  c = 5;
+  k = c && b;
+  return k;
+}
 
 int main(void) {
-  int *i1;
-  void ******v5;
-  void *v1;
-
-  d = dd;
-
-  d[1] = 5;
-
-  v1 = i1;
-  v1 = v5;
-
-  puts(itoa(dd, buf));
+  puts(itoa(f() && g(), buf));
 }

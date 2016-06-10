@@ -5,12 +5,20 @@ char *itoa(int n, char* buf) {
 
 char buf[15];
 
-char aa[20];
-char *v1, *v2;
+int f(void) {
+  return 5;
+}
+
+int g(void) {
+  int k;
+  int b;
+  int c;
+  b = 4;
+  c = 5;
+  k = c && b;
+  return k;
+}
 
 int main(void) {
-  v1 = aa;
-  v2 = aa + 3;
-
-  puts(itoa(v2 - v1, buf));
+  puts(itoa(f() && g(), buf));
 }
