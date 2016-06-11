@@ -9,6 +9,7 @@
   #include "ast.h"
   #include "symbol_t.h"
   #include "semantics.h"
+  #include "code_gen.h"
 
   int col = 1, comment_start_col, comment_start_line;
   int flag_yylex = 0;
@@ -233,6 +234,11 @@ int main(int argc, char **argv) {
     if (!were_there_errors) {
       init_st();
       an_tree(ast, st, NULL, 1, 0);
+
+      // todo maybe only call code_gen if there were no syntactic errors
+      if (!semantic_errors) {
+        code_gen(ast, NULL);
+      }
     }
   }
 

@@ -26,7 +26,7 @@ sym_t *create_node(table_type_t node_type, char *name, type_t type) {
   node->params = (sym_t**) malloc(1000 * sizeof(sym_t*));
 
   int i;
-  for (i = 0; i < 100; i++) {
+  for (i = 0; i < 1000; i++) {
     node->params[i] = NULL;
   }
 
@@ -63,31 +63,32 @@ sym_t* create_variable_node(node_t *cur_node) {
   return new_node;
 }
 
-int ipow(int base, int exp)
-{
-    int result = 1;
-    while (exp)
-    {
-        if (exp & 1)
-            result *= base;
-        exp >>= 1;
-        base *= base;
+int ipow(int base, int exp) {
+  int result = 1;
+
+  while (exp) {
+    if (exp & 1) {
+      result *= base;
     }
 
-    return result;
+    exp >>= 1;
+    base *= base;
+  }
+
+  return result;
 }
 
-int octal_decimal(int n) /* Function to convert octal to decimal */
-{
-    int decimal=0, i=0, rem;
-    while (n!=0)
-    {
-        rem = n%10;
-        n/=10;
-        decimal += rem*ipow(8,i);
-        ++i;
-    }
-    return decimal;
+int octal_decimal(int n) {
+  int decimal=0, i=0, rem;
+
+  while (n != 0) {
+    rem = n % 10;
+    n /= 10;
+    decimal += rem * ipow(8, i);
+    ++i;
+  }
+
+  return decimal;
 }
 
 sym_t* create_array_node(node_t *cur_node) {
@@ -227,6 +228,7 @@ int st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *dec
       while (cur_st_node != NULL) {
         if (cur_st_node->id != NULL && new_node->id != NULL) {
           if (!strcmp(cur_st_node->id, new_node->id)) {
+            semantic_errors = 1;
             printf("Line %d, col %d: Symbol %s already defined\n", param_declaration->loc.first_line, param_declaration->loc.first_column, cur_st_node->id);
             should_not_insert = 1;
             break;
@@ -251,6 +253,7 @@ int st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *dec
     }
 
     if (new_node->type == TYPE_VOID && new_node->n_pointers == 0 && (new_node->id != NULL || param_list->n_childs > 1)) {
+      semantic_errors = 1;
       printf("Line %d, col %d: Invalid use of void type in declaration\n", param_declaration->childs[0]->loc.first_line, param_declaration->childs[0]->loc.first_column);
       should_not_insert = 1;
       error_given = 1;
@@ -266,6 +269,7 @@ int st_add_definition(sym_t *st, sym_t *table_node, node_t *cur_node, sym_t *dec
   if (!error_given) {
     if (arg_mismatch || declaration_node->n_params != param_list->n_childs) {
       error_given = 1;
+      semantic_errors = 1;
       printf("Line %d, col %d: Conflicting types (got ", cur_node->loc.first_line, cur_node->loc.first_column + table_node->n_pointers);
 
       printf("%s", type_str[table_node->type]);

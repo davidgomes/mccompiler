@@ -12,6 +12,9 @@ mccompiler.output
 mccompiler.tab.c
 mccompiler.tab.h
 symbol_t
-mccompiler.dSYM/
+*.dSYM/
 semantics
 tests/test
+code_gen
+temp.ll
+tests4/hello
